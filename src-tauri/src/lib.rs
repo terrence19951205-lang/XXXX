@@ -32,6 +32,7 @@ mod process;
 mod proxy;
 mod publisher;
 mod recorder;
+mod helmet_window;
 mod repo;
 mod runtime;
 mod secret;
@@ -919,6 +920,9 @@ pub fn run() {
             // 运行期只重定位 + 显隐，绝不建窗——快捷键触发必须即时弹出，见 recorder.rs）
             recorder::init(app.handle());
 
+            // Helmet 座舱壳 POC-1：旁路全屏透明窗（隐藏常驻，不替换仪表盘）
+            helmet_window::init(app.handle());
+
             // WebView2 内存级别联动（P0，webview_mem.rs）：窗口隐藏时把常驻 renderer
             // 的内存目标级别设为 Low（弃缓存换页、脚本照常跑），显示前恢复 Normal。
             // 快路径接在各显隐函数里，这里起的是 300ms 轮询纠偏兜底线程
@@ -1156,6 +1160,12 @@ pub fn run() {
             recorder::recorder_pin_close,
             // 窗口自动识别：用户首次交互后停跟随
             recorder::recorder_hover_lock,
+            // Helmet 座舱壳 POC-1（helmet_window.rs）：旁路窗显隐 + 点击穿透
+            helmet_window::helmet_show,
+            helmet_window::helmet_hide,
+            helmet_window::helmet_toggle,
+            helmet_window::helmet_set_ignore_cursor_events,
+            helmet_window::helmet_cursor_local,
             commands::get_run_at_startup,
             commands::set_run_at_startup,
             commands::get_startup_hidden,

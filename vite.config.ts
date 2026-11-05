@@ -76,6 +76,7 @@ export default defineConfig({
       //
       // P1/P2（v0.7.0）：chrome.html / ball.html / notice.html
       // P2 续（2026-10-31）：pin.html / recorder.html / clipboard.html / chat.html
+// Helmet POC-1：helmet.html（旁路座舱壳，轻量入口）
       //   —— 这四个原先挂 index.html，哪怕只渲染一个 147 行的贴图组件，也要解析执行
       //   整个工作台模块图（main-*.js 498KB + 166KB CSS + 全套 store/组件表）。
       //
@@ -92,6 +93,7 @@ export default defineConfig({
         recorder: 'recorder.html',
         clipboard: 'clipboard.html',
         chat: 'chat.html',
+        helmet: 'helmet.html',
       },
       output: {
         codeSplitting: {

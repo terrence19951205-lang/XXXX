@@ -1,0 +1,112 @@
+{
+ "ok": true,
+ "summary": {
+  "V12-1 提示词入口与列表": true,
+  "V12-2 选用一条：内容进输入框、不代发": true,
+  "V12-3 切到第二条：整体替换、只留一个选中": true,
+  "V12-4 重启后选用还在（chip + 输入框回填）": true,
+  "V12-5 不扩到待办/侧栏；发送按钮仍按输入启用": true,
+  "V12-C 自测条目已清掉（库里不留痕）": true
+ },
+ "items": {
+  "V12-1 提示词入口与列表": {
+   "ok": true,
+   "chat_open": true,
+   "clicked": {
+    "ok": true,
+    "css": {
+     "x": 685.3073120117188,
+     "y": 446
+    },
+    "screen": [
+     685,
+     446
+    ],
+    "hit_before": "BUTTON.prompt-open"
+   },
+   "pop": true,
+   "items": 3,
+   "library": 3,
+   "badge": "3",
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v12_01_prompt_pop.png"
+  },
+  "V12-2 选用一条：内容进输入框、不代发": {
+   "ok": true,
+   "text": "把下面的内容压成三条要点，每条不超过 20 字：",
+   "chip": {
+    "id": 4,
+    "text": "【自测】摘要提炼 ×"
+   },
+   "ls": "4",
+   "msgs_before": 4,
+   "msgs_after": 4,
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v12_02_prompt_applied.png"
+  },
+  "V12-3 切到第二条：整体替换、只留一个选中": {
+   "ok": true,
+   "text": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间：",
+   "chip": {
+    "id": 5,
+    "text": "【自测】会议纪要 ×"
+   },
+   "ls": "5",
+   "old_text_gone": true
+  },
+  "V12-4 重启后选用还在（chip + 输入框回填）": {
+   "ok": true,
+   "old_pid": 46340,
+   "new_pid": 27756,
+   "killed": true,
+   "cdp": true,
+   "chat": true,
+   "chip": {
+    "id": 5,
+    "text": "【自测】会议纪要 ×"
+   },
+   "text": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间：",
+   "ls": "5",
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v12_03_after_restart.png"
+  },
+  "V12-5 不扩到待办/侧栏；发送按钮仍按输入启用": {
+   "ok": true,
+   "closed": true,
+   "deck": {
+    "deck": true,
+    "mode": "deck",
+    "panel": "todos"
+   },
+   "probe": {
+    "promptDomOutsideChat": 0,
+    "cabin": false,
+    "promptNodesInDeck": 0
+   },
+   "send_enabled": true,
+   "send_disabled_when_empty": true
+  },
+  "V12-C 自测条目已清掉（库里不留痕）": {
+   "ok": true,
+   "remaining": 0
+  }
+ },
+ "ts": "2026-11-09 17:06:23",
+ "pid": 27756,
+ "seeded": [
+  {
+   "id": 4,
+   "title": "【自测】摘要提炼",
+   "content": "把下面的内容压成三条要点，每条不超过 20 字："
+  },
+  {
+   "id": 5,
+   "title": "【自测】会议纪要",
+   "content": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间："
+  },
+  {
+   "id": 6,
+   "title": "【自测】书面润色",
+   "content": "把下面的句子改成书面公文体，去掉口语和感叹号："
+  }
+ ],
+ "build": "npx tauri build --debug --no-bundle --config .smoke/tauri.smoke.json",
+ "note": "提示词只读提示词百宝箱（snippets）；舱内只做选用/切换/取消，不增删改"
+}

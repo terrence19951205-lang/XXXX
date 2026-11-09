@@ -4,7 +4,7 @@
  * 复用 x-hub 对话数据层：chat_sessions / chat_messages / 模型配置，
  * 与主窗、独立对话窗共用一套会话，不绑 claw。
  */
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   PLATFORM_ENTRY_NAME,
   isPlatformModel,
@@ -13,11 +13,13 @@ import {
   type ChatMessage,
   type ChatModelConfig,
   type ChatSession,
+  type Snippet,
 } from '../../api/tauri'
 
 const emit = defineEmits<{ (e: 'close'): void; (e: 'toast', msg: string): void }>()
 
 const LS_SESSION = 'rr.hud.chatSession'
+const LS_PROMPT = 'rr.hud.chatPromptId'
 
 const sessions = ref<ChatSession[]>([])
 const activeId = ref<number | null>(null)
@@ -32,6 +34,96 @@ const msgsEl = ref<HTMLElement | null>(null)
 const busy = ref(false)
 /** 设置里落的「默认聊天模型」：新建会话优先用它 */
 const preferredModel = ref('')
+
+/* ---------------------------------------------------------------- 提示词
+ * 只读提示词百宝箱（snippets）：舱内选用 / 切换，不在这里新建、改名、删除。
+ * 选中的 id 落 localStorage，重开进程还在；重开时输入框为空则把内容回填，
+ * 「选用」= 把提示词放到输入框，发不发由人决定（不替人发消息）。
+ */
+const snippets = ref<Snippet[]>([])
+const promptId = ref<number | null>(null)
+const promptOpen = ref(false)
+const promptErr = ref('')
+const promptBar = ref<HTMLElement | null>(null)
+
+const activePrompt = computed(
+  () => snippets.value.find((s) => s.id === promptId.value) ?? null,
+)
+
+function persistPrompt(id: number | null) {
+  try {
+    if (id == null) localStorage.removeItem(LS_PROMPT)
+    else localStorage.setItem(LS_PROMPT, String(id))
+  } catch {
+    /* ignore */
+  }
+}
+
+function promptPreview(text: string): string {
+  const flat = (text || '').replace(/\s+/g, ' ').trim()
+  return flat.length > 46 ? flat.slice(0, 46) + '…' : flat || '（空内容）'
+}
+
+async function refreshSnippets() {
+  if (!isTauri()) return
+  try {
+    snippets.value = await tauriApi.listSnippets()
+  } catch (e) {
+    promptErr.value = String(e)
+    return
+  }
+  // 库里那条已被删掉：清掉悬挂的选中态
+  if (promptId.value != null && !snippets.value.some((s) => s.id === promptId.value)) {
+    promptId.value = null
+    persistPrompt(null)
+  }
+}
+
+async function loadPrompts() {
+  await refreshSnippets()
+  if (!isTauri()) return
+  const saved = Number(localStorage.getItem(LS_PROMPT) || 0)
+  const hit = snippets.value.find((s) => s.id === saved)
+  if (!hit) {
+    promptId.value = null
+    persistPrompt(null)
+    return
+  }
+  promptId.value = hit.id
+  if (!input.value.trim()) input.value = hit.content
+}
+
+/** 每次开面板都重拉一次：主窗刚加的提示词不用重开对话就能看见 */
+function togglePrompts() {
+  promptOpen.value = !promptOpen.value
+  if (promptOpen.value) void refreshSnippets()
+}
+
+function applyPrompt(s: Snippet) {
+  const prev = activePrompt.value
+  const cur = input.value
+  // 上一版提示词没被手改过 → 直接换掉；否则保留手写正文，把提示词放到前面
+  const untouched = prev ? cur.trim() === prev.content.trim() : !cur.trim()
+  const base = untouched ? '' : cur
+  input.value = base ? `${s.content}\n${base}` : s.content
+  promptId.value = s.id
+  persistPrompt(s.id)
+  promptOpen.value = false
+  void nextTick(() => document.querySelector<HTMLTextAreaElement>('.composer textarea')?.focus())
+}
+
+function clearPrompt() {
+  const prev = activePrompt.value
+  if (prev && input.value.trim() === prev.content.trim()) input.value = ''
+  promptId.value = null
+  persistPrompt(null)
+}
+
+function onDocPointer(e: MouseEvent) {
+  if (!promptOpen.value) return
+  if (promptBar.value && e.target instanceof Node && promptBar.value.contains(e.target)) return
+  promptOpen.value = false
+}
 
 const modelOptions = computed(() => {
   const opts: { value: string; label: string }[] = []
@@ -207,8 +299,13 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-onMounted(load)
-defineExpose({ load })
+onMounted(() => {
+  document.addEventListener('click', onDocPointer, true)
+  void load()
+  void loadPrompts()
+})
+onBeforeUnmount(() => document.removeEventListener('click', onDocPointer, true))
+defineExpose({ load, loadPrompts })
 </script>
 
 <template>
@@ -259,6 +356,52 @@ defineExpose({ load })
     </div>
 
     <div v-if="error" class="chat-err">{{ error }}</div>
+
+    <div ref="promptBar" class="prompt-bar">
+      <button
+        type="button"
+        class="prompt-open"
+        :class="{ 'is-on': promptOpen }"
+        data-prompt-open
+        :title="snippets.length ? '从提示词百宝箱选用' : '提示词库为空'"
+        :aria-expanded="promptOpen"
+        @click="togglePrompts"
+      >
+        提示词<em v-if="snippets.length">{{ snippets.length }}</em>
+      </button>
+      <span
+        v-if="activePrompt"
+        class="prompt-chip"
+        data-prompt-chip
+        :data-prompt-id="activePrompt.id"
+        :title="activePrompt.content"
+      >
+        {{ activePrompt.title || '未命名提示词' }}
+        <button type="button" class="pc-x" data-prompt-clear title="取消选用（不改提示词库）" @click.stop="clearPrompt">×</button>
+      </span>
+      <div v-if="promptOpen" class="prompt-pop" data-prompt-pop>
+        <div v-if="!snippets.length" class="prompt-empty">
+          提示词库为空。在主窗「提示词百宝箱」里加条目后，这里就能直接选用。
+        </div>
+        <button
+          v-for="s in snippets"
+          :key="s.id"
+          type="button"
+          class="prompt-item"
+          :class="{ 'is-on': s.id === promptId }"
+          :data-prompt-item="s.id"
+          :title="s.content"
+          @click="applyPrompt(s)"
+        >
+          <span class="pi-t">
+            {{ s.title || '未命名提示词' }}
+            <i v-if="s.id === promptId">✓ 已选用</i>
+          </span>
+          <span class="pi-p">{{ promptPreview(s.content) }}</span>
+        </button>
+      </div>
+    </div>
+    <div v-if="promptErr" class="chat-err">{{ promptErr }}</div>
 
     <div class="composer">
       <textarea

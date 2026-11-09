@@ -1,0 +1,122 @@
+{
+ "ok": true,
+ "summary": {
+  "A1 收起→▾ 触发一次、grain/chroma 跑满 150ms": true,
+  "A2 峰值帧的光效贡献（深色底，量 .fx 自身）": true,
+  "A3 展开→收起不播": true,
+  "A4 展开态中央点穿（WindowFromPoint 根祖先 + WS_EX_TRANSPARENT）": true,
+  "A5 reduced-motion 跳过": true
+ },
+ "items": {
+  "A1 收起→▾ 触发一次、grain/chroma 跑满 150ms": {
+   "ok": true,
+   "events": 1,
+   "duration_ms": 176,
+   "grain": [
+    "gFlash/0.15s"
+   ],
+   "chroma": [
+    "cFlash/0.15s"
+   ],
+   "samples": 294,
+   "samples_in_ceremony": 20
+  },
+  "A2 峰值帧的光效贡献（深色底，量 .fx 自身）": {
+   "ok": true,
+   "delta_max": 10,
+   "delta_mean": 1.794,
+   "px_gt3": 98433,
+   "computed": "0.65|0.04|cFlash|gFlash",
+   "ref": "用户录屏同帧全屏均值 3.42（本项 3.44）"
+  },
+  "A3 展开→收起不播": {
+   "ok": true,
+   "mode_before": "deck",
+   "mode_after": "idle",
+   "events": 3
+  },
+  "A4 展开态中央点穿（WindowFromPoint 根祖先 + WS_EX_TRANSPARENT）": {
+   "ok": true,
+   "mode": "deck",
+   "ignoring": true,
+   "exstyle_transparent": true,
+   "center_is_hud": false,
+   "control_panel_is_hud": true
+  },
+  "A5 reduced-motion 跳过": {
+   "ok": true,
+   "media_matched": true,
+   "events": 0
+  }
+ },
+ "intensity_peak": {
+  "i": 9,
+  "t": 640,
+  "mask_mean": 0.0,
+  "mask_p99": 0.0,
+  "mask_hit_frac": 0.0,
+  "c_mean": 0.0,
+  "c_p99": 0.0,
+  "c_max": 0,
+  "c_hit": 0.0
+ },
+ "artifacts": {
+  "dir": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fix",
+  "frames": [
+   "f00_0000.png",
+   "f02_0155.png",
+   "f04_0281.png",
+   "f06_0432.png",
+   "f08_0576.png",
+   "f09_0639.png",
+   "f10_0710.png",
+   "f12_0834.png",
+   "f14_0972.png",
+   "f16_1110.png",
+   "f18_1233.png",
+   "f20_1367.png",
+   "f22_1502.png",
+   "f24_1642.png",
+   "f26_1770.png",
+   "f28_1898.png",
+   "f30_2060.png",
+   "f32_2191.png",
+   "f34_2372.png",
+   "f36_2504.png",
+   "f38_2638.png",
+   "f40_2769.png",
+   "f42_2903.png",
+   "f44_3041.png",
+   "f46_3172.png",
+   "f48_3301.png",
+   "f50_3436.png",
+   "f52_3569.png",
+   "f54_3704.png",
+   "f56_3837.png",
+   "f58_3994.png",
+   "f60_4136.png",
+   "f62_4271.png",
+   "f64_4412.png",
+   "f66_4575.png",
+   "f68_4751.png",
+   "f70_4881.png",
+   "f72_5015.png",
+   "f74_5157.png",
+   "f76_5310.png",
+   "f78_5490.png"
+  ],
+  "gif": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fix\\expand_fx.gif",
+  "peak_png": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fix_peak.png",
+  "steady_png": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fix_steady.png"
+ },
+ "pid": 42428,
+ "ts": "2026-11-09 18:11:23",
+ "spec": {
+  "trigger": "HUD 收起 → 点岛右侧 ▾（仅关→开）",
+  "duration_ms": 150,
+  "layers": "veil + grain + chroma + edge",
+  "pointer_events": "none",
+  "reduced_motion": "skip"
+ },
+ "note": "掩码 = 收起态与展开态都不变的像素（纯桌面），排除 HUD 布局与面板变化"
+}

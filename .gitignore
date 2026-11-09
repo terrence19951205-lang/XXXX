@@ -88,3 +88,4 @@ browse/
 .smoke/*.ps1
 # 提交凭据是跑批产物，不是证据本身
 .smoke/step_a_commit.json
+!.smoke/fx_ab.html

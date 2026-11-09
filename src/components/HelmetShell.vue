@@ -124,28 +124,72 @@ const deckOpen = computed(() => mode.value === 'deck')
 /* ------------------------------------------------------------------ */
 
 const FLASH_MS = 150
-const fxEl = ref<HTMLElement | null>(null)
 const fxCeremony = ref(0)
+/* 收起瞬间：源实现保留 .fx 150ms 播 cOut（四角先亮后收），再整体隐去 */
+const fxCollapsing = ref(false)
+/* 这两个必须走 Vue 绑定：class 属性由 :class 托管，classList.add 会被下一次 patch 抹掉
+   （曾因此「展开了却看不到闪」——不是数值问题，是类被重渲染清掉） */
+const fxCeremonyOn = ref(false)
+const fxFlashoutOn = ref(false)
 let fxTimer: number | null = null
+let fxOutTimer: number | null = null
+
+const reducedFx = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function playExpandCeremony() {
-  const el = fxEl.value
-  if (!el) return
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  if (fxOutTimer != null) {
+    window.clearTimeout(fxOutTimer)
+    fxOutTimer = null
+  }
+  fxCollapsing.value = false
+  fxFlashoutOn.value = false
+  if (reducedFx()) return
   if (fxTimer != null) window.clearTimeout(fxTimer)
-  el.classList.remove('is-ceremony', 'is-ceremony-hold')
-  void el.offsetWidth // 强制重排：连续展开也能重播动画
-  el.classList.add('is-ceremony')
-  fxCeremony.value += 1
-  fxTimer = window.setTimeout(() => {
-    el.classList.remove('is-ceremony')
-    fxTimer = null
-  }, FLASH_MS + 20)
+  fxCeremonyOn.value = false
+  nextTick(() => {
+    fxCeremonyOn.value = true
+    fxCeremony.value += 1
+    fxTimer = window.setTimeout(() => {
+      fxCeremonyOn.value = false
+      fxTimer = null
+    }, FLASH_MS + 20)
+  })
 }
 
-watch(deckOpen, (open, was) => {
-  if (open && !was) playExpandCeremony()
-}, { flush: 'post' })
+/* 开→关：不重放 grain/chroma，只让取景框 cOut 收走（同源 .fx.is-flashout） */
+function playCollapseOut() {
+  if (fxTimer != null) {
+    window.clearTimeout(fxTimer)
+    fxTimer = null
+  }
+  fxCeremonyOn.value = false
+  if (reducedFx()) {
+    fxFlashoutOn.value = false
+    return
+  }
+  fxFlashoutOn.value = false
+  nextTick(() => {
+    fxFlashoutOn.value = true
+    fxCollapsing.value = true
+    if (fxOutTimer != null) window.clearTimeout(fxOutTimer)
+    fxOutTimer = window.setTimeout(() => {
+      fxFlashoutOn.value = false
+      fxCollapsing.value = false
+      fxOutTimer = null
+    }, FLASH_MS)
+  })
+}
+
+watch(
+  deckOpen,
+  (open, was) => {
+    if (open && !was) playExpandCeremony()
+    else if (!open && was) playCollapseOut()
+  },
+  { flush: 'pre' }
+)
 
 /* ------------------------------------------------------------------ */
 /* 窗口矩形                                                            */
@@ -1474,12 +1518,19 @@ defineExpose({ openPanel, setMode })
 
     <!-- 装饰（不吃事件）：淡 vignette + 轻扫描线常驻展开态；
          收起→展开那一下 .is-ceremony 全屏 grain+chroma 150ms；对话/收起态不铺满屏 -->
-    <div ref="fxEl" class="fx" :class="{ 'is-on': deckOpen }" aria-hidden="true">
+    <div
+      class="fx"
+      :class="{
+        'is-on': deckOpen || fxCollapsing,
+        'is-ceremony': fxCeremonyOn,
+        'is-flashout': fxFlashoutOn,
+      }"
+      aria-hidden="true"
+    >
       <div class="vig" />
       <div class="scan" />
       <div class="grain" />
       <div class="chroma" />
-      <div class="edge" />
       <div class="corners">
         <i class="tl" /><i class="tr" /><i class="bl" /><i class="br" />
       </div>

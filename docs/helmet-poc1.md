@@ -289,3 +289,76 @@ updater 冒烟闸门同一条：`identifier` 以 `-smoke` 结尾（`lib::is_smok
   `--no-bundle`）验证；正式包 identifier 不带 `-smoke`、行为不变，**未出安装器**。
 - 未验：多屏、非整数 DPI、任务栏避让下的命中精度与切换延迟。
 - 产品对外名统一 **shell-hub**；仓库路径 / 进程名 / `%APPDATA%\x-hub` / 冒烟 identifier 不动。
+
+## v13 展开光效改为源码移植（缺口 1 收口）
+
+**结论先写**：v11/v12 那套光效数值是我自己造的（veil 压暗层、grain 0.14、chroma 0.95、
+`z-index:70`），不是参考稿的；现全部撤掉，改为从
+`reality-raid-hud-v08-ascii-explore-v4.html` 的 `.fx` 家族逐条搬值。
+
+### 移植的原始数值（不再自行发明）
+
+| 项 | 源码值 |
+| --- | --- |
+| `.fx` | `opacity/visibility` 过渡 `var(--t-flash)=150ms var(--ease)` |
+| `.scan` | `repeating-linear-gradient` 3px / `rgba(0,229,255,.01)`，`screen`，`opacity:.4` |
+| `.vig` | `inset 0 0 110px rgba(0,0,0,.28)`；展开态 `inset 0 0 90px rgba(0,0,0,.35)` + 1px 青边 `.06` |
+| `.grain` | `feTurbulence fractalNoise / .9 / 3 / stitchTiles`，`160px`，`overlay` |
+| `.chroma` | `90deg rgba(255,46,151,.04) → transparent 30% → transparent 70% → rgba(0,229,255,.04)`，`screen` |
+| `gFlash` | `0 → .04@40% → 0` |
+| `cFlash` | `0 → .65@40% → 0` |
+| `.corners` | `inset 18px`（展开 14px）/ `28px`（展开 32px）/ 2px 边 / `.72`（展开 `.82`） |
+| `cIn` / `cOut` | `0→1@50%→.7` / `.7→1@40%→0` |
+| 层序 | `.fx` 在 `.hud` **之下**（源码 z 12 / 20）；本壳对应 30 / 40，只染桌面与穿透区，不压面板 |
+
+### 真正的病根（不是数值）
+
+- **`classList.add('is-ceremony')` 会被 Vue 的 `:class` 在下一次 patch 覆盖掉**，
+  仪式类只活了一个渲染周期，闪光根本没机会跑满 150ms。改由 `fxCeremonyOn` /
+  `fxFlashoutOn` 两个 `ref` 驱动 `:class`，`nextTick` 后再置真，150ms 后置假。
+- 收起按源码走 `cOut`：`.fx` 多留 150ms（`is-flashout`），取景框先亮后收，再整层隐去；
+  开→关不重放 grain/chroma。
+- **更正 v11 的说法**：当时判定「透明 WebView 里 `mix-blend-mode` 没有底可混所以不可见」，
+  这个结论是错的。透明底上 `screen/overlay` 的合成结果就是源色本身，可见；
+  当时真正的原因是上面的类被抹掉 + 数值是自造的。
+
+### 验收（`.smoke/verify_expand_fx.py`，5/5）
+
+`.smoke/expand_fx_fixcheck.json`：
+
+- **A1** 收起→▾ 只触发一次；页面内 8ms 自采样抓到 20 帧处于仪式态，
+  `grain=gFlash/0.15s`、`chroma=cFlash/0.15s`，整段时长 176ms，全程 `pointer-events:none`。
+- **A2** 峰值帧光效贡献：`delta_max 10`、`delta_mean 1.79`、`px_gt3 98433`，
+  计算态 `chroma .65 / grain .04 / cFlash + gFlash`（`.smoke/fx_layer.json`，
+  另存 `fx_layer/{base,peak,diff_x24}.png`）。
+  ｜旧脚本的「均值≥12」是我按自造版本定的阈值，已作废；真值量法见下。
+- **A3** 展开→收起不再触发仪式。
+- **A4** 展开态把光标移到中央后 `ignoring=true`、窗口带 `WS_EX_TRANSPARENT`、
+  中央像素的根祖先不是 HUD、左侧导航栏仍是 HUD（`WindowFromPoint` + `GetAncestor`，
+  与系统投递点击同一套规则）。
+- **A5** `--force-prefers-reduced-motion` 启动，`matchMedia` 真为 true，仪式 0 次。
+
+### 测量方法上的三处修正（原脚本测的不是这件事）
+
+1. **旧 A1 等 1 秒后才读 computed style**，那时类早被摘掉，必然读到 `none`——
+   不是「动画没跑」，是取样时机错。
+2. **屏幕像素法在亮背景下测不出**：`screen` 混色增量 ≈ `s·(1-b)`，
+   底几乎白（实测 b≈.92）时只有 ~0.5/255。改为在页面内临时铺 `#02040a`
+   （同源码 `--void`，层序在 `.fx` 之下）再截屏量差，量的是这一闪本身；
+   测完立即移除，不改应用状态。
+3. **CDP `Emulation.setEmulatedMedia` 在 WebView2 上返回成功但 `matchMedia` 不变**，
+   A5 改用浏览器启动参数，并以 `matchMedia===true` 作为判定前提（否则这项不算通过）。
+
+### 与源码的像素等价性（`.smoke/fx_ab.html`）
+
+把「源码原样 CSS」与「移植后的 helmet.css 块」放进同一页、同一深色底、
+同样把 150ms 动画钉在 40%（`-60ms` + `paused`），headless Edge 截图逐像素比对：
+**99.94% 像素一致（排除左上角标签），最大差 2/255**（混色取整）。
+即移植块与参考稿在峰值帧上等价，不是"我认为等价"。
+
+### 遗留与边界
+
+- 源值本身很轻：深色背景上全屏均值抬升约 1.8–3.4/255（与用户录屏同帧 3.42 同量级）；
+  **浅色/白底应用之上几乎看不见**——这是源码的设计强度，不是实现缺陷。
+  若要更明显，属于产品决定（需要主人点头），不能由我改数。
+- 仍只在单屏 2560×1528 @150% 上验；多屏、分数 DPI、任务栏避让未验。

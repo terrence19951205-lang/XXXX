@@ -1538,25 +1538,37 @@ select:focus {
 }
 
 /* 装饰层（不吃事件）
-   v11：第一人称 HUD 抛光 + 展开仪式光效（照抄方向稿 v1 / v08 fx.is-ceremony）
-   - .vig 淡 vignette / .scan 轻扫描线：展开态常驻，克制
-   - .grain + .chroma：只在 HUD「收起 → 展开」那一下闪 150ms
-   - 整层 pointer-events:none，永不挡中央 PASSTHROUGH 点击 */
+   —— 逐条移植，不自己发明 ——
+   源：C:\Users\wcy\Downloads\reality-raid-hud-v08-ascii-explore-v4.html 的 .fx 家族
+     .fx      opacity/visibility 走 var(--t-flash)=150ms var(--ease)
+     .scan    repeating-linear-gradient 3px/rgba(0,229,255,.01)，screen，opacity .4
+     .vig     box-shadow inset 0 0 110px rgba(0,0,0,.28)
+     .grain   feTurbulence fractalNoise baseFrequency .9 / numOctaves 3 / stitchTiles，160px，overlay
+     .chroma  90deg rgba(255,46,151,.04) → transparent 30% → transparent 70% → rgba(0,229,255,.04)，screen
+     gFlash   0 → .04@40% → 0
+     cFlash   0 → .65@40% → 0
+     corners  inset 18px（展开态 14px）/ 28px（展开 32px）/ 2px 边 / .72（展开 .82）
+     cIn      0 → 1@50% → .7；cOut .7 → 1@40% → 0
+   z-index 压在本壳 .hud(40) 之下：闪的是桌面与穿透区，不盖面板（与源同层序）。 */
 .fx {
   position: absolute;
   inset: 0;
   z-index: 30;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 220ms var(--ease);
+  visibility: hidden;
+  transition:
+    opacity var(--t-flash) var(--ease),
+    visibility var(--t-flash);
 }
 .fx.is-on {
   opacity: 1;
+  visibility: visible;
 }
 .fx .vig {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 70% 60% at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.42) 100%);
+  box-shadow: inset 0 0 110px rgba(0, 0, 0, 0.28);
 }
 .fx .scan {
   position: absolute;
@@ -1565,49 +1577,32 @@ select:focus {
     0deg,
     transparent,
     transparent 3px,
-    rgba(0, 229, 255, 0.012) 3px,
-    rgba(0, 229, 255, 0.012) 4px
+    rgba(0, 229, 255, 0.01) 3px,
+    rgba(0, 229, 255, 0.01) 4px
   );
-  opacity: 0.35;
+  mix-blend-mode: screen;
+  opacity: 0.4;
 }
-/* —— 展开全屏仪式光效 —— */
 .fx .grain,
 .fx .chroma {
   position: absolute;
   inset: 0;
   opacity: 0;
-  pointer-events: none;
 }
-/* 透明窗里没有"底"可混：mix-blend-mode(screen/overlay) 等于不可见，
-   所以 grain/chroma/edge 全部走自带 alpha 的普通叠加（Windows 再把整窗
-   合成到桌面）——这是本机肉眼可见的唯一可靠做法。 */
 .fx .grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   background-size: 160px;
+  mix-blend-mode: overlay;
 }
 .fx .chroma {
   background: linear-gradient(
     90deg,
-    rgba(255, 46, 151, 0.1),
-    rgba(255, 46, 151, 0.02) 28%,
-    transparent 45%,
-    transparent 55%,
-    rgba(0, 229, 255, 0.02) 72%,
-    rgba(0, 229, 255, 0.1)
+    rgba(255, 46, 151, 0.04),
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 229, 255, 0.04)
   );
-}
-/* 屏幕内缘一圈青光：让"展开"有一记全屏呼吸，克制到只擦边 */
-.fx .edge {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  box-shadow: inset 0 0 90px rgba(0, 229, 255, 0.14);
-}
-/* 仪式期间提到最上层，才能是「全屏」一闪；仍 pointer-events:none */
-.fx.is-ceremony {
-  opacity: 1;
-  z-index: 70;
-  transition: none;
+  mix-blend-mode: screen;
 }
 .fx.is-ceremony .grain {
   animation: gFlash var(--t-flash) ease both;
@@ -1615,25 +1610,12 @@ select:focus {
 .fx.is-ceremony .chroma {
   animation: cFlash var(--t-flash) ease both;
 }
-.fx.is-ceremony .edge {
-  animation: eFlash var(--t-flash) ease both;
-}
-/* 截图/取证用峰值定格（?fx=ceremony 或脚本临时加类，不参与真实交互） */
-.fx.is-ceremony-hold .grain {
-  opacity: 0.05;
-}
-.fx.is-ceremony-hold .chroma {
-  opacity: 0.8;
-}
-.fx.is-ceremony-hold .edge {
-  opacity: 1;
-}
 @keyframes gFlash {
   0% {
     opacity: 0;
   }
   40% {
-    opacity: 0.05;
+    opacity: 0.04;
   }
   100% {
     opacity: 0;
@@ -1644,67 +1626,116 @@ select:focus {
     opacity: 0;
   }
   40% {
-    opacity: 0.8;
+    opacity: 0.65;
   }
   100% {
     opacity: 0;
   }
 }
-@keyframes eFlash {
+/* 展开态：vignette 加深一档 + 一圈极淡青边（源 body.hud-open .fx .vig）
+   这里用 .fx.is-on 等价表达：只有 HUD 展开时 .fx 才 is-on */
+.fx.is-on .vig {
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(0, 229, 255, 0.06);
+}
+
+/* —— 四角取景框 —— */
+.corners {
+  position: absolute;
+  inset: 18px;
+  pointer-events: none;
+}
+.fx .corners > i {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: rgba(0, 229, 255, 0.72);
+  border-style: solid;
+  border-width: 0;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.35));
+}
+.fx .corners .tl {
+  top: 0;
+  left: 0;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+.fx .corners .tr {
+  top: 0;
+  right: 0;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+.fx .corners .bl {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+.fx .corners .br {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+.fx.is-on .corners > i {
+  animation: cIn var(--t-flash) var(--ease) both;
+}
+.fx.is-flashout .corners > i {
+  animation: cOut var(--t-flash) var(--ease) both;
+}
+@keyframes cIn {
   0% {
     opacity: 0;
   }
-  35% {
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+@keyframes cOut {
+  0% {
+    opacity: 0.7;
+  }
+  40% {
     opacity: 1;
   }
   100% {
     opacity: 0;
   }
 }
+/* 展开态：取景框更贴边、更粗、更亮（源 body.hud-open .fx .corners） */
+.fx.is-on .corners {
+  inset: 14px;
+}
+.fx.is-on .corners > i {
+  width: 32px;
+  height: 32px;
+  border-color: rgba(0, 229, 255, 0.82);
+}
+/* 源 v4：左侧竖排入口是干净的直角边框，去掉左列两个 L 形取景角 */
+.fx .corners .tl,
+.fx .corners .bl {
+  display: none;
+}
 @media (prefers-reduced-motion: reduce) {
+  .fx.is-on .corners > i,
+  .fx.is-flashout .corners > i,
   .fx.is-ceremony .grain,
-  .fx.is-ceremony .chroma,
-  .fx.is-ceremony .edge {
+  .fx.is-ceremony .chroma {
     animation: none !important;
+  }
+  .fx.is-ceremony .grain,
+  .fx.is-ceremony .chroma {
     opacity: 0 !important;
   }
-}
-.corners {
-  position: absolute;
-  inset: 11px;
-}
-.corners i {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(0, 229, 255, 0.5);
-  border-style: solid;
-  border-width: 0;
-  opacity: 0.8;
-}
-.corners .tl {
-  top: 0;
-  left: 0;
-  border-top-width: 1px;
-  border-left-width: 1px;
-}
-.corners .tr {
-  top: 0;
-  right: 0;
-  border-top-width: 1px;
-  border-right-width: 1px;
-}
-.corners .bl {
-  bottom: 0;
-  left: 0;
-  border-bottom-width: 1px;
-  border-left-width: 1px;
-}
-.corners .br {
-  bottom: 0;
-  right: 0;
-  border-bottom-width: 1px;
-  border-right-width: 1px;
+  .fx.is-on .corners > i {
+    opacity: 0.65;
+  }
 }
 
 /* 状态角标（仅调试可读，不占可点区域） */

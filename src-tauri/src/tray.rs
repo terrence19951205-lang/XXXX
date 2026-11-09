@@ -107,6 +107,11 @@ pub fn popup_context_menu(app: &AppHandle) -> tauri::Result<()> {
 }
 
 pub fn show_window(app: &AppHandle) -> bool {
+    // 冒烟构建：原版主仪表盘不是主 UI，托盘「显示主窗口」/ 快捷键一律唤起 Helmet
+    if crate::is_smoke_build(app) {
+        log::info!("[smoke] 显示请求：烟雾模式改为唤起 Helmet（不弹原版主仪表盘）");
+        return crate::helmet_window::show(app).is_ok();
+    }
     match crate::main_window(app) {
         Some(window) => {
             // 先恢复内存级别再显示（webview_mem：Low 态 renderer 缓存已吐，首帧前回 Normal）
@@ -131,6 +136,11 @@ pub fn hide_window(app: &AppHandle) -> bool {
             let _ = window.hide();
             MAIN_WINDOW_VISIBLE.store(false, Ordering::SeqCst);
             crate::webview_mem::on_hidden(app, "main");
+            if crate::is_smoke_build(app) {
+                // 冒烟构建：只收起原版主仪表盘，Helmet 的显隐由 helmet_window 自己管，
+                // 这里绝不连带隐藏（烟雾包的主 UI 必须常驻可见）
+                log::info!("[smoke] 隐藏请求：主仪表盘保持隐藏（Helmet 不受影响）");
+            }
             crate::floating_ball::sync_with_main(app);
             true
         }
@@ -144,6 +154,12 @@ pub fn hide_window(app: &AppHandle) -> bool {
 /// 悬浮球双击主窗开关：主窗「开着」（自维护可见且未最小化）→ 隐藏；否则显示并聚焦。
 /// 与 toggle_window 的区别：被其他窗口盖住时也算「开着」，双击同样收起。
 pub fn toggle_main_window(app: &AppHandle) {
+    // 冒烟构建里悬浮球不存在；兜底也绝不把原版主仪表盘当入口弹出来
+    if crate::is_smoke_build(app) {
+        log::info!("[smoke] 悬浮球双击入口不存在：保持 Helmet");
+        let _ = crate::helmet_window::show(app);
+        return;
+    }
     let minimized = crate::main_window(app)
         .and_then(|w| w.is_minimized().ok())
         .unwrap_or(false);
@@ -162,6 +178,15 @@ pub fn toggle_main_window(app: &AppHandle) {
 /// - 窗口可见且已聚焦 → 隐藏
 /// - 窗口可见但被其他窗口盖住（未聚焦）→ 提升到前台，不隐藏
 pub fn toggle_window(app: &AppHandle) {
+    // 冒烟构建：快捷键 / 托盘左键只负责「唤起 Helmet」——不切显隐、不碰主仪表盘、
+    // 不召唤悬浮球；主 UI 常驻可见是烟雾包的验收前提
+    if crate::is_smoke_build(app) {
+        log::info!("[smoke] 快捷键/托盘切换：保持 Helmet 可见（不弹主仪表盘/悬浮球）");
+        if let Err(e) = crate::helmet_window::show(app) {
+            log::warn!("[smoke] 唤起 Helmet 失败: {e}");
+        }
+        return;
+    }
     if let Some(window) = crate::main_window(app) {
         if !MAIN_WINDOW_VISIBLE.load(Ordering::SeqCst) {
             log::info!("[快捷键] toggle_window: 显示窗口");

@@ -1,0 +1,511 @@
+{
+ "N0": {
+  "step": "CDP 连上 Helmet 页",
+  "ok": true,
+  "target": "x-hub Helmet",
+  "url": "http://tauri.localhost/helmet.html",
+  "initial": {
+   "mode": "deck",
+   "geo": "full",
+   "docked": false,
+   "notes": {
+    "list": true,
+    "editor": true,
+    "active": 8,
+    "count": 9
+   },
+   "listCol": true,
+   "editorCol": true,
+   "listRect": [
+    280,
+    875
+   ],
+   "editorRect": [
+    420,
+    875
+   ],
+   "rows": 9,
+   "firstRow": "v3验收-岛交互笔记",
+   "editorTitle": "v3验收-岛交互笔记",
+   "editorBodyLen": 30,
+   "editorMeta": "更新 2026-11-06 13:45 · id 8",
+   "listTitle": "待办 Ops · Todo",
+   "navs": [
+    {
+     "k": "todos",
+     "t": "待办"
+    },
+    {
+     "k": "notes",
+     "t": "笔记"
+    },
+    {
+     "k": "chat",
+     "t": "聊天 / AI"
+    },
+    {
+     "k": "clipboard",
+     "t": "剪贴板"
+    },
+    {
+     "k": "launch",
+     "t": "启动常用工具"
+    },
+    {
+     "k": "search",
+     "t": "搜索"
+    },
+    {
+     "k": "settings",
+     "t": "设置"
+    }
+   ]
+  }
+ },
+ "N2_state": {
+  "ok": true,
+  "step": "N2 补记：设置入口点开后的 panel/mode",
+  "panel": null,
+  "mode": "deck"
+ },
+ "N2": {
+  "step": "N2 侧栏可见 P0 入口（待办/笔记/聊天/剪贴板/启动常用/搜索；设置可进）",
+  "ok": true,
+  "nav_expected": {
+   "todos": "待办",
+   "notes": "笔记",
+   "chat": "聊天 / AI",
+   "clipboard": "剪贴板",
+   "launch": "启动常用工具",
+   "search": "搜索",
+   "settings": "设置"
+  },
+  "nav_found": {
+   "todos": "待办",
+   "notes": "笔记",
+   "chat": "聊天 / AI",
+   "clipboard": "剪贴板",
+   "launch": "启动常用工具",
+   "search": "搜索",
+   "settings": "设置"
+  },
+  "missing": [],
+  "settings_opens": true,
+  "settings_text": "设置 Settings ✕ 上下班 · 日衰口径灵动岛的百分比按这段区间衰减，到下班点为 0%。上班下班09:00–19:30 · 还剩 5h44m保存壳体产品shell-hub展开 / 收起岛右侧 ▾快捷唤出Ctrl+Shift+Space"
+ },
+ "N1": {
+  "step": "N1 笔记三栏可点：左→中列表→右编辑；新建/切换可用",
+  "after_nav_notes": {
+   "mode": "deck",
+   "geo": "full",
+   "docked": false,
+   "notes": {
+    "list": true,
+    "editor": true,
+    "active": 8,
+    "count": 9
+   },
+   "listCol": true,
+   "editorCol": true,
+   "listRect": [
+    280,
+    875
+   ],
+   "editorRect": [
+    420,
+    875
+   ],
+   "rows": 9,
+   "firstRow": "v3验收-岛交互笔记",
+   "editorTitle": "v3验收-岛交互笔记",
+   "editorBodyLen": 30,
+   "editorMeta": "更新 2026-11-06 13:45 · id 8",
+   "listTitle": "待办 Ops · Todo",
+   "navs": [
+    {
+     "k": "todos",
+     "t": "待办"
+    },
+    {
+     "k": "notes",
+     "t": "笔记"
+    },
+    {
+     "k": "chat",
+     "t": "聊天 / AI"
+    },
+    {
+     "k": "clipboard",
+     "t": "剪贴板"
+    },
+    {
+     "k": "launch",
+     "t": "启动常用工具"
+    },
+    {
+     "k": "search",
+     "t": "搜索"
+    },
+    {
+     "k": "settings",
+     "t": "设置"
+    }
+   ]
+  },
+  "list_opens": true,
+  "after_row_click": {
+   "mode": "deck",
+   "geo": "full",
+   "docked": false,
+   "notes": {
+    "list": true,
+    "editor": true,
+    "active": 8,
+    "count": 9
+   },
+   "listCol": true,
+   "editorCol": true,
+   "listRect": [
+    280,
+    875
+   ],
+   "editorRect": [
+    420,
+    875
+   ],
+   "rows": 9,
+   "firstRow": "v3验收-岛交互笔记",
+   "editorTitle": "v3验收-岛交互笔记",
+   "editorBodyLen": 30,
+   "editorMeta": "更新 2026-11-06 13:45 · id 8",
+   "listTitle": "待办 Ops · Todo",
+   "navs": [
+    {
+     "k": "todos",
+     "t": "待办"
+    },
+    {
+     "k": "notes",
+     "t": "笔记"
+    },
+    {
+     "k": "chat",
+     "t": "聊天 / AI"
+    },
+    {
+     "k": "clipboard",
+     "t": "剪贴板"
+    },
+    {
+     "k": "launch",
+     "t": "启动常用工具"
+    },
+    {
+     "k": "search",
+     "t": "搜索"
+    },
+    {
+     "k": "settings",
+     "t": "设置"
+    }
+   ]
+  },
+  "editor_opens": true,
+  "editor_shows_clicked_row": true,
+  "three_cols_visible": true,
+  "after_new": {
+   "mode": "deck",
+   "geo": "full",
+   "docked": false,
+   "notes": {
+    "list": true,
+    "editor": true,
+    "active": 12,
+    "count": 10
+   },
+   "listCol": true,
+   "editorCol": true,
+   "listRect": [
+    280,
+    875
+   ],
+   "editorRect": [
+    420,
+    875
+   ],
+   "rows": 10,
+   "firstRow": "未命名笔记",
+   "editorTitle": "未命名笔记",
+   "editorBodyLen": 0,
+   "editorMeta": "更新 2026-11-06 13:45 · id 12",
+   "listTitle": "待办 Ops · Todo",
+   "navs": [
+    {
+     "k": "todos",
+     "t": "待办"
+    },
+    {
+     "k": "notes",
+     "t": "笔记"
+    },
+    {
+     "k": "chat",
+     "t": "聊天 / AI"
+    },
+    {
+     "k": "clipboard",
+     "t": "剪贴板"
+    },
+    {
+     "k": "launch",
+     "t": "启动常用工具"
+    },
+    {
+     "k": "search",
+     "t": "搜索"
+    },
+    {
+     "k": "settings",
+     "t": "设置"
+    }
+   ]
+  },
+  "new_works": true,
+  "after_switch": {
+   "mode": "deck",
+   "geo": "full",
+   "docked": false,
+   "notes": {
+    "list": true,
+    "editor": true,
+    "active": 8,
+    "count": 10
+   },
+   "listCol": true,
+   "editorCol": true,
+   "listRect": [
+    280,
+    875
+   ],
+   "editorRect": [
+    420,
+    875
+   ],
+   "rows": 10,
+   "firstRow": "v3验收-岛交互笔记",
+   "editorTitle": "v3验收-岛交互笔记",
+   "editorBodyLen": 30,
+   "editorMeta": "更新 2026-11-06 13:45 · id 8",
+   "listTitle": "待办 Ops · Todo",
+   "navs": [
+    {
+     "k": "todos",
+     "t": "待办"
+    },
+    {
+     "k": "notes",
+     "t": "笔记"
+    },
+    {
+     "k": "chat",
+     "t": "聊天 / AI"
+    },
+    {
+     "k": "clipboard",
+     "t": "剪贴板"
+    },
+    {
+     "k": "launch",
+     "t": "启动常用工具"
+    },
+    {
+     "k": "search",
+     "t": "搜索"
+    },
+    {
+     "k": "settings",
+     "t": "设置"
+    }
+   ]
+  },
+  "switch_target": "v3验收-岛交互笔记",
+  "switch_works": true,
+  "after_close_list": {
+   "listCol": false,
+   "editorCol": false,
+   "notes": {
+    "list": false,
+    "editor": false,
+    "active": null,
+    "count": 10
+   },
+   "mode": "deck"
+  },
+  "after_reopen": {
+   "listCol": true,
+   "editorCol": false
+  },
+  "layered_collapse_works": true,
+  "delete_junk": {
+   "clicked": true,
+   "rows": 9,
+   "editorCol": false,
+   "purged_id": 12,
+   "purge_result": true
+  },
+  "final": {
+   "mode": "deck",
+   "geo": "full",
+   "listCol": true,
+   "editorCol": true,
+   "rows": 9,
+   "editorTitle": "v3验收-岛交互笔记"
+  },
+  "ok": true
+ },
+ "N3": {
+  "step": "N3 无「悬浮球」可见窗；无原版主仪表盘当主入口",
+  "ok": true,
+  "visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "user_visible_titles": [
+   "Helmet"
+  ],
+  "ball_windows": [],
+  "main_dashboard_visible": [],
+  "helper_windows": [
+   {
+    "title": "x-hub-helmet-smoke-siw",
+    "class": "x-hub-helmet-smoke-sic",
+    "size": [
+     6,
+     6
+    ],
+    "note": "single-instance 事件目标窗（WS_EX_TOOLWINDOW|LAYERED|TRANSPARENT），非用户可见 UI"
+   }
+  ],
+  "all_windows": [
+   {
+    "title": "Helmet",
+    "class": "Tauri Window",
+    "visible": true
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "GIF 录制",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "截图 / 录屏选区",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "通知",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "剪贴板历史",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "应用内浏览器",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "shell-hub (helmet smoke)",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "AI 对话",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "x-hub 导出",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "x-hub-helmet-smoke-siw",
+    "class": "x-hub-helmet-smoke-sic",
+    "visible": true
+   },
+   {
+    "title": "MSCTFIME UI",
+    "class": "MSCTFIME UI",
+    "visible": false
+   },
+   {
+    "title": "Default IME",
+    "class": "IME",
+    "visible": false
+   }
+  ]
+ },
+ "N4": {
+  "step": "N4 回报：PID / 主可见标题 / 有无悬浮球 / 笔记三栏是否可点 / 图标路径 / exe 大小 mtime",
+  "ok": true,
+  "smoke_pid": 46220,
+  "started": "2026-11-06 13:44:50",
+  "now": "2026-11-06 13:46:01",
+  "main_visible_title": [
+   "Helmet"
+  ],
+  "ball_window_exists": false,
+  "notes_three_cols_clickable": true,
+  "icon_paths": [
+   "src-tauri\\icons\\shell-hub-1024.png",
+   "src-tauri\\icons\\shell-hub-128.png",
+   "src-tauri\\icons\\shell-hub-256.png",
+   "src-tauri\\icons\\shell-hub-32.png",
+   "src-tauri\\icons\\shell-hub-48.png",
+   "src-tauri\\icons\\shell-hub-icon.icns",
+   "src-tauri\\icons\\shell-hub-icon.ico"
+  ],
+  "exe": "C:\\Users\\wcy\\projects\\XXXX\\src-tauri\\target\\debug\\x-hub.exe",
+  "exe_info": {
+   "bytes": 413410304,
+   "mtime": "2026-11-06 13:44:45",
+   "file_version": "0.9.7",
+   "product_version": "0.9.7",
+   "file_description": "shell-hub",
+   "product_name": "shell-hub"
+  },
+  "exe_icon_check": {
+   "extracted": "32x32",
+   "mean_abs_diff_vs_shell_hub_32": 0.112
+  },
+  "manifest_common_controls6": true,
+  "updater_disabled_log": true,
+  "pending_updates": [],
+  "auto_update_enabled": false,
+  "shots": [
+   "v7_settings.png",
+   "v7_notes_list.png",
+   "v7_notes_editor.png",
+   "v7_final_visible.png"
+  ]
+ }
+}

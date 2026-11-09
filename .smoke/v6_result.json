@@ -1,0 +1,217 @@
+{
+ "F1": {
+  "step": "F1 枚举可见窗：无标题「悬浮球」；无原版主仪表盘可见",
+  "ok": true,
+  "visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "user_visible_titles": [
+   "Helmet"
+  ],
+  "ball_windows": [],
+  "main_dashboard_visible": [],
+  "helper_windows": [
+   {
+    "title": "x-hub-helmet-smoke-siw",
+    "class": "x-hub-helmet-smoke-sic",
+    "size": [
+     6,
+     6
+    ],
+    "ex_layered": true,
+    "ex_transparent": true,
+    "note": "WebView2 4×4 分层透明辅助窗（IME/宿主窗口宿主），非用户可见 UI，v5 起一直存在"
+   }
+  ],
+  "all_windows": [
+   {
+    "title": "Helmet",
+    "class": "Tauri Window",
+    "visible": true
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "GIF 录制",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "截图 / 录屏选区",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "通知",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "剪贴板历史",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "应用内浏览器",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "shell-hub (helmet smoke)",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "AI 对话",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "x-hub 导出",
+    "class": "Tauri Window",
+    "visible": false
+   },
+   {
+    "title": "x-hub-helmet-smoke-siw",
+    "class": "x-hub-helmet-smoke-sic",
+    "visible": true
+   },
+   {
+    "title": "MSCTFIME UI",
+    "class": "MSCTFIME UI",
+    "visible": false
+   },
+   {
+    "title": "Default IME",
+    "class": "IME",
+    "visible": false
+   }
+  ]
+ },
+ "F2": {
+  "step": "F2 可见主 UI 为 Helmet / shell-hub (helmet smoke)；CDP 有 Helmet",
+  "ok": true,
+  "helmet_win": {
+   "hwnd": "0xad0e0c",
+   "title": "Helmet",
+   "class": "Tauri Window",
+   "rect": [
+    165,
+    0,
+    276,
+    3
+   ],
+   "size": [
+    111,
+    3
+   ],
+   "visible": true,
+   "ex_topmost": true,
+   "ex_transparent": false,
+   "ex_layered": false,
+   "ex_toolwindow": true,
+   "ex_appwindow": false,
+   "pid": 38176,
+   "style_visible": true
+  },
+  "visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "cdp_targets": [
+   "x-hub Helmet",
+   "x-hub 贴图",
+   "x-hub 贴图",
+   "x-hub 贴图",
+   "x-hub 截图 / 录屏",
+   "x-hub 截图 / 录屏",
+   "x-hub 浏览器",
+   "about:blank",
+   "about:blank",
+   "x-hub 对话",
+   "x-hub 导出",
+   "x-hub 通知",
+   "x-hub 剪贴板",
+   "x-hub 主窗"
+  ],
+  "cdp_helmet": [
+   "x-hub Helmet"
+  ]
+ },
+ "F3": {
+  "step": "F3 托盘/热键操作后仍不出现悬浮球当主入口",
+  "ok": true,
+  "hotkey": "Ctrl+Shift+Space",
+  "log_line": [
+   "[2026-11-06][10:52:56][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+   "[2026-11-06][10:52:56][app_lib::tray][INFO] [smoke] 快捷键/托盘切换：保持 Helmet 可见（不弹主仪表盘/悬浮球）"
+  ],
+  "visible_titles_after": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "ball_after": [],
+  "main_after": [],
+  "helmet_still_visible": true,
+  "code_guards": [
+   "floating_ball::init 烟雾下直接 return（不建 floating-ball 窗）",
+   "floating_ball::sync_with_main 烟雾下空操作",
+   "tray::show_window 烟雾下改调 helmet_window::show",
+   "tray::toggle_window 烟雾下只唤起 Helmet（不切显隐/不碰主窗）",
+   "tray::toggle_main_window 烟雾下只唤起 Helmet"
+  ]
+ },
+ "F4": {
+  "step": "F4 是否还有悬浮球标题窗 / 烟雾 PID / 主可见标题 / 图标 / exe / updater 未冲掉",
+  "ok": true,
+  "ball_window_exists": false,
+  "ball_created_log": false,
+  "smoke_pid": 38176,
+  "started": "2026-11-06 10:51:27",
+  "now": "2026-11-06 10:52:59",
+  "visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "exe": "C:\\Users\\wcy\\projects\\XXXX\\src-tauri\\target\\debug\\x-hub.exe",
+  "exe_info": {
+   "bytes": 413407744,
+   "mtime": "2026-11-06 10:41:15",
+   "file_version": "0.9.7",
+   "product_version": "0.9.7",
+   "file_description": "shell-hub",
+   "product_name": "shell-hub"
+  },
+  "icon_paths": [
+   "src-tauri\\icons\\shell-hub-1024.png",
+   "src-tauri\\icons\\shell-hub-128.png",
+   "src-tauri\\icons\\shell-hub-256.png",
+   "src-tauri\\icons\\shell-hub-32.png",
+   "src-tauri\\icons\\shell-hub-48.png",
+   "src-tauri\\icons\\shell-hub-icon.icns",
+   "src-tauri\\icons\\shell-hub-icon.ico"
+  ],
+  "exe_icon_check": {
+   "extracted": "32x32",
+   "mean_abs_diff_vs_shell_hub_32": 0.112
+  },
+  "manifest_common_controls6": true,
+  "updater_disabled_log": true,
+  "pending_updates": [],
+  "auto_update_enabled": false
+ }
+}

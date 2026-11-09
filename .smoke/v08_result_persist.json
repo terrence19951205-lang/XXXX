@@ -1,0 +1,65 @@
+[
+ {
+  "step": "P8-0-重启存活",
+  "ok": true,
+  "pid": 48212
+ },
+ {
+  "step": "P8-1-待办存活",
+  "ok": true,
+  "rows": [
+   "✕"
+  ],
+  "counts": "待办 OPS · TODO ✕ 添加 未完成 1 已完成 2 ✕",
+  "db": [
+   {
+    "id": 3,
+    "title": "头盔持久化待办",
+    "done": false
+   },
+   {
+    "id": 2,
+    "title": "头盔验收待办-改名",
+    "done": true
+   },
+   {
+    "id": 1,
+    "title": "头盔验收待办-改名",
+    "done": true
+   }
+  ]
+ },
+ {
+  "step": "P8-2-笔记可续写",
+  "ok": true,
+  "title": "头盔笔记-验收",
+  "body": "这是头盔面板里写下的正文。\n第二行。"
+ },
+ {
+  "step": "P8-3-剪贴板存活",
+  "ok": true,
+  "clips": [
+   "HELMET-CLIP-验收-7788"
+  ]
+ },
+ {
+  "step": "P8-4-速达存活",
+  "ok": true,
+  "items": [
+   "APP计算器头盔验收用",
+   "APP计算器头盔验收用"
+  ]
+ },
+ {
+  "step": "P8-5-日衰配置存活",
+  "ok": true,
+  "pct": "100%",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_persist.png"
+ },
+ {
+  "step": "P8-6-正式库未动",
+  "ok": true,
+  "appdata_mtime_before": 1793888327.7999256,
+  "appdata_mtime_after": 1793888327.7999256
+ }
+]

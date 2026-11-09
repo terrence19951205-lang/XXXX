@@ -1652,6 +1652,8 @@ export const tauriApi = {
     invoke<AutostartStatus>('get_run_at_startup'),
   setRunAtStartup: (enabled: boolean) => invoke<void>('set_run_at_startup', { enabled }),
   getStartupHidden: () => invoke<boolean>('get_startup_hidden'),
+  /** 冒烟构建（identifier 后缀 -smoke）：主仪表盘不作为主 UI，main.ts 不显示主窗 */
+  getSmokeMode: () => invoke<boolean>('get_smoke_mode'),
   /** 右下角通知窗：前端上报内容高度→后端锚定工作区右下角并显示 */
   noticeReady: () => invoke<void>('notice_ready'),
   noticeLayout: (height: number) => invoke<void>('notice_layout', { height }),

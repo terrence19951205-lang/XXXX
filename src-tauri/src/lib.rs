@@ -344,6 +344,15 @@ pub fn main_window(app: &tauri::AppHandle) -> Option<tauri::Window<tauri::Wry>> 
     app.get_window("main")
 }
 
+/// 冒烟/验证构建判定：identifier 以 `-smoke` 结尾（如 `x-hub-helmet-smoke`）。
+///
+/// 与 `updater::updater_disabled`（禁自动更新）同一口径，是「冒烟入口形态」的唯一开关：
+/// 烟雾包只呈现 Helmet 座舱壳——不创建悬浮球、不把原版主仪表盘当主 UI 弹出来。
+/// 正式包（identifier `x-hub`）走原有行为，本判定恒 false。
+pub fn is_smoke_build(app: &tauri::AppHandle) -> bool {
+    app.config().identifier.ends_with("-smoke")
+}
+
 /// 纯几何：两个物理像素矩形是否相交（窗口是否还落在某块屏幕上）。
 /// 边缘恰好相切视为不相交。
 fn physical_rects_intersect(
@@ -809,8 +818,24 @@ pub fn run() {
             }
 
             // 桌面悬浮球（ADR 0004）：须在 autostart-hidden 的 hide_window 之后初始化，
-            // 显隐联动（主窗隐藏 → 球显示）才能覆盖静默启动场景
-            floating_ball::init(app.handle());
+            // 显隐联动（主窗隐藏 → 球显示）才能覆盖静默启动场景。
+            //
+            // 冒烟构建（identifier 后缀 -smoke）：入口形态只有 Helmet 座舱壳，悬浮球
+            // 整窗不创建（连隐藏常驻也不建），托盘/热键/右键菜单自然没有它的任何入口。
+            if crate::is_smoke_build(app.handle()) {
+                log::info!("[smoke] 冒烟构建：跳过悬浮球创建（入口形态只留 Helmet）");
+            } else {
+                floating_ball::init(app.handle());
+            }
+
+            // 冒烟构建：原版主仪表盘不作为主 UI——启动即隐藏（同 autostart-hidden 口径），
+            // 屏上只留 Helmet + 必要隐藏常驻窗（chat / clipboard / notice ...）。
+            // 必须在 restore_window_state 之后、且经 tray::hide_window 更新自维护的
+            // MAIN_WINDOW_VISIBLE，否则快捷键会把隐藏中的主窗误判为可见。
+            if crate::is_smoke_build(app.handle()) {
+                log::info!("[smoke] 冒烟构建：隐藏原版主仪表盘窗（只留 Helmet）");
+                crate::tray::hide_window(app.handle());
+            }
 
             // 主窗口启动时隐藏（tauri.conf.json visible:false），等前端内容可绘制后再 show，
             // 避免 WebView2 冷启动期间出现空白/白屏等待窗口；这里先铺上主题底色，
@@ -957,14 +982,28 @@ pub fn run() {
             }
 
             // 全局快捷键事件：切换主窗口显示/隐藏
+            // 冒烟构建：主窗是隐藏常驻的第二入口，快捷键只唤起 Helmet，不碰它
             let app_handle = app.handle().clone();
             app.listen("global-shortcut-toggle", move |_| {
+                if crate::is_smoke_build(&app_handle) {
+                    if let Err(e) = crate::helmet_window::open_panel(&app_handle, "toggle") {
+                        log::warn!("[smoke] 快捷键唤起 Helmet 失败: {e}");
+                    }
+                    return;
+                }
                 crate::tray::toggle_window(&app_handle);
             });
 
             // 剪贴板快捷键事件：唤起/收起剪贴板历史浮层
+            // 冒烟构建：只开 HUD 内剪贴板面板，不弹独立浮层窗
             let app_handle = app.handle().clone();
             app.listen("clipboard-toggle", move |_| {
+                if crate::is_smoke_build(&app_handle) {
+                    if let Err(e) = crate::helmet_window::open_panel(&app_handle, "clipboard") {
+                        log::warn!("[smoke] 剪贴板快捷键唤起 Helmet 失败: {e}");
+                    }
+                    return;
+                }
                 crate::clipboard::toggle_overlay(&app_handle);
             });
 
@@ -994,21 +1033,42 @@ pub fn run() {
             });
 
             // 搜索快捷键事件：唤起主窗（对话框由主窗前端收到同名事件后打开）
+            // 冒烟构建：直接在 Helmet 躯干里聚焦底栏搜索，不唤主窗
             let app_handle = app.handle().clone();
             app.listen("search-shortcut", move |_| {
+                if crate::is_smoke_build(&app_handle) {
+                    if let Err(e) = crate::helmet_window::open_panel(&app_handle, "search") {
+                        log::warn!("[smoke] 搜索快捷键唤起 Helmet 失败: {e}");
+                    }
+                    return;
+                }
                 crate::tray::show_window(&app_handle);
             });
 
             // 速记快捷键事件：唤起主窗（切速记视图 + 聚焦新建由主窗前端收到同名事件后做）
+            // 冒烟构建：开 Helmet 笔记面板（中栏列表 + 右栏编辑仍是三栏里的两层）
             let app_handle = app.handle().clone();
             app.listen("notes-shortcut", move |_| {
+                if crate::is_smoke_build(&app_handle) {
+                    if let Err(e) = crate::helmet_window::open_panel(&app_handle, "notes") {
+                        log::warn!("[smoke] 速记快捷键唤起 Helmet 失败: {e}");
+                    }
+                    return;
+                }
                 crate::tray::show_window(&app_handle);
             });
 
             // AI 对话快捷键事件：抽屉形态先唤起主窗（面板在主窗里）；
             // 独立窗口形态不弹主窗，由主窗前端收到事件后直接唤起对话小窗
+            // 冒烟构建：只开 Helmet 岛下的对话舱，不走独立 chat_window
             let app_handle = app.handle().clone();
             app.listen("chat-shortcut", move |_| {
+                if crate::is_smoke_build(&app_handle) {
+                    if let Err(e) = crate::helmet_window::open_panel(&app_handle, "chat") {
+                        log::warn!("[smoke] 聊天快捷键唤起 Helmet 失败: {e}");
+                    }
+                    return;
+                }
                 if !crate::chat_window::mode_enabled() {
                     crate::tray::show_window(&app_handle);
                 }
@@ -1023,7 +1083,7 @@ pub fn run() {
                     loop {
                         {
                             let cfg = crate::config::load();
-                            if cfg.auto_update_enabled {
+                            if cfg.auto_update_enabled && !updater::updater_disabled(&handle) {
                                 let _ = updater::check_for_update(handle.clone(), None).await;
                             }
                         }
@@ -1166,9 +1226,11 @@ pub fn run() {
             helmet_window::helmet_toggle,
             helmet_window::helmet_set_ignore_cursor_events,
             helmet_window::helmet_cursor_local,
+            helmet_window::helmet_open_panel,
             commands::get_run_at_startup,
             commands::set_run_at_startup,
             commands::get_startup_hidden,
+            commands::get_smoke_mode,
             notify::notice_ready,
             notify::notice_layout,
             notify::notice_dismiss_window,

@@ -1,0 +1,181 @@
+{
+ "pid": 41716,
+ "title": "Helmet",
+ "items": {
+  "A1_transparent_passthrough": {
+   "css": {
+    "x": 1647,
+    "y": 509.5,
+    "tag": "DIV"
+   },
+   "screen": [
+    1647.0,
+    509.5
+   ],
+   "window_rect": [
+    0,
+    0,
+    1707,
+    1019
+   ],
+   "ignoring": true,
+   "window_from_point": {
+    "root_title": "V10-Backdrop"
+   },
+   "backdrop_hits_before": 0,
+   "backdrop_hits_after": 1,
+   "fg_after_click": {
+    "hwnd": "0xf41048",
+    "title": "V10-Backdrop"
+   },
+   "passthrough_ok": true,
+   "panel_unchanged": "notes"
+  },
+  "A1_hit_control_clickable": {
+   "target": "[data-nav=\"launch\"]",
+   "screen": [
+    40.0,
+    290.3333435058594
+   ],
+   "window_rect": [
+    0,
+    0,
+    1707,
+    1019
+   ],
+   "ignoring_before_click": false,
+   "panel_before": "notes",
+   "panel_after": "launch",
+   "mode_after": "deck",
+   "fg_after": {
+    "hwnd": "0x27c0efc",
+    "title": "Helmet"
+   },
+   "backdrop_hits_delta": 0,
+   "ok": true
+  },
+  "A1_screenshot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_shell_passthrough.png",
+  "A5_esc_retreat": {
+   "mode": "idle",
+   "geo": "lip",
+   "docked": true,
+   "window_visible": true,
+   "window_rect": [
+    640,
+    0,
+    1068,
+    10
+   ],
+   "window_height_px": 10,
+   "helmet_alive": true,
+   "ok": true
+  },
+  "A2_collapsed_only_lip": {
+   "docked": true,
+   "geo": "lip",
+   "hud_deck_open": false,
+   "chat_open": false,
+   "window_rect": [
+    640,
+    0,
+    1068,
+    10
+   ],
+   "window_height": 10,
+   "hot_zone_hit": {
+    "root_title": "Helmet"
+   },
+   "ok": true
+  },
+  "A2_screenshot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_shell_lip.png",
+  "A2_reveal_hotzone": {
+   "docked_after_hover": false,
+   "geo": "band",
+   "window_height": 64,
+   "island_w": 268,
+   "ok": true
+  },
+  "A3_margin_not_stealing": {
+   "point": [
+    714.0,
+    32.0
+   ],
+   "ignoring": true,
+   "hit": {
+    "root_title": "资金计划管理 - Google Chrome"
+   },
+   "ok": true
+  },
+  "A6_no_ball": {
+   "ball_windows": [],
+   "visible_titled_windows": [
+    {
+     "hwnd": "0x27c0efc",
+     "title": "Helmet",
+     "visible": true,
+     "rect": [
+      707,
+      0,
+      1001,
+      64
+     ]
+    },
+    {
+     "hwnd": "0x370454",
+     "title": "x-hub-helmet-smoke-siw",
+     "visible": true,
+     "rect": [
+      0,
+      0,
+      4,
+      4
+     ]
+    }
+   ],
+   "main_window": [
+    {
+     "hwnd": "0xb6070c",
+     "title": "shell-hub (helmet smoke)",
+     "visible": false,
+     "rect": [
+      307,
+      77,
+      1707,
+      977
+     ]
+    }
+   ],
+   "cbtargets": [
+    "x-hub Helmet",
+    "x-hub 贴图",
+    "x-hub 贴图",
+    "x-hub 贴图",
+    "x-hub 截图 / 录屏",
+    "x-hub 截图 / 录屏",
+    "x-hub 浏览器",
+    "about:blank",
+    "about:blank",
+    "x-hub 对话",
+    "x-hub 导出",
+    "x-hub 通知",
+    "x-hub 剪贴板",
+    "x-hub 主窗"
+   ],
+   "ok": true
+  }
+ },
+ "geometry": {
+  "window_rect": [
+   0,
+   0,
+   1707,
+   1019
+  ],
+  "viewport": [
+   1707,
+   1019
+  ],
+  "scale": 1.0,
+  "devicePixelRatio": 1.5
+ }
+}

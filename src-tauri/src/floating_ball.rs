@@ -608,6 +608,12 @@ fn window_scale(win: &tauri::WebviewWindow) -> f64 {
 /// 见 clipboard.rs::init_overlay_window 与 lib.rs 启动注释的同款坑）。
 /// 必须在 autostart-hidden 的 tray::hide_window 之后调用，显隐联动才正确。
 pub fn init(app: &AppHandle) {
+    // 冒烟构建（identifier 后缀 -smoke）：入口形态只有 Helmet 座舱壳，
+    // 悬浮球连隐藏常驻窗都不创建 —— 没有窗口就没有任何唤出路径
+    if crate::is_smoke_build(app) {
+        log::info!("[smoke] 冒烟构建：悬浮球 init 跳过（不创建 floating-ball 窗）");
+        return;
+    }
     #[cfg(target_os = "windows")]
     {
         use std::sync::atomic::Ordering;
@@ -721,6 +727,10 @@ fn place_initial(app: &AppHandle, win: &tauri::WebviewWindow) {
 /// 与主窗口显隐联动：主窗显示且未开「同显」→ 球隐藏；其余情况 → 球显示。
 /// 主窗的所有 show/hide 都走 tray::show_window / hide_window，统一钩到这里。
 pub fn sync_with_main(app: &AppHandle) {
+    // 冒烟构建没有悬浮球窗口：显隐联动一律空操作（主窗隐藏也不再召唤球）
+    if crate::is_smoke_build(app) {
+        return;
+    }
     #[cfg(target_os = "windows")]
     {
         let cfg = config::load();

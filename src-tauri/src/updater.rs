@@ -45,6 +45,17 @@ const SCHEMA_VERSION: u32 = 1;
 /// 待应用更新标记文件：`data_root()/updates/.pending.json`
 const PENDING_FILE: &str = ".pending.json";
 
+/// 冒烟/验证构建（identifier 以 `-smoke` 结尾，如 `x-hub-helmet-smoke`）完全停用更新。
+///
+/// 血泪教训：调试 exe 用的是**自己的**数据根（`target/debug/data/app.json`），
+/// 但那份配置默认开着自动检查。一次 4h 周期的静默检查就把官方 v0.9.8 下到本地，
+/// 下次启动 `apply_pending_update` 直接把调试 exe 自替换成官方发行版——满屏
+/// 视觉验证的对象瞬间变成另一个程序，还带官方名字与图标。
+/// 因此冒烟构建既不自动检查，也不应用待应用更新；正式构建（`x-hub`）行为不变。
+pub fn updater_disabled(app: &tauri::AppHandle) -> bool {
+    crate::is_smoke_build(app)
+}
+
 /// 下载互斥标志：同一时刻只允许一个 download_update 在跑。
 /// 并发触发会各自 File::create 截断同一临时文件互踩，必须拒绝而非排队
 static DOWNLOAD_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
@@ -746,6 +757,11 @@ fn read_pending() -> Option<PendingUpdate> {
 /// 另外每次进入先清理上次升级残留的 .old（此刻已无进程占用，可安全删）。
 /// 拉起走 `relaunch_app`（先释放 single-instance 互斥，见其注释）。
 pub fn apply_pending_update(app: &tauri::AppHandle, current_version: &str) {
+    // 冒烟构建：即便数据根里躺着待应用包（历史遗留），也绝不替换自身
+    if updater_disabled(app) {
+        log::info!("冒烟构建（identifier 后缀 -smoke）：跳过待应用更新，不替换 exe");
+        return;
+    }
     // 清理上次自替换残留的 .old：升级时运行中进程的镜像被改名成了
     // exe.old，Windows 不允许删除运行中进程的镜像文件，当时必删失败；
     // 等到下一次启动它已无进程占用，这里统一清掉，避免 exe 目录长期躺着 .old

@@ -133,6 +133,26 @@ pub fn toggle(app: &AppHandle) -> Result<bool, String> {
     }
 }
 
+/// 呼出 HUD 内面板（全局快捷键入口）。
+///
+/// 先 emit `helmet-hotkey` 再 show：顺序反过来的话 show() 会按 idle 先收成小岛，
+/// 之后面板再展开，用户能看到「缩一下又胀开」的抖动。
+pub fn open_panel(app: &AppHandle, panel: &str) -> Result<(), String> {
+    let win = ensure_window(app)?;
+    let _ = app.emit_to(
+        HELMET_LABEL,
+        "helmet-hotkey",
+        serde_json::json!({ "panel": panel }),
+    );
+    if win.is_visible().unwrap_or(false) {
+        let _ = win.set_focus();
+    } else {
+        show(app)?;
+    }
+    crate::win_taskbar::show(&win);
+    Ok(())
+}
+
 /// 设置整窗点击穿透（true = 鼠标穿透到下层桌面/应用）
 pub fn set_ignore_cursor_events(app: &AppHandle, ignore: bool) -> Result<(), String> {
     let win = ensure_window(app)?;
@@ -163,6 +183,11 @@ pub async fn helmet_toggle(app: AppHandle) -> Result<bool, String> {
 #[tauri::command]
 pub async fn helmet_set_ignore_cursor_events(app: AppHandle, ignore: bool) -> Result<(), String> {
     set_ignore_cursor_events(&app, ignore)
+}
+
+#[tauri::command]
+pub async fn helmet_open_panel(app: AppHandle, panel: String) -> Result<(), String> {
+    open_panel(&app, &panel)
 }
 
 /// 系统光标相对本窗客户区的逻辑坐标（CSS px）；在窗外则返回 None。

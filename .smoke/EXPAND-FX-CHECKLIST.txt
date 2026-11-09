@@ -1,0 +1,3 @@
+﻿PB ceremony patch confirmed in .refs (2026-11-06 16:47).
+Hard accept: collapse→▾ expand plays .fx.is-ceremony 150ms; expand→collapse does NOT; .fx pointer-events:none; reduced-motion skip; match 05-expand-ceremony.png.
+If mid-flight, prefer patched HANDOFF HTML over earlier interim v08-only note.

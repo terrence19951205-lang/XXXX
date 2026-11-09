@@ -1,0 +1,117 @@
+{
+ "T1 待办：新增/改标题/完成/落盘": {
+  "step": "T1 待办：新增/改标题/完成/落盘",
+  "ok": true,
+  "rows_before": 3,
+  "rows_after_add": 4,
+  "added_id": 5,
+  "renamed_id": 5,
+  "done_flag": true,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_todo.png"
+ },
+ "T5 搜索：一处搜待办+笔记，点击直达": {
+  "step": "T5 搜索：一处搜待办+笔记，点击直达",
+  "ok": true,
+  "hits": [
+   {
+    "kind": "笔记",
+    "t": "v9验收-搜索命中"
+   }
+  ],
+  "jumped": {
+   "title": "v9验收-搜索命中",
+   "cols": true
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_search.png"
+ },
+ "T6 日衰：岛显示剩余工时%，上下班可配": {
+  "step": "T6 日衰：岛显示剩余工时%，上下班可配",
+  "ok": true,
+  "pct_before": "28%",
+  "pct_after": "37%",
+  "popover": {
+   "open": true,
+   "inputs": [
+    "09:00",
+    "17:30"
+   ]
+  },
+  "hours_changed": true,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_decay.png"
+ },
+ "T2 聊天/AI：多会话 + 可选模型 + 真实回复（非字幕）": {
+  "step": "T2 聊天/AI：多会话 + 可选模型 + 真实回复（非字幕）",
+  "ok": true,
+  "model": "本地模拟",
+  "options": [
+   "本地模拟"
+  ],
+  "sessions_before": 3,
+  "sessions_after": 4,
+  "reply": {
+   "n": 2,
+   "last": "AIMOCK-REPLY 小岛流式链路 OK",
+   "typing": false,
+   "err": ""
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_chat.png"
+ },
+ "T4 启动常用：调起应用后回穿透": {
+  "step": "T4 启动常用：调起应用后回穿透",
+  "ok": true,
+  "items": [
+   {
+    "ico": "APP",
+    "t": "计算器"
+   },
+   {
+    "ico": "APP",
+    "t": "计算器"
+   }
+  ],
+  "targets": [
+   "C:\\Windows\\System32\\calc.exe",
+   "C:\\Windows\\System32\\calc.exe"
+  ],
+  "launched_procs": [
+   {
+    "ProcessId": 35128,
+    "Name": "CalculatorApp.exe",
+    "ExecutablePath": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsCalculator_11.2607.0.0_x64__8wekyb3d8bbwe\\CalculatorApp.exe"
+   }
+  ],
+  "launch_windows": "{\"Id\":12048,\"ProcessName\":\"ApplicationFrameHost\",\"MainWindowTitle\":\"计算器\"}",
+  "helmet_mode_after": {
+   "mode": "idle",
+   "deckOpen": false
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_launch.png"
+ },
+ "T3 剪贴板历史：侧栏可点、点选取用": {
+  "step": "T3 剪贴板历史：侧栏可点、点选取用",
+  "ok": true,
+  "rows": 5,
+  "sample": [
+   {
+    "t": "v9-剪贴板验收-7Q4X",
+    "m": "TEXT · ApplicationFrameHost.exe · 2026-11-06 07:07:11.379917"
+   },
+   {
+    "t": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA1wAAAdICAIAAACoj10NAAAQAElEQVR4nOydB1wcZf7/H5ZdYIFdOksvAUIJISGkm94sMUYTNbaoOU9P43nenfe7olf19H/Nu7PFflFj7FETjS0xie",
+    "m": "TEXT · Hermes.exe · 2026-11-06 06:38:13.929669"
+   },
+   {
+    "t": "[图片] 72b4277b0bfe2abd",
+    "m": "IMAGE · Hermes.exe · 2026-11-06 06:38:11.818663"
+   }
+  ],
+  "clicked_new": true,
+  "clipboard_after": "v9-剪贴板验收-7Q4X",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v9_clipboard.png"
+ },
+ "SUMMARY": {
+  "ok": true,
+  "items": 6,
+  "passed": 6
+ }
+}

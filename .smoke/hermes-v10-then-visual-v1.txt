@@ -1,0 +1,19 @@
+﻿【全面落地视觉方向 v1——v10 已交；禁止双编译；禁止另开一路抢 exe】
+
+主交接：.refs\shell-hub-visual-direction-v1-HANDOFF.md（含「增量·HUD展开全屏光效」）
+定稿：
+- .refs\shell-hub-visual-direction-v1.html
+- .refs\shell-hub-visual-direction-v1-ASSETS.md
+- .refs\shell-hub-visual-direction-v1-shots\01–04.png + 05-expand-ceremony.png
+- .refs\reality-raid-desk-bg.jpg
+- .refs\shell-hub-icons\
+
+必须：
+1. 岛 morph pill↔对话舱；▾ 只管 HUD 壳；Esc/收起关对话
+2. 全表面 --glass-chat；青边 1px rgba(0,229,255,0.22)；圆角 12px；blur~18
+3. 展开全屏光效（PB 已补）：仅关→开播 .fx.is-ceremony（grain+chroma，--t-flash 150ms）；开→关不播；.fx pointer-events:none；prefers-reduced-motion 跳过；对照 05-expand-ceremony.png
+4. 笔记三栏；无宠物/Bento/侧栏折线；ASCII 仅微点缀；产品名 shell-hub
+5. 不回退禁球/v8/v9/v10
+
+一次 debug smoke 构建→rcedit→launch_smoke 替换可见 PID。
+交卷：.smoke\v11_visual.json（含 expand_fx）+ 对照 01–05 截图；短报。对不上再报差距。只杀 debug x-hub PID。

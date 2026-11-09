@@ -1,0 +1,201 @@
+[
+ {
+  "step": "R1-侧栏圆角细边·无切角折线",
+  "ok": true,
+  "clip": "none",
+  "border": [
+   "0.666667px",
+   "solid",
+   "rgba(0, 229, 255, 0.22)",
+   "0.666667px"
+  ],
+  "radius": "12px",
+  "shadow": "rgba(255, 255, 255, 0.05) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.28) 0px 8px 24px 0px",
+  "before": [
+   "none",
+   "none"
+  ],
+  "after": [
+   "none",
+   "none"
+  ],
+  "rail": [
+   14,
+   64,
+   52,
+   17
+  ],
+  "raw": null
+ },
+ {
+  "step": "R2-两端无瞄准具/┌┘ 端饰",
+  "ok": true,
+  "corner_kids": [
+   {
+    "cls": "tl",
+    "disp": "none"
+   },
+   {
+    "cls": "tr",
+    "disp": "block"
+   },
+   {
+    "cls": "bl",
+    "disp": "none"
+   },
+   {
+    "cls": "br",
+    "disp": "block"
+   }
+  ],
+  "tl_bl_hidden": true,
+  "rail_svgs": [],
+  "svgs_hidden": true,
+  "left_side_fx": [],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v4_rail.png"
+ },
+ {
+  "step": "R5-展躯干后中央仍可点穿",
+  "ok": true,
+  "hit": {
+   "point": [
+    1280,
+    800
+   ],
+   "hwnd": "0x70184",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x504e6",
+   "root_title": "Hermes",
+   "root_class": "Chrome_WidgetWin_1",
+   "is_helmet": false
+  },
+  "hits_before": [
+   "island hit@800,32"
+  ],
+  "hits_after": [
+   "island hit@800,32"
+  ]
+ },
+ {
+  "step": "R4-笔记面板改圆角细边·无切角/瞄具",
+  "ok": true,
+  "panel_clip": "none",
+  "panel_border": [
+   "0.666667px",
+   "rgba(0, 229, 255, 0.22)"
+  ],
+  "panel_radius": "12px",
+  "panel_shadow": "rgba(255, 255, 255, 0.05) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.28) 0px 8px 24px 0px",
+  "panel": [
+   74,
+   64,
+   328,
+   875
+  ],
+  "content_items": 20,
+  "out_of_bounds": [],
+  "textarea_h": 212,
+  "note_list": 9,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v4_notes.png"
+ },
+ {
+  "step": "R8-从侧栏打开各工作面板内容完整（不裁切/不挡）",
+  "ok": true,
+  "notes_out": [],
+  "others_out": {
+   "todos": [],
+   "clipboard": [],
+   "launch": []
+  },
+  "others_count": {
+   "todos": 6,
+   "clipboard": 5,
+   "launch": 5
+  },
+  "textarea_h": 212
+ },
+ {
+  "step": "R6-文案与窗口标题为 shell-hub（无旧名）",
+  "ok": true,
+  "body_hits": [],
+  "native_titles": [
+   "Helmet",
+   "贴图",
+   "贴图",
+   "贴图",
+   "GIF 录制",
+   "截图 / 录屏选区",
+   "通知",
+   "剪贴板历史",
+   "悬浮球",
+   "shell-hub (helmet smoke)",
+   "x-hub 导出",
+   "AI 对话",
+   "应用内浏览器"
+  ],
+  "shown_titles": [
+   "通知",
+   "剪贴板历史",
+   "悬浮球",
+   "shell-hub (helmet smoke)",
+   "x-hub 导出",
+   "AI 对话",
+   "应用内浏览器"
+  ],
+  "bad_titles": [],
+  "has_shell_hub": true,
+  "island_brand": "[\"shell-hub\",\"SHELL-HUB\"]",
+  "hud_internal_label": "Helmet",
+  "hud_taskbar_hidden": false,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v4_deck.png"
+ },
+ {
+  "step": "R7a-展躯干岛不压侧栏/面板/底栏",
+  "ok": true,
+  "island": [
+   720,
+   12,
+   268,
+   40
+  ],
+  "rail": [
+   14,
+   64,
+   52,
+   875
+  ],
+  "panel": [
+   74,
+   64,
+   328,
+   875
+  ],
+  "eave": [
+   554,
+   953,
+   600,
+   52
+  ],
+  "overlaps": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "step": "R7b-对话舱内容完整·躯干收起不挡主体",
+  "ok": true,
+  "mode": "chat",
+  "cabin": [
+   644,
+   56,
+   420,
+   476
+  ],
+  "kids": 18,
+  "out": [],
+  "hud_vis": "hidden",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v4_chat.png"
+ }
+]

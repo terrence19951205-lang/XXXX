@@ -1,0 +1,21 @@
+{
+ "pid": 17160,
+ "clicked_row": "头盔笔记-真键验收",
+ "state": {
+  "mode": "deck",
+  "panel": "notes",
+  "notes": {
+   "list": true,
+   "editor": true,
+   "active": 5,
+   "count": 9
+  }
+ },
+ "columns": {
+  "rail": true,
+  "list": true,
+  "editor": true,
+  "colCount": 2
+ },
+ "shot": ".smoke/v10_notes_3col.png"
+}

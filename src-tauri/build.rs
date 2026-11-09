@@ -10,6 +10,13 @@ fn main() {
     .expect("tauri build failed");
     gen_skill_manifest();
     embed_app_manifest();
+    // windows-gnu + 大依赖图：cdylib 目标默认把所有全局符号塞进导出表，
+    // 本项目符号数超过 PE 导出序号上限（65535），ld 报 "export ordinal too large"。
+    // 应用只需要 bin（exe），cdylib 是 Tauri 移动端模板产物；排除自动导出即可链接。
+    // 仅 GNU 工具链需要，MSVC 不受影响（也认不得 -Wl 参数）。
+    if cfg!(target_env = "gnu") {
+        println!("cargo:rustc-link-arg-cdylib=-Wl,--exclude-all-symbols");
+    }
 }
 
 /// 内容与 tauri-build 默认应用清单（windows-app-manifest.xml）逐字一致：

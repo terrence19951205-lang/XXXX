@@ -69,3 +69,22 @@ browse/
 
 # 扩展解包诊断临时目录（本地调试产物，不入库）
 .tmp-extdiag/
+
+# 冒烟取证：大图/连拍/日志是本地产物，不入库；只收验证脚本、结果 JSON 与清单
+.smoke/*
+!.smoke/*.py
+!.smoke/*.json
+!.smoke/*.txt
+!.smoke/app.manifest
+!.smoke/tauri.smoke.json
+.smoke/__pycache__/
+# 一次性探针 / 临时编排脚本，不是证据
+.smoke/probe_*.py
+.smoke/dbg_*.py
+.smoke/read_dialog.py
+.smoke/win_inspect.py
+.smoke/pe_imports.py
+.smoke/v9_probe.py
+.smoke/*.ps1
+# 提交凭据是跑批产物，不是证据本身
+.smoke/step_a_commit.json

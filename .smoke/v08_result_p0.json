@@ -1,0 +1,200 @@
+[
+ {
+  "step": "P0-0-配模型",
+  "ok": true,
+  "saved": [
+   {
+    "id": "mock-local",
+    "name": "本地模拟",
+    "base_url": "http://127.0.0.1:8877/v1",
+    "model": "mock-1",
+    "api_key": "",
+    "is_default": true,
+    "has_api_key": true,
+    "provider_name": "Mock"
+   }
+  ]
+ },
+ {
+  "step": "P0-1-聊天收发",
+  "ok": true,
+  "msgs": [
+   "我验收一句话",
+   "AIMOCK-REPLY 小岛流式链路 OK"
+  ],
+  "sessions": 3,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_chat-sent.png"
+ },
+ {
+  "step": "P0-1b-会话落库",
+  "ok": true,
+  "sessions": 3,
+  "messages": 2
+ },
+ {
+  "step": "P0-2-待办新增落库",
+  "ok": true,
+  "count": 2,
+  "added": [
+   {
+    "id": 2,
+    "title": "头盔验收待办",
+    "done": false,
+    "priority": 0,
+    "created_at": "2026-11-05 16:14:02.406775",
+    "updated_at": "2026-11-05 16:14:02.406775",
+    "completed_at": null,
+    "due_at": null,
+    "remind_at": null,
+    "remind_fired": false,
+    "remind_notify_mode": "",
+    "parent_id": null,
+    "sort_order": null,
+    "version": 0,
+    "description": "",
+    "pinned": false,
+    "repeat_mode": "once",
+    "repeat_every": null,
+    "repeat_unit": null,
+    "repeat_weekdays": null,
+    "repeat_month_day": null,
+    "repeat_month_nth": null,
+    "repeat_end_mode": null,
+    "repeat_end_at": null,
+    "repeat_count": null,
+    "repeat_done_count": 0,
+    "repeat_last_done_at": null
+   }
+  ]
+ },
+ {
+  "step": "P0-2b-待办改标题",
+  "ok": true,
+  "row": [
+   {
+    "id": 2,
+    "title": "头盔验收待办-改名",
+    "done": false,
+    "priority": 0,
+    "created_at": "2026-11-05 16:14:02.406775",
+    "updated_at": "2026-11-05 16:14:03.659531",
+    "completed_at": null,
+    "due_at": null,
+    "remind_at": null,
+    "remind_fired": false,
+    "remind_notify_mode": "",
+    "parent_id": null,
+    "sort_order": null,
+    "version": 1,
+    "description": "",
+    "pinned": false,
+    "repeat_mode": "once",
+    "repeat_every": null,
+    "repeat_unit": null,
+    "repeat_weekdays": null,
+    "repeat_month_day": null,
+    "repeat_month_nth": null,
+    "repeat_end_mode": null,
+    "repeat_end_at": null,
+    "repeat_count": null,
+    "repeat_done_count": 0,
+    "repeat_last_done_at": null
+   }
+  ]
+ },
+ {
+  "step": "P0-2c-待办完成",
+  "ok": true,
+  "row": [
+   {
+    "id": 2,
+    "title": "头盔验收待办-改名",
+    "done": true,
+    "priority": 0,
+    "created_at": "2026-11-05 16:14:02.406775",
+    "updated_at": "2026-11-05 16:14:04.692604",
+    "completed_at": "2026-11-05 16:14:04.692",
+    "due_at": null,
+    "remind_at": null,
+    "remind_fired": false,
+    "remind_notify_mode": "",
+    "parent_id": null,
+    "sort_order": null,
+    "version": 2,
+    "description": "",
+    "pinned": false,
+    "repeat_mode": "once",
+    "repeat_every": null,
+    "repeat_unit": null,
+    "repeat_weekdays": null,
+    "repeat_month_day": null,
+    "repeat_month_nth": null,
+    "repeat_end_mode": null,
+    "repeat_end_at": null,
+    "repeat_count": null,
+    "repeat_done_count": 0,
+    "repeat_last_done_at": null
+   }
+  ]
+ },
+ {
+  "step": "P0-3-笔记落库",
+  "ok": true,
+  "notes": 6,
+  "row": {
+   "id": 6,
+   "title": "头盔笔记-验收",
+   "content": "这是头盔面板里写下的正文。\n第二行。",
+   "updated_at": "2026-11-05 16:14:11.391806"
+  },
+  "r1": "头盔笔记-验收",
+  "r2": "这是头盔面板里写下的正文。\n第二行。",
+  "status": "已落盘"
+ },
+ {
+  "step": "P0-4-剪贴板列表",
+  "ok": true,
+  "items": 1,
+  "first": "HELMET-CLIP-验收-7788"
+ },
+ {
+  "step": "P0-4b-剪贴板取用",
+  "ok": true,
+  "mode": "idle",
+  "clipboard": "HELMET-CLIP-验收-7788"
+ },
+ {
+  "step": "P0-5-速达调起",
+  "ok": true,
+  "items": 2,
+  "mode": "idle",
+  "calc_procs": "1"
+ },
+ {
+  "step": "P0-6-搜索命中",
+  "ok": true,
+  "kinds": [
+   "待办",
+   "待办",
+   "笔记",
+   "笔记",
+   "笔记",
+   "笔记"
+  ],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_search.png"
+ },
+ {
+  "step": "P0-6b-搜索直达笔记",
+  "ok": true,
+  "panel": "notes",
+  "note_title": "头盔笔记-验收",
+  "clicked": "note-hit"
+ },
+ {
+  "step": "P0-7-日衰可配",
+  "ok": true,
+  "hours": "{\"start\":\"09:00\",\"end\":\"18:30\"}",
+  "pct": "100%",
+  "mode": "idle"
+ }
+]

@@ -1,0 +1,22 @@
+【项目经理派发——下一块 P0 能力（产品 2026-11-06 已批）；接在透明度小修之后】
+
+前置：侧栏透明度（hermes-sidebar-opacity / --glass-chat 定稿）若未交卷，先收完再改本块；已交卷则本会话继续。禁止另开第二路抢同一份编译/同一 exe。
+
+对照继续有效：
+- .refs\shell-hub-notes-3col-OPACITY-PATCH.md + explore/shots 04·05
+- 侧栏/笔记面板保持 --glass-chat 与 v4 青边圆角；不回退禁悬浮球与笔记三栏
+
+本轮落地（侧栏 P0 + 岛日衰；不做 Bento/养成/摸鱼/日历周期/Agent 全套）：
+1) 待办面板：侧栏进今日待办；新增 / 改标题 / 完成 / 落盘（重启可回读）
+2) 聊天/AI：侧栏或灵动岛进完整对话（多会话、可配模型），不是一句字幕条
+3) 剪贴板历史：侧栏或快捷键唤出近期复制，点选取用
+4) 启动常用：侧栏调起常用应用/网页/文件，然后回穿透（Helmet 中央点穿保持）
+5) 搜索：一处搜待办+笔记，点击直达对应项
+6) 日衰：灵动岛显示剩余工时 %，可配上下班时间
+
+重建：只杀 debug x-hub PID（禁 taskkill /IM x-hub.exe）→ smoke debug 构建 → rcedit → launch_smoke → 保持可见。
+
+验收可分项写 .smoke\v9_todo.json / v9_chat.json / v9_clipboard.json / v9_launcher.json / v9_search.json / v9_decay.json（或合并 v9_result.json）：
+每项：可进面板、关键操作可点、落盘/唤起证据；总回报 PID、主可见标题、有无悬浮球、笔记三栏仍可点、透明度仍对齐、改动文件列表。
+
+不要写产品已交付。

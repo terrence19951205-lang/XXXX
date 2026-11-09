@@ -1,0 +1,39 @@
+[
+ {
+  "step": "C1-躯干态扫描层仍在",
+  "ok": true,
+  "mode": "deck",
+  "opacity": "0.35",
+  "dbg": 0
+ },
+ {
+  "step": "C2-无dbg参数时无角标",
+  "ok": true,
+  "dbg": 0,
+  "url": "http://tauri.localhost/helmet.html"
+ },
+ {
+  "step": "C3-对话态扫描层隐藏",
+  "ok": true,
+  "mode": "chat",
+  "opacity": "0"
+ },
+ {
+  "step": "C4-收起态扫描层隐藏",
+  "ok": true,
+  "mode": "idle",
+  "opacity": "0"
+ },
+ {
+  "step": "C5-dbg=1时角标出现",
+  "ok": true,
+  "dbg": 1,
+  "url": "http://tauri.localhost/helmet.html?dbg=1"
+ },
+ {
+  "step": "C6-回退后角标消失",
+  "ok": true,
+  "dbg": 0,
+  "url": "http://tauri.localhost/helmet.html"
+ }
+]

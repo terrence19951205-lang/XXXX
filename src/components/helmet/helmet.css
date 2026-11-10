@@ -409,6 +409,30 @@ select:focus {
   font-size: 10px;
   letter-spacing: 0.04em;
 }
+.fn-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.fn-bar .fn {
+  flex: 1 1 0;
+  height: 24px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: rgba(0, 229, 255, 0.05);
+  color: var(--t2);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.14);
+  transition: background var(--t-hover), color var(--t-hover), box-shadow var(--t-hover);
+}
+.fn-bar .fn:hover {
+  background: rgba(0, 229, 255, 0.14);
+  color: var(--t1);
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.42);
+}
+
 .sess-list {
   display: flex;
   gap: 4px;
@@ -1438,7 +1462,7 @@ select:focus {
 }
 
 .island-wrap {
-  transition: transform 260ms var(--ease-island), opacity 200ms var(--ease);
+  transition: transform var(--t-island) var(--ease-island), opacity var(--t-collapse) var(--ease);
 }
 /* 贴顶：岛整体滑出屏幕，只留顶边 4px 在窗内 */
 .helmet-root.island-docked .island-wrap {

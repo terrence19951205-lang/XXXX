@@ -43,16 +43,8 @@ const LS_HOURS = 'rr.hud.hours'
 /** 折叠记忆：贴顶收起（lip）落盘；杀进程重启后按上次折叠态回来 */
 const LS_COLLAPSED = 'rr.hud.collapsed.v10'
 const SS_BOOT = 'rr.hud.bootPlayed'
-/** 满屏判定：收起的小窗只有几十 px 高，满屏工作区上千 px 高 */
+/** 满屏判定：窗口常驻工作区，高度上千 px；小窗时代留下的兜底判据 */
 const isFullWindow = () => document.documentElement.clientHeight > 300
-/** 岛完整显示时的小窗 = 岛外包矩形 + 四周留边（阴影不被窗口裁掉） */
-const PAD_L = 12
-const PAD_R = 14
-const PAD_Y = 12
-/** 贴顶收起：只留 4px 唇边；顶部 10px 是唤出热区 */
-const LIP_PX = 4
-const HOT_PX = 10
-const HOT_EXTRA = 160
 /** 岛的最小可信宽度（量到比这个还小说明正处在裁切/切换瞬间，读数丢弃） */
 const MIN_ISLAND_W = 180
 /** 满屏基准的最小尺寸（CSS）：低于这个值说明量到的是小窗，不能当工作区基准 */
@@ -60,8 +52,6 @@ const FULL_MIN_CW = 640
 const FULL_MIN_CH = 400
 /** 移开鼠标后多久再贴顶 */
 const HIDE_MS = 450
-/** 岛滑出屏幕的动画时长（缩窗前要等它走完，否则动画被窗口裁掉） */
-const DOCK_ANIM_MS = 280
 
 /** 窗口几何：full=满屏工作区；band=岛完整显示；lip=贴顶只剩唇边+热区 */
 type Geo = 'full' | 'band' | 'lip'
@@ -253,38 +243,24 @@ async function captureFrame(): Promise<boolean> {
   }
 }
 
-/** 岛完整显示的小窗矩形（CSS，原点 = 工作区左上；岛水平居中于工作区） */
-function bandRect() {
-  const cw = frameRect?.cw || document.documentElement.clientWidth
-  const w = islandCss.value.w + PAD_L + PAD_R
-  const h = islandCss.value.h + PAD_Y * 2
-  return { left: Math.round((cw - w) / 2), top: 0, w: Math.round(w), h: Math.round(h) }
-}
-
-/** 贴顶收起的小窗矩形：只剩唇边 + 热区（中央桌面天然可点） */
-function lipRect() {
-  const cw = frameRect?.cw || document.documentElement.clientWidth
-  const w = islandCss.value.w + HOT_EXTRA
-  // 唇边 4px 必须落在热区内，窗口高度取两者较大者
-  const h = Math.max(HOT_PX, LIP_PX)
-  return { left: Math.round((cw - w) / 2), top: 0, w: Math.round(w), h }
-}
-
-async function applyRect(r: { left: number; top: number; w: number; h: number }): Promise<boolean> {
-  if (!frameRect) return false
-  try {
-    const win = getCurrentWindow()
-    const { x, y, scale } = frameRect
-    await win.setPosition(
-      new PhysicalPosition(x + Math.round(r.left * scale), y + Math.round(r.top * scale)),
-    )
-    await win.setSize(new PhysicalSize(Math.round(r.w * scale), Math.round(r.h * scale)))
-    debugText.value = `${r.w}x${r.h}css`
-    return true
-  } catch (e) {
-    console.warn('[helmet] 调整窗口失败', e)
-    return false
-  }
+/**
+ * 形态只由 CSS 表达 —— 窗口常驻工作区，一次都不缩。
+ *
+ * 参照稿（reality-raid-hud-*）是 100vw×100vh 的舞台：岛、舱、左轨都在同一张画布上演，
+ * 没有任何「改窗口大小」的动作。早先为了"不占中央桌面"把窗口缩成岛的外包矩形，
+ * 代价是 WebView2 每次 resize 都重建合成面：重绘那一瞬整块窗口铺出浅灰底
+ * （看着就是岛下面多了一个灰方块），岛的 32px 阴影又被窗口边硬裁成一条直线，
+ * 展开/收起时还会闪。改成窗口不动、docked 用 transform 把岛藏到屏幕上沿，
+ * 这三样一起消失，动的只有 CSS。
+ */
+/** 贴顶收起：岛滑出屏幕上沿（CSS 260ms），窗口照旧铺满，穿透交给光标轮询 */
+async function applyLip(): Promise<boolean> {
+  if (mode.value !== 'idle' || pinned()) return false
+  if (geo.value !== 'full') await expandToWorkArea()
+  docked.value = true
+  geo.value = 'lip'
+  persistCollapsed(true)
+  return true
 }
 
 /** 等窗口真正变成满屏（helmet-shown 早于 WebView resize 时，尺寸还是旧值） */
@@ -294,39 +270,6 @@ async function waitForFull(timeout = 1200): Promise<boolean> {
     await new Promise((r) => setTimeout(r, 40))
   }
   return isFullWindow()
-}
-
-/** 岛完整显示：窗口 = 岛外包矩形（band） */
-async function applyBand(): Promise<boolean> {
-  if (mode.value !== 'idle' || pinned()) return false
-  measureIsland()
-  if (!frameRect) await captureFrame()
-  if (!frameRect) return false
-  const ok = await applyRect(bandRect())
-  if (!ok) return false
-  docked.value = false
-  persistCollapsed(false)
-  geo.value = 'band'
-  return true
-}
-
-/** 贴顶收起：先让岛滑出屏幕（动画可见），再把窗口缩到唇边条 */
-async function applyLip(): Promise<boolean> {
-  if (mode.value !== 'idle' || pinned()) return false
-  measureIsland()
-  if (!frameRect) await captureFrame()
-  if (!frameRect) return false
-  if (!docked.value) {
-    docked.value = true
-    await new Promise((r) => setTimeout(r, DOCK_ANIM_MS))
-  }
-  // 动画这 280ms 里用户可能已经点了岛/三角：此刻窗该是满的，不能再缩
-  if (mode.value !== 'idle' || pinned()) return false
-  const ok = await applyRect(lipRect())
-  if (!ok) return false
-  geo.value = 'lip'
-  persistCollapsed(true)
-  return true
 }
 
 /** 小窗 → 满屏：还原满屏基准矩形（无基准才请后端铺满工作区） */
@@ -372,45 +315,21 @@ async function expandToWorkArea(): Promise<boolean> {
 /* ------------------------------------------------------------------ */
 
 /**
- * 窗口几何唯一出口：
- *  - idle 且无浮层、未开场 → 岛（band）或贴顶唇边条（lip）；两者都不占中央桌面
- *  - 其余（deck / chat / 上下班浮层 / 开场）→ 铺满工作区；deck/chat 用光标轮询命中 .hit
+ * 窗口几何唯一出口：永远铺满工作区，不随形态伸缩（见 applyBand 的注释）。
+ * 形态（idle / deck / chat / 浮层 / 开场）只切 CSS 状态；
+ * 穿透由光标轮询按 .hit 命中决定——满窗也不挡桌面点击。
  */
 async function syncWindow() {
   if (!isTauri()) return
-  const wantFull = mode.value !== 'idle' || hoursOpen.value || bootActive.value
-  if (wantFull) {
-    const ok = await expandToWorkArea()
-    geo.value = 'full'
-    docked.value = false
-    if (bootActive.value) {
-      // 开场要能点一下跳过：整窗接事件
-      stopPoll()
-      await setIgnore(false)
-      return
-    }
-    if (ok) {
-      await setIgnore(true)
-      startPoll()
-    } else {
-      // 展开失败（极少见）：退化为满窗 + 轮询，至少控件还能点
-      await setIgnore(true)
-      startPoll()
-    }
+  await expandToWorkArea()
+  if (bootActive.value) {
+    // 开场要能点一下跳过：整窗接事件
+    stopPoll()
+    await setIgnore(false)
     return
   }
-  stopPoll()
-  const ok = docked.value ? await applyLip() : await applyBand()
-  if (ok) {
-    // lip：整窗只剩顶部热区那一条，保持接事件（唤出靠 pointerenter）；
-    // band：岛四周还有 PAD 透明留边，继续轮询光标——无命中时整窗穿透，留边不抢点
-    await setIgnore(false)
-    if (geo.value === 'band') startPoll()
-  } else {
-    // 收不起来：退化为满窗 + 轮询，至少岛还能点
-    await setIgnore(true)
-    startPoll()
-  }
+  // docked/geo 由 applyBand/applyLip/reveal 维护，这里不覆盖
+  startPoll()
 }
 
 async function setMode(next: Mode) {
@@ -454,10 +373,18 @@ function toggleNotes() {
 /** 左栏「搜索」：底栏搜索框是全局入口，把它叫到焦点即可，不另造第二个搜索面板 */
 async function focusSearch() {
   if (mode.value !== 'deck') await setMode('deck')
-  await nextTick()
-  const el = document.querySelector<HTMLInputElement>('.quick-search input')
-  el?.focus()
-  el?.select()
+  // 舱里点「搜索」时，点完那一帧焦点还落在被卸掉的舱上，focus 会被随后的一次
+  // 点击/卸载抢走；重试几帧直到真的拿到焦点，而不是调一次就宣布成功。
+  for (let i = 0; i < 8; i++) {
+    await nextTick()
+    const el = document.querySelector<HTMLInputElement>('.quick-search input')
+    if (el) {
+      el.focus()
+      el.select()
+      if (document.activeElement === el) return
+    }
+    await new Promise((r) => setTimeout(r, 40))
+  }
 }
 
 /** 岛右侧 ▾/▴：唯一的 HUD 展开/收起入口 */
@@ -478,13 +405,21 @@ function closeChat() {
   void setMode('idle')
 }
 
+/** 舱内功能直达：openPanel 会把 mode 切成 deck，对话舱随之收起 */
+function openFromCabin(key: string) {
+  if (key === 'search') {
+    focusSearch()
+    return
+  }
+  openPanel(key as PanelKey)
+}
+
 /** Esc / 快捷键收起：立即贴顶只剩唇边 + 顶部热区，绝不隐藏整个 helmet */
 async function collapseNow() {
   if (mode.value !== 'idle' || pinned()) return
   const ok = await applyLip()
   if (!ok) return
-  stopPoll()
-  await setIgnore(false)
+  startPoll()
   hovering.value = false
 }
 
@@ -553,8 +488,9 @@ async function tickDock() {
   const ok = await applyLip()
   if (!ok) return
   hovering.value = false
-  stopPoll()
-  await setIgnore(false)
+  // 轮询必须继续：窗是满的，顶边那 10px 热区要靠它关掉穿透才能收到唤出；
+  // 其余位置由它保持穿透，桌面照常可点。
+  startPoll()
 }
 
 function armWatch() {
@@ -570,21 +506,15 @@ function disarmWatch() {
   }
 }
 
-/** 顶部热区 / 岛被指到：先把窗口长回 band，再让岛滑下来 */
+/** 顶部热区 / 岛被指到：岛从屏幕上沿滑下来（窗口不动） */
 async function reveal() {
   if (docked.value) outSince = 0
   if (!docked.value || localState) return
   localState = true
   try {
-    measureIsland()
-    if (!frameRect) await captureFrame()
-    if (frameRect) await applyRect(bandRect())
     docked.value = false
     persistCollapsed(false)
     geo.value = 'band'
-    // 从唇边唤出后也要重新开始轮询：band 四周的 PAD 留边是透明的，
-    // 没轮询就一直抢点（A3 实测踩到过）
-    await setIgnore(false)
     startPoll()
   } finally {
     localState = false
@@ -666,8 +596,9 @@ let unlisteners: UnlistenFn[] = []
 
 async function pollCursor() {
   if (!isTauri()) return
-  // idle 的 band 态也要轮询：岛四周 PAD 留边是透明的，无命中必须保持穿透
-  if (mode.value === 'idle' && !hoursOpen.value && !bootActive.value && geo.value !== 'band') return
+  // 满窗常驻后，idle 也必须轮询：岛四周与整个中央都是透明的，
+  // 光标不在任何 .hit 上时必须保持穿透，否则整屏都挡桌面点击。
+  if (bootActive.value) return
   try {
     const pos = await invoke<[number, number] | null>('helmet_cursor_local')
     if (!pos) {
@@ -1269,7 +1200,12 @@ defineExpose({ openPanel, setMode })
           </button>
         </div>
 
-        <HelmetChatCabin v-if="chatOpen" @close="closeChat" @toast="showToast" />
+        <HelmetChatCabin
+          v-if="chatOpen"
+          @close="closeChat"
+          @toast="showToast"
+          @open-panel="openFromCabin"
+        />
       </div>
 
       <!-- 上下班配置（挂岛下，独立 hit） -->
@@ -1319,10 +1255,6 @@ defineExpose({ openPanel, setMode })
             <span class="ico">02</span>
             <span class="lab">笔记</span>
           </button>
-          <button class="nav-btn" data-nav="chat" title="聊天 / AI" @click="setMode('chat')">
-            <span class="ico">03</span>
-            <span class="lab">聊天 / AI</span>
-          </button>
           <button
             class="nav-btn"
             data-nav="clipboard"
@@ -1330,7 +1262,7 @@ defineExpose({ openPanel, setMode })
             title="剪贴板"
             @click="openPanel('clipboard')"
           >
-            <span class="ico">04</span>
+            <span class="ico">03</span>
             <span class="badge" :class="{ 'is-zero': clipCount === 0 }">{{ clipCount }}</span>
             <span class="lab">剪贴板</span>
           </button>
@@ -1341,11 +1273,11 @@ defineExpose({ openPanel, setMode })
             title="启动常用工具"
             @click="openPanel('launch')"
           >
-            <span class="ico">05</span>
+            <span class="ico">04</span>
             <span class="lab">启动常用</span>
           </button>
           <button class="nav-btn" data-nav="search" title="搜索" @click="focusSearch">
-            <span class="ico">06</span>
+            <span class="ico">05</span>
             <span class="lab">搜索</span>
           </button>
           <span class="rail-sep" aria-hidden="true" />

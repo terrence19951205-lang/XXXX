@@ -16,7 +16,22 @@ import {
   type Snippet,
 } from '../../api/tauri'
 
-const emit = defineEmits<{ (e: 'close'): void; (e: 'toast', msg: string): void }>()
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'toast', msg: string): void
+  /** 对话是顶层入口：从舱里直达任一功能面板 */
+  (e: 'open-panel', key: string): void
+}>()
+
+/** 对话舱顶部功能区：与左侧导航同一批面板，少的是「聊天」自己 */
+const FNS = [
+  { k: 'todos', lab: '待办', tip: '待办 / 日历' },
+  { k: 'notes', lab: '笔记', tip: '笔记库' },
+  { k: 'clipboard', lab: '剪贴板', tip: '剪贴板历史' },
+  { k: 'launch', lab: '启动', tip: '常用工具与站点' },
+  { k: 'search', lab: '搜索', tip: '全局搜索' },
+  { k: 'settings', lab: '设置', tip: '上下班 / 模型' },
+] as const
 
 const LS_SESSION = 'rr.hud.chatSession'
 const LS_PROMPT = 'rr.hud.chatPromptId'
@@ -323,6 +338,19 @@ defineExpose({ load, loadPrompts })
       </select>
       <button class="btn sm cut-sm" :disabled="streaming" @click="newSession">新会话</button>
       <button class="btn sm cut-sm" @click="$emit('close')">收起</button>
+    </div>
+
+    <!-- 功能直达条：AI 对话在所有功能之上，从舱里一步切到任一面板 -->
+    <div class="fn-bar">
+      <button
+        v-for="f in FNS"
+        :key="f.k"
+        class="fn cut-sm"
+        :title="f.tip"
+        @click="$emit('open-panel', f.k)"
+      >
+        {{ f.lab }}
+      </button>
     </div>
 
     <div class="sess-list">

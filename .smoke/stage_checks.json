@@ -1,0 +1,107 @@
+{
+ "S1 窗口不伸缩": {
+  "ok": true,
+  "rects": [
+   [
+    0,
+    0,
+    2560,
+    1528
+   ],
+   [
+    0,
+    0,
+    2560,
+    1528
+   ],
+   [
+    0,
+    0,
+    2560,
+    1528
+   ],
+   [
+    0,
+    0,
+    2560,
+    1528
+   ],
+   [
+    0,
+    0,
+    2560,
+    1528
+   ]
+  ],
+  "docked_after_esc": false
+ },
+ "S2 岛右侧无硬切": {
+  "ok": true,
+  "jumps": [],
+  "tail_mean": 248.0
+ },
+ "S3 阴影自然淡出": {
+  "ok": true,
+  "bottom_mean": 248.0,
+  "profile": [
+   212.3,
+   226.7,
+   236.7,
+   243.0,
+   246.0,
+   247.0,
+   248.0,
+   248.0,
+   248.0,
+   248.0,
+   248.0,
+   248.0
+  ]
+ },
+ "S4 对话在顶层": {
+  "ok": true,
+  "z": {
+   "island": "60",
+   "hud": "40"
+  },
+  "mode_after_island_click": "chat",
+  "chips": {
+   "todos": {
+    "clicked": true,
+    "panel": "todos",
+    "mode": "deck",
+    "ok": true
+   },
+   "notes": {
+    "clicked": true,
+    "panel": "notes",
+    "mode": "deck",
+    "ok": true
+   },
+   "clipboard": {
+    "clicked": true,
+    "panel": "clipboard",
+    "mode": "deck",
+    "ok": true
+   },
+   "launch": {
+    "clicked": true,
+    "panel": "launch",
+    "mode": "deck",
+    "ok": true
+   },
+   "search": {
+    "clicked": true,
+    "mode": "deck",
+    "focus_in_search": true,
+    "ok": true
+   },
+   "settings": {
+    "clicked": true,
+    "panel": "settings",
+    "mode": "deck",
+    "ok": true
+   }
+  }
+ }
+}

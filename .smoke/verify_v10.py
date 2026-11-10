@@ -243,8 +243,24 @@ def screen_pt(sel, frac=0.5):
     return info
 
 
-def to_screen(css_pt, rect, scale):
-    return rect[0] + css_pt['x'] * scale, rect[1] + css_pt['y'] * scale
+_DPI_K = None
+
+
+def dpi_k():
+    """窗口矩形来自 Tauri，单位是 DIP；SetCursorPos 要的是物理像素，两者差 monitor_width/innerWidth。"""
+    global _DPI_K
+    if _DPI_K is None:
+        import mss
+        with mss.mss() as s:
+            mon = s.monitors[0]
+        _DPI_K = mon['width'] / max(1, js('innerWidth'))
+    return _DPI_K
+
+
+def to_screen(css_pt, rect, scale=None):
+    """CSS 坐标 → 屏幕物理像素。scale 参数保留但不再使用：真正的换算因子是 dpi_k()。"""
+    k = dpi_k()
+    return (rect[0] + css_pt['x']) * k, (rect[1] + css_pt['y']) * k
 
 
 def ensure_deck():

@@ -180,14 +180,16 @@ def freeze_peak_shot(name):
       fx.classList.add('is-ceremony');
       const g = fx.querySelector('.grain').getAnimations()[0];
       const c = fx.querySelector('.chroma').getAnimations()[0];
-      const e = fx.querySelector('.edge').getAnimations()[0];
+      // v13 起 .edge 已删除（源码的 .fx 家族只有 vig/scan/grain/chroma/corners）
+      const edgeEl = fx.querySelector('.edge');
+      const e = edgeEl ? edgeEl.getAnimations()[0] : null;
       if (g) { g.pause(); g.currentTime = 60; }
       if (c) { c.pause(); c.currentTime = 60; }
       if (e) { e.pause(); e.currentTime = 60; }
       return JSON.stringify({grain: !!g, chroma: !!c, edge: !!e,
         grainOpacity: getComputedStyle(fx.querySelector('.grain')).opacity,
         chromaOpacity: getComputedStyle(fx.querySelector('.chroma')).opacity,
-        edgeOpacity: getComputedStyle(fx.querySelector('.edge')).opacity});
+        edgeOpacity: edgeEl ? getComputedStyle(edgeEl).opacity : '0'});
     })()""")
     time.sleep(0.3)
     peak_img = ImageGrab.grab(all_screens=True)

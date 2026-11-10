@@ -2106,6 +2106,10 @@ select:focus {
 /* 宽面板：原版工作台级组件（速达/待办/笔记）在 328px 里放不下，按需放宽。
    面积一大，原来的玻璃透明度就压不住背后的桌面/其它窗口，字会跟背后的内容糊在一起，
    所以宽形态单独加厚底（0.95 左右），窄面板维持原来的玻璃感。 */
+.panel-col.is-mid {
+  width: min(520px, 34vw);
+  background: linear-gradient(180deg, #0a0e15, #070a10);
+}
 .panel-col.is-wide {
   width: min(880px, 48vw);
   /* 全不透明：透明窗口 + WebView2 下，大面积的半透明层会「漏底」——

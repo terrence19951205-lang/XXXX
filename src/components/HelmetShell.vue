@@ -30,13 +30,14 @@ import HelmetTodoFullPanel from './helmet/HelmetTodoFullPanel.vue'
 import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
 import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
+import HelmetStickyPanel from './helmet/HelmetStickyPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
 import GlobalSearch from './GlobalSearch.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
 
 type Mode = 'idle' | 'deck' | 'chat'
-type PanelKey = 'todos' | 'notes' | 'clipboard' | 'launch' | 'settings'
+type PanelKey = 'todos' | 'notes' | 'clipboard' | 'sticky' | 'launch' | 'settings'
 
 const LS_OLD_COLLAPSE = 'rr.hud.collapsed'
 const LS_HOURS = 'rr.hud.hours'
@@ -1266,16 +1267,26 @@ defineExpose({ openPanel, setMode })
           </button>
           <button
             class="nav-btn"
+            data-nav="sticky"
+            :class="{ 'is-on': panel === 'sticky' && deckOpen }"
+            title="便签"
+            @click="openPanel('sticky')"
+          >
+            <span class="ico">04</span>
+            <span class="lab">便签</span>
+          </button>
+          <button
+            class="nav-btn"
             data-nav="launch"
             :class="{ 'is-on': panel === 'launch' && deckOpen }"
             title="启动常用工具"
             @click="openPanel('launch')"
           >
-            <span class="ico">04</span>
+            <span class="ico">05</span>
             <span class="lab">启动常用</span>
           </button>
           <button class="nav-btn" data-nav="search" title="搜索" @click="focusSearch">
-            <span class="ico">05</span>
+            <span class="ico">06</span>
             <span class="lab">搜索</span>
           </button>
           <span class="rail-sep" aria-hidden="true" />
@@ -1295,6 +1306,7 @@ defineExpose({ openPanel, setMode })
           class="panel-col panel hit"
           :class="{
             'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' || panel === 'clipboard',
+            'is-mid': panel === 'sticky',
           }"
           aria-label="shell-hub 面板"
         >
@@ -1302,6 +1314,7 @@ defineExpose({ openPanel, setMode })
           <HelmetTodoFullPanel v-if="panel === 'todos'" />
           <HelmetNotesFullPanel v-if="panel === 'notes'" />
           <HelmetClipboardFullPanel v-if="panel === 'clipboard'" />
+          <HelmetStickyPanel v-if="panel === 'sticky'" />
           <HelmetSudaPanel v-if="panel === 'launch'" />
           <div v-if="panel === 'settings'" class="work">
             <div class="work-hd">

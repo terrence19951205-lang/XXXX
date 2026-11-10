@@ -31,6 +31,7 @@ import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
 import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
+import GlobalSearch from './GlobalSearch.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
 
@@ -578,7 +579,12 @@ function endBoot() {
 function cursorOverHit(lx: number, ly: number): boolean {
   const root = rootEl.value
   if (!root) return false
-  const hits = root.querySelectorAll<HTMLElement>('.hit')
+  // 原版全局搜索是 Teleport 到 body 的模态，不在 rootEl 里；命中表要把它算上，
+  // 否则弹窗区域会被判成「非控件」→ 穿透开 → 点不动
+  const hits = [
+    ...root.querySelectorAll<HTMLElement>('.hit'),
+    ...document.querySelectorAll<HTMLElement>('.modal-mask .search-card'),
+  ]
   for (const el of hits) {
     // 关闭态的躯干/浮层 visibility:hidden（会继承），其矩形仍在原位——
     // 不排除会让光标扫到不可见区域时误关穿透
@@ -809,6 +815,7 @@ const searchTotal = computed(() => {
 /* 角标 / 提示                                                         */
 /* ------------------------------------------------------------------ */
 
+const searchOpen = ref(false)
 const todoCount = ref(0)
 const clipCount = ref(0)
 let toastTimer: number | null = null
@@ -871,11 +878,10 @@ async function onHotkey(p: string) {
     return
   }
   if (p === 'search') {
-    if (mode.value !== 'deck') await setMode('deck')
-    await nextTick()
-    const el = document.querySelector<HTMLInputElement>('.quick-search input')
-    el?.focus()
-    el?.select()
+    // 原版全局搜索（分组结果 + 键盘上下选 + 回车打开），直接挂原版弹窗
+    if (mode.value === 'idle') await setMode('deck')
+    searchOpen.value = true
+    return
   }
 }
 
@@ -1442,6 +1448,29 @@ defineExpose({ openPanel, setMode })
       </div>
     </div>
 
+    <!-- 原版全局搜索（Teleport 到 body 的模态）：分组结果 + ↑↓ 选 + 回车打开 -->
+    <GlobalSearch
+      :visible="searchOpen"
+      @close="searchOpen = false"
+      @open-resource="
+        (r) => {
+          searchOpen = false
+          launchFromSearch(r.id)
+        }
+      "
+      @open-note="
+        (n) => {
+          searchOpen = false
+          openNoteFromSearch(n.id)
+        }
+      "
+      @open-todo="
+        () => {
+          searchOpen = false
+          openPanel('todos')
+        }
+      "
+    />
     <!-- 开场：ASCII 海洋（只作开机，结束即卸载） -->
     <HelmetBoot v-if="bootActive" @done="endBoot" />
 

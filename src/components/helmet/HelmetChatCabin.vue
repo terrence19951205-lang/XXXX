@@ -107,6 +107,16 @@ function pushToolCard(c: Partial<ToolCard> & { callId: string; name: string }) {
   return card
 }
 
+/** 提示词浮窗：原版 toggle_prompt_float 同一条命令切换显隐 */
+async function togglePromptFloat() {
+  if (!isTauri()) return
+  try {
+    await tauriApi.togglePromptFloat()
+  } catch (e) {
+    error.value = String(e)
+  }
+}
+
 /** 回答挂起审批（原版同名字段：once / always / deny） */
 async function respondApproval(card: ToolCard, answer: 'once' | 'always' | 'deny') {
   card.status = 'running'
@@ -628,6 +638,9 @@ defineExpose({ load, loadPrompts })
         </button>
         <button type="button" class="prompt-manage" data-prompt-manage @click="promptManageOpen = true">
           管理提示词（增删改 / 置顶）
+        </button>
+        <button type="button" class="prompt-manage" data-prompt-float @click="togglePromptFloat">
+          ⧉ 提示词浮到桌面
         </button>
       </div>
     </div>

@@ -11,6 +11,7 @@
 import { inject, onMounted, provide, ref } from 'vue'
 import TodoView from '../TodoView.vue'
 import { useStore } from '../../stores/workbench'
+import { isTauri, tauriApi } from '../../api/tauri'
 
 const store = useStore()
 const ready = ref(false)
@@ -18,6 +19,20 @@ const ready = ref(false)
 // 原版组件用 inject('showToast') 弹提示；壳里已经有一个 showToast，接上去复用
 const hudToast = inject<((msg: string) => void) | null>('hudToast', null)
 if (hudToast) provide('showToast', (msg: string) => hudToast(msg))
+
+const floatErr = ref('')
+
+/** 待办浮窗：同一命令切换显隐（原版 toggle_todo_float） */
+async function toggleFloat() {
+  if (!isTauri()) return
+  try {
+    await tauriApi.toggleTodoFloat()
+    floatErr.value = ''
+  } catch (e) {
+    floatErr.value = String(e)
+    if (hudToast) hudToast(floatErr.value)
+  }
+}
 
 onMounted(async () => {
   if (!store.state.loaded) {
@@ -33,6 +48,13 @@ onMounted(async () => {
 
 <template>
   <div class="work todo-host xhub-host">
+    <!-- 原版能力：待办可浮到桌面成独立小窗（toggle_todo_float 创建/销毁同一条命令） -->
+    <div class="todo-tools">
+      <button class="todo-float" type="button" data-todo-float @click="toggleFloat">
+        ⧉ 浮到桌面
+      </button>
+      <span class="todo-tip">待办浮窗：桌面常驻小窗，再点一次收回</span>
+    </div>
     <div v-if="ready" class="todo-mount">
       <TodoView />
     </div>
@@ -43,6 +65,28 @@ onMounted(async () => {
 <style scoped>
 .todo-host {
   min-height: 0;
+}
+.todo-tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 4px;
+}
+.todo-float {
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  color: var(--cyan, #00e5ff);
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.22);
+}
+.todo-float:hover {
+  background: rgba(0, 229, 255, 0.16);
+}
+.todo-tip {
+  font-size: 10px;
+  color: rgba(159, 176, 196, 0.75);
 }
 .todo-mount {
   flex: 1 1 auto;

@@ -27,8 +27,7 @@ import {
 } from '../api/tauri'
 import HelmetChatCabin from './helmet/HelmetChatCabin.vue'
 import HelmetTodoFullPanel from './helmet/HelmetTodoFullPanel.vue'
-import HelmetNotesPanel from './helmet/HelmetNotesPanel.vue'
-import HelmetNoteEditor from './helmet/HelmetNoteEditor.vue'
+import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
 import HelmetClipboardPanel from './helmet/HelmetClipboardPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
@@ -1293,16 +1292,12 @@ defineExpose({ openPanel, setMode })
 
         <aside
           class="panel-col panel hit"
-          :class="{
-            'is-notes-list': panel === 'notes',
-            'is-collapsed': panel === 'notes' && !noteListOpen,
-            'is-wide': panel === 'launch' || panel === 'todos',
-          }"
+          :class="{ 'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' }"
           aria-label="shell-hub 面板"
         >
           <pre class="ascii-bg is-work" aria-hidden="true">{{ asciiPanel }}</pre>
           <HelmetTodoFullPanel v-if="panel === 'todos'" />
-          <HelmetNotesPanel v-if="panel === 'notes'" @toast="showToast" />
+          <HelmetNotesFullPanel v-if="panel === 'notes'" />
           <HelmetClipboardPanel
             v-if="panel === 'clipboard'"
             @count="clipCount = $event"
@@ -1379,13 +1374,6 @@ defineExpose({ openPanel, setMode })
         </aside>
 
         <!-- 第三栏：笔记编辑（点中栏条目才出现，可单独收起） -->
-        <aside
-          v-if="panel === 'notes' && noteListOpen && noteEditorOpen"
-          class="panel-col panel hit is-notes-editor"
-          aria-label="笔记编辑"
-        >
-          <HelmetNoteEditor @toast="showToast" />
-        </aside>
       </div>
 
       <!-- 底栏：一处搜索待办与笔记（+ 速达） -->

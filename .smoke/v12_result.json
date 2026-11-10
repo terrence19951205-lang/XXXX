@@ -34,37 +34,37 @@
    "ok": true,
    "text": "把下面的内容压成三条要点，每条不超过 20 字：",
    "chip": {
-    "id": 7,
+    "id": 15,
     "text": "【自测】摘要提炼 ×"
    },
-   "ls": "7",
-   "msgs_before": 4,
-   "msgs_after": 4,
+   "ls": "15",
+   "msgs_before": 16,
+   "msgs_after": 16,
    "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v12_02_prompt_applied.png"
   },
   "V12-3 切到第二条：整体替换、只留一个选中": {
    "ok": true,
    "text": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间：",
    "chip": {
-    "id": 8,
+    "id": 16,
     "text": "【自测】会议纪要 ×"
    },
-   "ls": "8",
+   "ls": "16",
    "old_text_gone": true
   },
   "V12-4 重启后选用还在（chip + 输入框回填）": {
    "ok": true,
-   "old_pid": 20964,
-   "new_pid": 47388,
+   "old_pid": 7208,
+   "new_pid": 17252,
    "killed": true,
    "cdp": true,
    "chat": true,
    "chip": {
-    "id": 8,
+    "id": 16,
     "text": "【自测】会议纪要 ×"
    },
    "text": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间：",
-   "ls": "8",
+   "ls": "16",
    "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v12_03_after_restart.png"
   },
   "V12-5 不扩到待办/侧栏；发送按钮仍按输入启用": {
@@ -88,21 +88,21 @@
    "remaining": 0
   }
  },
- "ts": "2026-11-10 11:46:20",
- "pid": 47388,
+ "ts": "2026-11-10 19:14:51",
+ "pid": 17252,
  "seeded": [
   {
-   "id": 7,
+   "id": 15,
    "title": "【自测】摘要提炼",
    "content": "把下面的内容压成三条要点，每条不超过 20 字："
   },
   {
-   "id": 8,
+   "id": 16,
    "title": "【自测】会议纪要",
    "content": "按「结论 / 待办 / 风险」整理下面的会议记录，待办要带责任人和时间："
   },
   {
-   "id": 9,
+   "id": 17,
    "title": "【自测】书面润色",
    "content": "把下面的句子改成书面公文体，去掉口语和感叹号："
   }

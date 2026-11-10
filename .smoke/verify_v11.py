@@ -63,8 +63,8 @@ STYLE_JS = """(() => {
     island: pick('.island'),
     chat: pick('.island.is-chat .island-chat'),
     rail: pick('.rail'),
-    list: pick('.panel-col.is-notes-list'),
-    editor: pick('.panel-col.is-notes-editor'),
+    list: pick('.panel-col.is-notes-full') || pick('.panel-col.is-wide') || pick('.panel-col.is-notes-list'),
+    editor: pick('.milkdown') || pick('.panel-col.is-notes-editor'),
     eave: pick('.eave-bot'),
     fx: pick('.fx'),
     grain: pick('.fx .grain'),
@@ -387,6 +387,8 @@ def phase_visual():
     }
 
     # ---------- V2 材质统一 ----------
+    # 2026-11-10 更新：笔记面板已改为「挂原版 SpeednoteView」（is-notes-full），
+    # 原来的中栏列表 / 右栏编辑器两截结构不复存在，选择器随之换成 nft-note-row + .milkdown。
     V.key_escape()  # 唇边态
     time.sleep(1.3)
     sc, rect = scale_now()
@@ -394,42 +396,49 @@ def phase_visual():
     time.sleep(1.0)
     if state()['mode'] != 'deck':                    # 开 HUD
         click_css('.island-toggle', settle=1.7)
-    # 笔记栏可能带着上一轮的开关态：点一次没开就再补一次
+
+    def notes_probe():
+        return json.loads(js("""(() => {
+          const rows = document.querySelectorAll('.nft-note-row').length;
+          const ed = document.querySelector('.milkdown');
+          return JSON.stringify({rows, editor: !!ed, body: ed ? (ed.innerText || '').slice(0, 40) : ''});
+        })()"""))
+
     for _ in range(3):
-        if state()['notes']['list']:
+        if notes_probe()['rows']:
             break
         click_css('[data-nav="notes"]', settle=1.5)
-    # 03 要是「只有中栏列表」：上一轮遗留的右栏编辑先收掉
-    if state()['notes']['editor']:
-        click_css('.panel-col.is-notes-editor .icon-btn', settle=1.3)
+    np1 = notes_probe()
     st_list = state()
     sk2 = styles()
     res['items']['V2_notes_list'] = {
-        'state': {'mode': st_list['mode'], 'panel': st_list['panel'], 'notes': st_list['notes']},
+        'state': {'mode': st_list['mode'], 'panel': st_list['panel'], 'rows': np1['rows']},
         'list': sk2['list'], 'shot': screen_shot('v11_03_notes_list.png'),
     }
-    # 点第一条笔记 → 右栏编辑
-    row = js("(() => { const r = document.querySelector('.note-row'); return r ? r.textContent.slice(0,24) : null; })()")
+
+    # 点第一条笔记 → 原版 SpeednoteView 内置编辑器（Milkdown）
+    row = js("(() => { const r = document.querySelector('.nft-note-row'); return r ? r.textContent.slice(0,24) : null; })()")
     for _ in range(3):
-        if state()['notes']['editor']:
+        if notes_probe()['editor']:
             break
         if not row:
             break
-        click_css('.note-row', settle=1.6)
-    st_ed = state()
+        click_css('.nft-note-row', settle=1.8)
+    np2 = notes_probe()
     sk3 = styles()
     res['items']['V2_notes_editor'] = {
         'row': row,
-        'state': {'notes': st_ed['notes'], 'editor': sk3['editor'] is not None},
+        'state': {'rows': np2['rows'], 'editor': np2['editor'], 'body': np2['body']},
         'editor': sk3['editor'], 'shot': screen_shot('v11_04_notes_editor.png'),
     }
     sk4 = styles()
     mat = {}
-    for k in ('rail', 'list', 'editor', 'eave'):
+    for k in ('rail', 'list', 'eave'):
         s = sk4[k]
         mat[k] = s and {
             'glass_chat': 'linear-gradient' in s['bgImage'] and 'rgba(28, 36, 48, 0.96)' in s['bgImage'],
             'border': s['border'], 'radius': s['radius'], 'blur': s['blur'], 'size': s['size'],
+            'bgImage': s['bgImage'],
         }
     res['items']['V2_material_unified'] = {
         'surfaces': mat,
@@ -437,13 +446,22 @@ def phase_visual():
         'island_chat': skc['island'],
         'expect': '--glass-chat 全表面；青边 1px rgba(0,229,255,0.22)；面板圆角 12px；blur(18px)',
     }
-    ok_mat = all(v and v['glass_chat'] and border_ok(v['border'])
-                 and v['radius'] == '12px' and 'blur(18px)' in v['blur'] for v in mat.values())
+    # 宽面板（笔记/待办/速达/剪贴板/启动）改用全不透明实底：透明窗 + WebView2 下
+    # 大面积半透明层会透出背后桌面文字（0.98 alpha 都漏）。所以「全表面同一个玻璃」
+    # 这条只对窄面（左轨 / 舷边 / 岛）成立；宽面板要求的是「不透明实底 + 同一套边/圆角/blur」。
+    def surface_ok(key, v):
+        if not v or not border_ok(v['border']) or v['radius'] != '12px':
+            return False
+        if key == 'list':
+            bg = v.get('bgImage') or ''
+            return '#0a0e15' in bg.lower() or 'rgb(' in bg
+        return bool(v['glass_chat']) and 'blur(18px)' in v['blur']
+
+    ok_mat = all(surface_ok(k, v) for k, v in mat.items())
     it2 = res['items']['V2_material_unified']
-    it2['ok'] = bool(ok_mat and res['items']['V2_notes_list']['state']['notes']['list']
-                     and res['items']['V2_notes_editor']['state']['notes']['editor'])
-    res['items']['V2_notes_list']['ok'] = bool(res['items']['V2_notes_list']['state']['notes']['list'])
-    res['items']['V2_notes_editor']['ok'] = bool(res['items']['V2_notes_editor']['state']['notes']['editor'])
+    it2['ok'] = bool(ok_mat and np2['rows'] > 0 and np2['editor'])
+    res['items']['V2_notes_list']['ok'] = bool(np1['rows'] > 0)
+    res['items']['V2_notes_editor']['ok'] = bool(np2['editor'] and np2['body'])
 
     # ---------- V3 第一人称 HUD：中央穿透 + 克制装饰 ----------
     backdrop = V.start_backdrop()

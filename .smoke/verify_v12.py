@@ -110,7 +110,24 @@ def set_textarea(val):
     })()""" % (json.dumps(val), json.dumps(val)))
 
 
+def reveal_deck():
+    """把 HUD 从「贴顶收起」唤回：光标先压到屏幕顶边（岛只露一条唇边时点不到任何控件），
+    等 hover 生效再继续。否则后续 click_css 会算到 y<0 的屏外坐标，点了等于没点。"""
+    for _ in range(6):
+        try:
+            st = json.loads(js('JSON.stringify({mode:__helmet.mode, geo:__helmet.geo, docked:__helmet.docked})'))
+        except Exception:  # noqa: BLE001
+            return False
+        if st['docked'] is False and st['mode'] != 'lip':
+            return True
+        sc, rect = scale_now()
+        V.move_to(rect[0] + (rect[2] - rect[0]) / 2, rect[1] + 2)
+        time.sleep(0.9)
+    return True
+
+
 def chat_open():
+    reveal_deck()
     if js("!!document.querySelector('.island-chat')"):
         return True
     V.hotkey(['ctrl', 'shift'], 'k')

@@ -1,5 +1,5 @@
 {
- "pid": 20964,
+ "pid": 26132,
  "title": "Helmet",
  "items": {
   "V1_island_compact": {
@@ -34,7 +34,7 @@
    "mode_after": "deck",
    "deck": true,
    "chat": false,
-   "ceremony_count": 7,
+   "ceremony_count": 21,
    "attempts": [
     {
      "click": {
@@ -82,12 +82,12 @@
     "deck": true
    },
    "ceremony_counter": {
-    "before": 7,
-    "after": 8
+    "before": 21,
+    "after": 22
    },
    "mutations": [
     {
-     "t": 385,
+     "t": 364,
      "cls": "fx is-on",
      "anims": [
       null,
@@ -95,7 +95,7 @@
      ]
     },
     {
-     "t": 387,
+     "t": 365,
      "cls": "fx is-on is-ceremony",
      "anims": [
       {
@@ -109,7 +109,7 @@
      ]
     },
     {
-     "t": 570,
+     "t": 538,
      "cls": "fx is-on",
      "anims": [
       null,
@@ -117,9 +117,9 @@
      ]
     }
    ],
-   "class_on_ms": 387,
-   "class_off_ms": 570,
-   "flash_ms_measured": 183,
+   "class_on_ms": 365,
+   "class_off_ms": 538,
+   "flash_ms_measured": 173,
    "animations": [
     {
      "name": "gFlash",
@@ -131,32 +131,26 @@
     }
    ],
    "animation_150ms": true,
-   "max_grain_opacity": 0.0393462,
-   "max_chroma_opacity": 0.639376,
-   "visible_frames": 4,
+   "max_grain_opacity": 0.0393339,
+   "max_chroma_opacity": 0.639176,
+   "visible_frames": 3,
    "visible_frames_sample": [
     {
-     "t": 414,
-     "g": 0.018709,
-     "c": 0.304021,
+     "t": 397,
+     "g": 0.0187257,
+     "c": 0.304292,
+     "fx": "fx is-on is-ceremony"
+    },
+    {
+     "t": 411,
+     "g": 0.0341078,
+     "c": 0.554252,
      "fx": "fx is-on is-ceremony"
     },
     {
      "t": 430,
-     "g": 0.0341549,
-     "c": 0.555017,
-     "fx": "fx is-on is-ceremony"
-    },
-    {
-     "t": 454,
-     "g": 0.0393462,
-     "c": 0.639376,
-     "fx": "fx is-on is-ceremony"
-    },
-    {
-     "t": 532,
-     "g": 0.000824979,
-     "c": 0.0134059,
+     "g": 0.0393339,
+     "c": 0.639176,
      "fx": "fx is-on is-ceremony"
     }
    ],
@@ -169,27 +163,27 @@
      1528
     ],
     "fullscreen_mean_rgb": [
-     1.21,
-     0.79,
-     0.65
-    ],
-    "fullscreen_max": 213,
-    "right_area_mean_rgb": [
-     2.72,
      0.97,
-     0.78
+     0.51,
+     0.42
     ],
-    "right_area_max": 7
+    "fullscreen_max": 9,
+    "right_area_mean_rgb": [
+     2.5,
+     0.83,
+     0.72
+    ],
+    "right_area_max": 8
    },
    "peak_shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_05_expand_ceremony.png",
    "peak_shot_note": "同一条 CSS 动画暂停在 60ms 的峰值定格（对照 05-expand-ceremony.png）；非另造效果",
    "hotkey_expand": {
     "combo": "Ctrl+Shift+Space（收起态→展开）",
-    "counter_before": 8,
-    "counter_after": 9,
+    "counter_before": 22,
+    "counter_after": 23,
     "mutations": [
      {
-      "t": 76,
+      "t": 25,
       "cls": "fx is-on",
       "anims": [
        null,
@@ -197,7 +191,7 @@
       ]
      },
      {
-      "t": 77,
+      "t": 26,
       "cls": "fx is-on is-ceremony",
       "anims": [
        {
@@ -211,7 +205,7 @@
       ]
      },
      {
-      "t": 255,
+      "t": 207,
       "cls": "fx is-on",
       "anims": [
        null,
@@ -219,8 +213,8 @@
       ]
      }
     ],
-    "max_grain_opacity": 0.0393086,
-    "max_chroma_opacity": 0.638765,
+    "max_grain_opacity": 0.0393106,
+    "max_chroma_opacity": 0.638798,
     "ok": true
    },
    "ok": true
@@ -261,22 +255,17 @@
    "state": {
     "mode": "deck",
     "panel": "notes",
-    "notes": {
-     "list": true,
-     "editor": false,
-     "active": null,
-     "count": 9
-    }
+    "rows": 9
    },
    "list": {
-    "sel": ".panel-col.is-notes-list",
-    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "sel": ".panel-col.is-wide",
+    "bgImage": "linear-gradient(rgb(10, 14, 21), rgb(7, 10, 16))",
     "color": "rgba(0, 0, 0, 0)",
     "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
     "radius": "12px",
     "blur": "blur(18px) saturate(1.2)",
     "size": [
-     280,
+     820,
      875
     ],
     "opacity": "1",
@@ -286,26 +275,22 @@
    "ok": true
   },
   "V2_notes_editor": {
-   "row": "头盔笔记-真键验收（无正文）2026-11-06",
+   "row": "头盔笔记-验收",
    "state": {
-    "notes": {
-     "list": true,
-     "editor": true,
-     "active": 5,
-     "count": 9
-    },
-    "editor": true
+    "rows": 9,
+    "editor": true,
+    "body": "这是头盔面板里写下的正文。 第二行。"
    },
    "editor": {
-    "sel": ".panel-col.is-notes-editor",
-    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "sel": ".milkdown",
+    "bgImage": "none",
     "color": "rgba(0, 0, 0, 0)",
-    "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
-    "radius": "12px",
-    "blur": "blur(18px) saturate(1.2)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "0px",
+    "blur": "none",
     "size": [
-     420,
-     875
+     473,
+     765
     ],
     "opacity": "1",
     "pointerEvents": "auto"
@@ -323,27 +308,19 @@
      "size": [
       52,
       875
-     ]
+     ],
+     "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)"
     },
     "list": {
-     "glass_chat": true,
+     "glass_chat": false,
      "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
      "radius": "12px",
      "blur": "blur(18px) saturate(1.2)",
      "size": [
-      280,
+      820,
       875
-     ]
-    },
-    "editor": {
-     "glass_chat": true,
-     "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
-     "radius": "12px",
-     "blur": "blur(18px) saturate(1.2)",
-     "size": [
-      420,
-      875
-     ]
+     ],
+     "bgImage": "linear-gradient(rgb(10, 14, 21), rgb(7, 10, 16))"
     },
     "eave": {
      "glass_chat": true,
@@ -353,7 +330,8 @@
      "size": [
       600,
       52
-     ]
+     ],
+     "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)"
     }
    },
    "island_compact": {
@@ -396,14 +374,14 @@
    },
    "ignoring_before_click": true,
    "backdrop": {
-    "hwnd": 45617470,
+    "hwnd": 5310468,
     "hits": 0
    },
    "window_from_point": {
-    "root_title": "V10-Backdrop"
+    "root_title": "飞书"
    },
    "backdrop_hits_before": 0,
-   "backdrop_hits_after": 1,
+   "backdrop_hits_after": 0,
    "passthrough_ok": true,
    "decor": {
     "vig": {
@@ -451,7 +429,7 @@
    "docked": false,
    "ignoring": true,
    "boot": false,
-   "pct": 68,
+   "pct": 0,
    "hours": "09:00–17:30",
    "island": {
     "w": 268,
@@ -465,15 +443,15 @@
    "chat": false,
    "notes": {
     "list": true,
-    "editor": true,
-    "active": 5,
+    "editor": false,
+    "active": null,
     "count": 9
    },
    "lsCollapsed": "0",
    "lsHours": "{\"start\":\"09:00\",\"end\":\"17:30\"}",
-   "pctText": "68%",
+   "pctText": "0%",
    "model": null,
-   "active": "BODY||"
+   "active": "BUTTON|island-toggle|island-face"
   },
   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_final_idle.png"
  },
@@ -482,9 +460,9 @@
   "rule": "Vue watch(deckOpen) 由 false→true 时 playExpandCeremony()（flush:post，避免被重渲染冲掉类名）",
   "css": ".fx.is-ceremony → grain(gFlash 150ms) + chroma(cFlash 150ms) + edge(eFlash 150ms)",
   "flash_ms": 150,
-  "class_on_ms": 387,
-  "class_off_ms": 570,
-  "flash_ms_measured": 183,
+  "class_on_ms": 365,
+  "class_off_ms": 538,
+  "flash_ms_measured": 173,
   "animations": [
    {
     "name": "gFlash",
@@ -495,8 +473,8 @@
     "dur": 150
    }
   ],
-  "max_grain_opacity": 0.0393462,
-  "max_chroma_opacity": 0.639376,
+  "max_grain_opacity": 0.0393339,
+  "max_chroma_opacity": 0.639176,
   "peak_pixel_delta": {
    "fullscreen_bbox": [
     0,
@@ -505,29 +483,29 @@
     1528
    ],
    "fullscreen_mean_rgb": [
-    1.21,
-    0.79,
-    0.65
-   ],
-   "fullscreen_max": 213,
-   "right_area_mean_rgb": [
-    2.72,
     0.97,
-    0.78
+    0.51,
+    0.42
    ],
-   "right_area_max": 7
+   "fullscreen_max": 9,
+   "right_area_mean_rgb": [
+    2.5,
+    0.83,
+    0.72
+   ],
+   "right_area_max": 8
   },
   "counter_before_after": {
-   "before": 7,
-   "after": 8
+   "before": 21,
+   "after": 22
   },
   "hotkey_path": {
    "combo": "Ctrl+Shift+Space（收起态→展开）",
-   "counter_before": 8,
-   "counter_after": 9,
+   "counter_before": 22,
+   "counter_after": 23,
    "mutations": [
     {
-     "t": 76,
+     "t": 25,
      "cls": "fx is-on",
      "anims": [
       null,
@@ -535,7 +513,7 @@
      ]
     },
     {
-     "t": 77,
+     "t": 26,
      "cls": "fx is-on is-ceremony",
      "anims": [
       {
@@ -549,7 +527,7 @@
      ]
     },
     {
-     "t": 255,
+     "t": 207,
      "cls": "fx is-on",
      "anims": [
       null,
@@ -557,8 +535,8 @@
      ]
     }
    ],
-   "max_grain_opacity": 0.0393086,
-   "max_chroma_opacity": 0.638765,
+   "max_grain_opacity": 0.0393106,
+   "max_chroma_opacity": 0.638798,
    "ok": true
   },
   "pointer_events": "none",

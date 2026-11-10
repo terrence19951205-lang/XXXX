@@ -2323,3 +2323,31 @@ select:focus {
 .settings-host .sv-nav {
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
+
+/* 岛上两个快捷动作：截图 / 录屏（与齿轮同尺寸，避免把岛撑高） */
+.island-act {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1;
+  color: #9fb0c4;
+  background: transparent;
+}
+.island-act:hover {
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.12);
+}
+
+/* 唤起原版选区层时把自己藏起来：HUD 常驻置顶，不藏就会被印进用户的截图里 */
+.helmet-root.is-capturing .island-wrap,
+.helmet-root.is-capturing .panel-col,
+.helmet-root.is-capturing .dock,
+.helmet-root.is-capturing .island-hot,
+.helmet-root.is-capturing .fx {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: none !important;
+}

@@ -88,6 +88,54 @@ const mode = ref<Mode>('idle')
 const panel = ref<PanelKey>('todos')
 /** 设置面板的两个页签：system = 原版 SettingsView（系统级配置）；island = 小岛自己的口径 */
 const settingsTab = ref<'system' | 'island'>('system')
+
+/* 截图 / 录屏：原版是两个独立窗口（recorder-overlay / recorder-control），由后端预创建。
+ * 壳这边不做面板，只做「唤起」——但必须先把自己藏起来：HUD 是常驻置顶的，
+ * 不藏就会把自己（岛、面板、阴影）印进用户的截图里。 */
+const capturing = ref(false)
+let captureTimer: number | null = null
+
+async function openCapture(mode: 'shot' | 'record') {
+  if (!isTauri()) return
+  capturing.value = true
+  if (captureTimer) window.clearTimeout(captureTimer)
+  // 兜底：万一焦点没回来（用户切到别的程序），60 秒后自己恢复，不留在隐形状态
+  captureTimer = window.setTimeout(() => {
+    capturing.value = false
+    captureTimer = null
+  }, 60_000)
+  try {
+    await tauriApi.recorderOpenOverlay(mode)
+  } catch (e) {
+    capturing.value = false
+    showToast(String(e))
+  }
+}
+
+/** 壳这边替用户收掉选区层：选区层显示时键盘焦点可能仍落在 HUD（我们自己把窗口
+ *  藏起来但没让出焦点），Overlay 内置的 Esc 就收不到；用户在 HUD 上按 Esc 时
+ *  由我们调 recorder_close_overlay，交互结果一致。 */
+async function closeCapture() {
+  if (!isTauri()) return
+  try {
+    await tauriApi.recorderCloseOverlay()
+  } catch {
+    /* 窗口已收也不该报错打扰用户 */
+  }
+  endCapture()
+}
+
+/** 选区层收工（截图完成或被 Esc 取消）→ 把自己显回来。
+ *  不能靠 window focus 判断：实测选区层 set_focus 后 HUD 仍会收到 focus，
+ *  一收到就恢复 → 岛又出现在用户的截图里。改用后端 hide_overlay 的全局广播。 */
+function endCapture() {
+  if (!capturing.value) return
+  capturing.value = false
+  if (captureTimer) {
+    window.clearTimeout(captureTimer)
+    captureTimer = null
+  }
+}
 const ready = ref(false)
 const noAnim = ref(false)
 const ignoring = ref<boolean | null>(null)
@@ -907,6 +955,13 @@ function onKeydown(e: KeyboardEvent) {
     endBoot()
     return
   }
+  // 选区层开着时，Esc 先归选区层：HUD 这时是隐藏但仍持焦的，
+  // 不接管的话 Overlay 自己的 keydown 根本收不到，用户会觉得 Esc 失灵。
+  if (capturing.value && e.key === 'Escape') {
+    e.preventDefault()
+    void closeCapture()
+    return
+  }
   if (e.key === 'Escape') {
     e.preventDefault()
     if (hoursOpen.value) {
@@ -995,6 +1050,12 @@ onMounted(async () => {
   docked.value = readCollapsed()
   void loadSettings()
   window.addEventListener('keydown', onKeydown)
+  if (isTauri()) {
+    // 选区层 hide_overlay() 里的全局广播（截图完成 / Esc 取消都会走到）
+    void listen('recorder-overlay-hidden', () => endCapture()).then((un) =>
+      unlisteners.push(un),
+    )
+  }
   window.addEventListener('pointerdown', onPointerDownAny, true)
   window.addEventListener('pointermove', onAnyPointerMove, { passive: true })
   nowMs.value = Date.now()
@@ -1132,7 +1193,13 @@ defineExpose({ openPanel, setMode })
   <div
     ref="rootEl"
     class="helmet-root"
-    :class="{ ready, 'no-anim': noAnim, 'island-docked': docked, compact: geo !== 'full' }"
+    :class="{
+      ready,
+      'no-anim': noAnim,
+      'island-docked': docked,
+      compact: geo !== 'full',
+      'is-capturing': capturing,
+    }"
     :data-mode="mode"
     :data-panel="panel"
   >
@@ -1182,6 +1249,27 @@ defineExpose({ openPanel, setMode })
               </svg>
             </span>
           </div>
+          <!-- 截图 / 录屏：唤起原版全屏选区层（recorder-overlay 窗由后端预创建） -->
+          <button
+            class="island-act hit"
+            type="button"
+            data-act="shot"
+            title="区域截图（原版选区层：框选后可标注，出图进剪贴板）"
+            aria-label="区域截图"
+            @click.stop="openCapture('shot')"
+          >
+            ⌗
+          </button>
+          <button
+            class="island-act hit"
+            type="button"
+            data-act="record"
+            title="GIF 录屏（原版选区层：框选后设帧率与时长）"
+            aria-label="GIF 录屏"
+            @click.stop="openCapture('record')"
+          >
+            ◉
+          </button>
           <button
             class="island-gear"
             type="button"

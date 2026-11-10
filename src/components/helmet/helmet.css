@@ -2161,3 +2161,111 @@ select:focus {
 .prompt-manage:hover {
   background: rgba(0, 229, 255, 0.14);
 }
+
+/* 对话舱：工具卡片时间线（与原版 ChatPanel 的 tc-* 同语义，配色走 HUD 口径） */
+.tc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 2px;
+}
+.tc-card {
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+}
+.tc-card.lv-dangerous {
+  box-shadow: inset 0 0 0 1px rgba(255, 46, 151, 0.35);
+}
+.tc-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.tc-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  flex: 0 0 auto;
+}
+.tc-card.lv-dangerous .tc-dot {
+  background: var(--magenta);
+}
+.tc-name {
+  flex: 1 1 auto;
+  color: #dfe7f2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tc-st {
+  flex: 0 0 auto;
+  color: var(--muted-foreground, #8b98ab);
+  font-size: 10px;
+}
+.tc-st.ok {
+  color: #3dff9a;
+}
+.tc-st.awaiting {
+  color: #e8b84a;
+}
+.tc-st.error,
+.tc-st.denied {
+  color: #ff6b8a;
+}
+.tc-sum {
+  margin-top: 3px;
+  color: #a9b6c8;
+  line-height: 1.45;
+}
+.tc-det {
+  margin-top: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  max-height: 120px;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.28);
+  color: #93a1b4;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tc-acts {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.tc-b {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: #dfe7f2;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.tc-b.ok {
+  color: #0a1208;
+  background: #3dff9a;
+  box-shadow: none;
+}
+.tc-b.alw {
+  color: #10202a;
+  background: #7fd6e8;
+  box-shadow: none;
+}
+.tc-b.no {
+  color: #ff9fb4;
+  background: rgba(255, 46, 151, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 46, 151, 0.35);
+}
+/* 舱头：「智能体」态高亮 */
+.island-chat .chat-top .btn.is-on {
+  color: #04121a;
+  background: var(--cyan);
+}

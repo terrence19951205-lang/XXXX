@@ -14,6 +14,7 @@ import {
   type ChatMessage,
   type ChatModelConfig,
   type ChatSession,
+  type ChatStreamEvent,
   type Snippet,
 } from '../../api/tauri'
 
@@ -61,6 +62,96 @@ const promptId = ref<number | null>(null)
 const promptOpen = ref(false)
 /** 原版提示词管理弹窗（增删改/置顶），挂在舱内 */
 const promptManageOpen = ref(false)
+
+/* ---------- 智能体（工具循环 + 审批） ----------
+ * x-hub 的 ChatPanel 有完整一套：工具卡片时间线 + awaiting 审批（允许/本会话允许/拒绝）。
+ * 舱里原来只走 send_chat_message（纯问答），工具和审批都落不到界面上，
+ * 等于「AI 只能聊，不能替你办事」。这里把 agent 事件流接进来。 */
+type ToolCard = {
+  callId: string
+  name: string
+  args: string
+  level: string
+  status: 'running' | 'awaiting' | 'ok' | 'error' | 'denied'
+  turnId: string
+  summary: string
+  detail: string
+  open: boolean
+}
+const agentMode = ref(false)
+const permissionMode = ref<'readonly' | 'ask' | 'full'>('ask')
+const toolCards = ref<ToolCard[]>([])
+const activeTurnId = ref('')
+
+const PERM_LABEL: Record<string, string> = {
+  readonly: '只读',
+  ask: '询问',
+  full: '全权',
+}
+
+function cardOf(callId: string) {
+  return toolCards.value.find((c) => c.callId === callId)
+}
+function pushToolCard(c: Partial<ToolCard> & { callId: string; name: string }) {
+  const card: ToolCard = {
+    args: '',
+    level: '',
+    status: 'running',
+    turnId: '',
+    summary: '',
+    detail: '',
+    open: false,
+    ...c,
+  }
+  toolCards.value.push(card)
+  return card
+}
+
+/** 回答挂起审批（原版同名字段：once / always / deny） */
+async function respondApproval(card: ToolCard, answer: 'once' | 'always' | 'deny') {
+  card.status = 'running'
+  try {
+    await tauriApi.respondAgentApproval(card.turnId, card.callId, answer)
+  } catch (e) {
+    card.status = 'error'
+    error.value = String(e)
+  }
+}
+
+/** 切回会话时把仍在等待确认的审批还原成 awaiting 卡片（原版同口径）：
+ *  挂起审批不落库，不查回来就只剩「停止」一条路。 */
+async function restoreApprovals(sessionId: number) {
+  toolCards.value = []
+  activeTurnId.value = ''
+  let pending: Awaited<ReturnType<typeof tauriApi.listAgentApprovals>> = []
+  try {
+    pending = await tauriApi.listAgentApprovals(sessionId)
+  } catch {
+    return
+  }
+  if (activeId.value !== sessionId) return
+  for (const a of pending) {
+    pushToolCard({
+      callId: a.callId,
+      name: a.name,
+      args: a.args,
+      level: a.level,
+      status: 'awaiting',
+      turnId: a.turnId,
+      open: true,
+    })
+  }
+}
+
+/** 中断当前回合：已执行的写操作不回滚（后端口径） */
+async function stopTurn() {
+  if (!activeTurnId.value) return
+  try {
+    await tauriApi.cancelAgentTurn(activeTurnId.value)
+  } catch (e) {
+    error.value = String(e)
+  }
+}
 const promptErr = ref('')
 const promptBar = ref<HTMLElement | null>(null)
 
@@ -178,6 +269,7 @@ async function selectSession(id: number) {
   modelName.value = s ? displayModel(s.model_name) : modelName.value
   try {
     messages.value = await tauriApi.listChatMessages(id)
+    await restoreApprovals(id)
     await scrollBottom()
   } catch (e) {
     error.value = String(e)
@@ -276,25 +368,67 @@ async function send() {
   })
   await scrollBottom()
 
-  try {
-    await tauriApi.sendChatMessage(sid, text, (ev) => {
-      if (ev.type === 'chunk') {
-        draft.value += ev.content
-        const last = messages.value[messages.value.length - 1]
-        if (last && last.id === -2) last.content = draft.value
-        void scrollBottom()
-      } else if (ev.type === 'done') {
-        const last = messages.value[messages.value.length - 1]
-        if (last && last.id === -2) {
-          last.id = ev.message.id
-          last.content = ev.message.content
-        }
-        const i = sessions.value.findIndex((x) => x.id === ev.session.id)
-        if (i >= 0) sessions.value[i] = ev.session
-      } else if (ev.type === 'error') {
-        error.value = ev.message
+  // 一轮开始：清上一轮的工具卡片，避免跨轮串台
+  toolCards.value = []
+  activeTurnId.value = ''
+
+  const onEvent = (ev: ChatStreamEvent) => {
+    if (ev.type === 'chunk') {
+      draft.value += ev.content
+      const last = messages.value[messages.value.length - 1]
+      if (last && last.id === -2) last.content = draft.value
+      void scrollBottom()
+    } else if (ev.type === 'turnStart') {
+      activeTurnId.value = ev.turnId
+    } else if (ev.type === 'toolCall') {
+      pushToolCard({
+        callId: ev.callId,
+        name: ev.name,
+        args: ev.args,
+        level: ev.level,
+        status: 'running',
+        turnId: ev.turnId,
+      })
+      void scrollBottom()
+    } else if (ev.type === 'toolResult') {
+      const c = cardOf(ev.callId)
+      if (c) {
+        c.status = ev.ok ? 'ok' : 'error'
+        c.summary = ev.summary
+        c.detail = ev.detail
       }
-    })
+      void scrollBottom()
+    } else if (ev.type === 'approvalRequest') {
+      activeTurnId.value = ev.turnId
+      pushToolCard({
+        callId: ev.callId,
+        name: ev.name,
+        args: ev.args,
+        level: ev.level,
+        status: 'awaiting',
+        turnId: ev.turnId,
+        open: true,
+      })
+      void scrollBottom()
+    } else if (ev.type === 'done') {
+      const last = messages.value[messages.value.length - 1]
+      if (last && last.id === -2) {
+        last.id = ev.message.id
+        last.content = ev.message.content
+      }
+      const i = sessions.value.findIndex((x) => x.id === ev.session.id)
+      if (i >= 0) sessions.value[i] = ev.session
+    } else if (ev.type === 'error') {
+      error.value = ev.message
+    }
+  }
+
+  try {
+    if (agentMode.value) {
+      await tauriApi.sendAgentMessage(sid, text, permissionMode.value, onEvent)
+    } else {
+      await tauriApi.sendChatMessage(sid, text, onEvent)
+    }
     // 以落库结果为准（后端可能改名/裁剪）
     messages.value = await tauriApi.listChatMessages(sid)
     const fresh = await tauriApi.listChatSessions()
@@ -341,6 +475,28 @@ defineExpose({ load, loadPrompts })
       </select>
       <button class="btn sm cut-sm" :disabled="streaming" @click="newSession">新会话</button>
       <button class="btn sm cut-sm" @click="$emit('close')">收起</button>
+      <button
+        class="btn sm cut-sm"
+        :class="{ 'is-on': agentMode }"
+        data-agent-toggle
+        :title="agentMode ? '智能体模式：可调用工具并按权限档位执行' : '普通对话模式：只回答，不调用工具'"
+        @click="agentMode = !agentMode"
+      >
+        {{ agentMode ? '智能体' : '对话' }}
+      </button>
+      <button
+        v-if="agentMode"
+        class="btn sm cut-sm"
+        data-perm-cycle
+        :title="'工具执行权限：' + PERM_LABEL[permissionMode] + '（点击切换 只读 → 询问 → 全权）'"
+        @click="
+          permissionMode =
+            permissionMode === 'readonly' ? 'ask' : permissionMode === 'ask' ? 'full' : 'readonly'
+        "
+      >
+        {{ PERM_LABEL[permissionMode] }}
+      </button>
+      <button v-if="activeTurnId" class="btn sm cut-sm" data-stop-turn @click="stopTurn">停止</button>
     </div>
 
     <!-- 功能直达条：AI 对话在所有功能之上，从舱里一步切到任一面板 -->
@@ -383,6 +539,46 @@ defineExpose({ load, loadPrompts })
       >
         <div class="who">{{ m.role === 'user' ? '我' : 'AI' }}</div>
         <span :class="{ typing: streaming && m.id === -2 }">{{ m.content }}</span>
+      </div>
+
+      <!-- 工具卡片时间线（原版 ChatPanel 同口径）：running / awaiting / ok / error -->
+      <div v-if="toolCards.length" class="tc-list" data-tc-list>
+        <div
+          v-for="c in toolCards"
+          :key="c.callId"
+          class="tc-card"
+          :class="'lv-' + (c.level || 'none')"
+          :data-call="c.callId"
+        >
+          <div class="tc-head" @click="c.open = !c.open">
+            <span class="tc-dot" />
+            <span class="tc-name">{{ c.name }}</span>
+            <span class="tc-st" :class="c.status">
+              {{
+                c.status === 'running'
+                  ? '执行中'
+                  : c.status === 'awaiting'
+                    ? '等待确认'
+                    : c.status === 'ok'
+                      ? '完成'
+                      : c.status === 'denied'
+                        ? '已拒绝'
+                        : '失败'
+              }}
+            </span>
+          </div>
+          <div v-if="c.summary" class="tc-sum">{{ c.summary }}</div>
+          <div v-if="c.open && (c.detail || c.args)" class="tc-det">{{ c.detail || c.args }}</div>
+          <div v-if="c.status === 'awaiting'" class="tc-acts">
+            <button class="tc-b ok" :data-approve="c.callId" @click.stop="respondApproval(c, 'once')">
+              允许
+            </button>
+            <button class="tc-b alw" @click.stop="respondApproval(c, 'always')">本会话允许</button>
+            <button class="tc-b no" :data-deny="c.callId" @click.stop="respondApproval(c, 'deny')">
+              拒绝
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 

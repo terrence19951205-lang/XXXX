@@ -30,7 +30,7 @@ import HelmetTodoPanel from './helmet/HelmetTodoPanel.vue'
 import HelmetNotesPanel from './helmet/HelmetNotesPanel.vue'
 import HelmetNoteEditor from './helmet/HelmetNoteEditor.vue'
 import HelmetClipboardPanel from './helmet/HelmetClipboardPanel.vue'
-import HelmetLaunchPanel from './helmet/HelmetLaunchPanel.vue'
+import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
@@ -841,11 +841,6 @@ function onTaken(label: string) {
   void setMode('idle')
 }
 
-function onLaunched(name: string) {
-  showToast('已调起：' + name)
-  void setMode('idle')
-}
-
 /* ------------------------------------------------------------------ */
 /* 全局快捷键 → HUD 内面板                                             */
 /* ------------------------------------------------------------------ */
@@ -1295,7 +1290,11 @@ defineExpose({ openPanel, setMode })
 
         <aside
           class="panel-col panel hit"
-          :class="{ 'is-notes-list': panel === 'notes', 'is-collapsed': panel === 'notes' && !noteListOpen }"
+          :class="{
+            'is-notes-list': panel === 'notes',
+            'is-collapsed': panel === 'notes' && !noteListOpen,
+            'is-wide': panel === 'launch',
+          }"
           aria-label="shell-hub 面板"
         >
           <pre class="ascii-bg is-work" aria-hidden="true">{{ asciiPanel }}</pre>
@@ -1311,11 +1310,7 @@ defineExpose({ openPanel, setMode })
             @count="clipCount = $event"
             @taken="onTaken"
           />
-          <HelmetLaunchPanel
-            v-if="panel === 'launch'"
-            @launched="onLaunched"
-            @toast="showToast"
-          />
+          <HelmetSudaPanel v-if="panel === 'launch'" />
           <div v-if="panel === 'settings'" class="work">
             <div class="work-hd">
               <div class="title">设置 <span class="en">Settings</span></div>

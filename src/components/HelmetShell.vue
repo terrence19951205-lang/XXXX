@@ -125,6 +125,20 @@ async function closeCapture() {
   endCapture()
 }
 
+function onSudaOpenPanel(e: Event) {
+  const detail = (e as CustomEvent<{ id: number; name?: string }>).detail
+  if (!detail || typeof detail.id !== 'number') return
+  void tauriApi
+    .sudaBrowserOpen(detail.id)
+    .then(() => {
+      // 浏览器窗是普通窗，HUD 常驻置顶会压在它上面：把 deck 收起来，
+      // 让出画面（岛还在，随时可再展开），别让面板挡着用户要看的东西。
+      setMode('idle')
+      showToast(`已在应用内浏览器打开 ${detail.name ?? '网页'}`)
+    })
+    .catch((err) => showToast(String(err)))
+}
+
 /** 选区层收工（截图完成或被 Esc 取消）→ 把自己显回来。
  *  不能靠 window focus 判断：实测选区层 set_focus 后 HUD 仍会收到 focus，
  *  一收到就恢复 → 岛又出现在用户的截图里。改用后端 hide_overlay 的全局广播。 */
@@ -1050,6 +1064,14 @@ onMounted(async () => {
   docked.value = readCollapsed()
   void loadSettings()
   window.addEventListener('keydown', onKeydown)
+  // 速达里点「网页」资源：原版 store 会派发 suda-open-web-panel，交给主窗的
+  // suda-web 视图去渲染内嵌面板。那个面板是 main 窗的子 webview（main.add_child），
+  // 在 HUD 里没有 main 窗可供挂靠 —— 所以壳这边把它转成「应用内浏览器窗口」
+  //（原版同一套池窗口 suda-web-{i} + BrowserChrome，标签页/地址栏/前进后退都在）。
+  window.addEventListener('suda-open-web-panel', onSudaOpenPanel as EventListener)
+  unlisteners.push(() =>
+    window.removeEventListener('suda-open-web-panel', onSudaOpenPanel as EventListener),
+  )
   if (isTauri()) {
     // 选区层 hide_overlay() 里的全局广播（截图完成 / Esc 取消都会走到）
     void listen('recorder-overlay-hidden', () => endCapture()).then((un) =>

@@ -31,13 +31,14 @@ import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
 import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetStickyPanel from './helmet/HelmetStickyPanel.vue'
+import HelmetCountdownPanel from './helmet/HelmetCountdownPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
 import GlobalSearch from './GlobalSearch.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
 
 type Mode = 'idle' | 'deck' | 'chat'
-type PanelKey = 'todos' | 'notes' | 'clipboard' | 'sticky' | 'launch' | 'settings'
+type PanelKey = 'todos' | 'notes' | 'clipboard' | 'sticky' | 'countdown' | 'launch' | 'settings'
 
 const LS_OLD_COLLAPSE = 'rr.hud.collapsed'
 const LS_HOURS = 'rr.hud.hours'
@@ -584,7 +585,8 @@ function cursorOverHit(lx: number, ly: number): boolean {
   // 否则弹窗区域会被判成「非控件」→ 穿透开 → 点不动
   const hits = [
     ...root.querySelectorAll<HTMLElement>('.hit'),
-    ...document.querySelectorAll<HTMLElement>('.modal-mask .search-card'),
+    // 任何 Teleport 到 body 的原版弹窗（搜索卡片 / 新建倒计时 .modal-card / 以后别的）
+    ...document.querySelectorAll<HTMLElement>('.modal-mask > *'),
   ]
   for (const el of hits) {
     // 关闭态的躯干/浮层 visibility:hidden（会继承），其矩形仍在原位——
@@ -1277,16 +1279,26 @@ defineExpose({ openPanel, setMode })
           </button>
           <button
             class="nav-btn"
+            data-nav="countdown"
+            :class="{ 'is-on': panel === 'countdown' && deckOpen }"
+            title="倒计时"
+            @click="openPanel('countdown')"
+          >
+            <span class="ico">05</span>
+            <span class="lab">倒计时</span>
+          </button>
+          <button
+            class="nav-btn"
             data-nav="launch"
             :class="{ 'is-on': panel === 'launch' && deckOpen }"
             title="启动常用工具"
             @click="openPanel('launch')"
           >
-            <span class="ico">05</span>
+            <span class="ico">06</span>
             <span class="lab">启动常用</span>
           </button>
           <button class="nav-btn" data-nav="search" title="搜索" @click="focusSearch">
-            <span class="ico">06</span>
+            <span class="ico">07</span>
             <span class="lab">搜索</span>
           </button>
           <span class="rail-sep" aria-hidden="true" />
@@ -1306,7 +1318,7 @@ defineExpose({ openPanel, setMode })
           class="panel-col panel hit"
           :class="{
             'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' || panel === 'clipboard',
-            'is-mid': panel === 'sticky',
+            'is-mid': panel === 'sticky' || panel === 'countdown',
           }"
           aria-label="shell-hub 面板"
         >
@@ -1315,6 +1327,7 @@ defineExpose({ openPanel, setMode })
           <HelmetNotesFullPanel v-if="panel === 'notes'" />
           <HelmetClipboardFullPanel v-if="panel === 'clipboard'" />
           <HelmetStickyPanel v-if="panel === 'sticky'" />
+          <HelmetCountdownPanel v-if="panel === 'countdown'" />
           <HelmetSudaPanel v-if="panel === 'launch'" />
           <div v-if="panel === 'settings'" class="work">
             <div class="work-hd">

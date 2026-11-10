@@ -28,7 +28,7 @@ import {
 import HelmetChatCabin from './helmet/HelmetChatCabin.vue'
 import HelmetTodoFullPanel from './helmet/HelmetTodoFullPanel.vue'
 import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
-import HelmetClipboardPanel from './helmet/HelmetClipboardPanel.vue'
+import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
@@ -838,11 +838,6 @@ async function refreshBadges() {
   }
 }
 
-function onTaken(label: string) {
-  showToast('已放回剪贴板：' + label.slice(0, 24))
-  void setMode('idle')
-}
-
 /* ------------------------------------------------------------------ */
 /* 全局快捷键 → HUD 内面板                                             */
 /* ------------------------------------------------------------------ */
@@ -1292,17 +1287,15 @@ defineExpose({ openPanel, setMode })
 
         <aside
           class="panel-col panel hit"
-          :class="{ 'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' }"
+          :class="{
+            'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' || panel === 'clipboard',
+          }"
           aria-label="shell-hub 面板"
         >
           <pre class="ascii-bg is-work" aria-hidden="true">{{ asciiPanel }}</pre>
           <HelmetTodoFullPanel v-if="panel === 'todos'" />
           <HelmetNotesFullPanel v-if="panel === 'notes'" />
-          <HelmetClipboardPanel
-            v-if="panel === 'clipboard'"
-            @count="clipCount = $event"
-            @taken="onTaken"
-          />
+          <HelmetClipboardFullPanel v-if="panel === 'clipboard'" />
           <HelmetSudaPanel v-if="panel === 'launch'" />
           <div v-if="panel === 'settings'" class="work">
             <div class="work-hd">

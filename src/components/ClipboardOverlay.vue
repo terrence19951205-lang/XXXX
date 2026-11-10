@@ -20,6 +20,14 @@ useShellThemeConfig()
 useScrollbarHover()
 
 const appWindow = isTauri() ? getCurrentWindow() : null
+
+/**
+ * 嵌入模式：这个组件原本是独立浮层窗口（clipboard.html）的页面，
+ * 窗口级别的行为（失焦自动收起、按住标题拖动窗口、Esc 收起窗口、
+ * 点条目粘贴到上一个窗口）在 Helmet 面板里都是有害的。
+ * embedded=true 时只保留「历史列表 + 搜索 + 置顶 + 删除 + 存速记」这些本体功能。
+ */
+const props = defineProps<{ embedded?: boolean }>()
 const keyword = ref('')
 const items = ref<ClipboardItem[]>([])
 const selected = ref(0)
@@ -166,7 +174,7 @@ onMounted(async () => {
   // 之类的方法内部使用，而本窗口只读剪贴板自身数据（loadList/loadInfo 各自拉）。
   // 那份全量数据（资源/笔记/待办/便签/提示词…）是浮层 renderer 活堆的大头。
   reset()
-  appWindow?.onFocusChanged(onFocusChanged)
+  if (!props.embedded) appWindow?.onFocusChanged(onFocusChanged)
   if (isTauri()) await listen('clipboard-shown', onShown)
   document.addEventListener('keydown', onKeydown)
 })
@@ -180,6 +188,8 @@ onBeforeUnmount(() => {
 
 async function pasteItem(item: ClipboardItem) {
   if (!isTauri()) return
+  // 嵌入模式没有「上一个窗口」可粘贴，退化为复制（与浮层里 onCopy 同一条命令）
+  if (props.embedded) return onCopy(item)
   try {
     // Rust 侧：写入剪贴板 → 条目挪到最前；若唤起前是本应用主窗口，
     // 由主窗口 JS 直接插回原输入框（不依赖焦点时序的 Ctrl+V 注入）
@@ -331,6 +341,7 @@ const DRAG_THRESHOLD = 4
 let dragPending: { x: number; y: number } | null = null
 
 function onHeaderMouseDown(e: MouseEvent) {
+  if (props.embedded) return
   if (!appWindow || e.button !== 0) return
   const target = e.target as HTMLElement
   if (target.closest('button')) return
@@ -338,7 +349,7 @@ function onHeaderMouseDown(e: MouseEvent) {
 }
 
 function onHeaderMouseMove(e: MouseEvent) {
-  if (!dragPending || !appWindow) return
+  if (props.embedded || !dragPending || !appWindow) return
   const dx = e.screenX - dragPending.x
   const dy = e.screenY - dragPending.y
   if (dx * dx + dy * dy >= DRAG_THRESHOLD * DRAG_THRESHOLD) {
@@ -366,6 +377,8 @@ function onKeydown(e: KeyboardEvent) {
       return
     }
     // 收起并恢复唤起前窗口焦点（Esc 时前台仍是浮层，需主动归还焦点）
+    // 嵌入在 Helmet 面板里时不收起任何窗口
+    if (props.embedded) return
     if (isTauri()) void tauriApi.clipboardHide()
     else void appWindow?.hide()
     return

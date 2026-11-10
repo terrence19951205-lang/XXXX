@@ -2269,3 +2269,57 @@ select:focus {
   color: #04121a;
   background: var(--cyan);
 }
+
+/* 设置面板：页签 + 原版 SettingsView 宿主 */
+.set-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px 8px;
+  flex: 0 0 auto;
+}
+.set-tab {
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  color: #9fb0c4;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.set-tab.is-on {
+  color: #04121a;
+  background: var(--cyan);
+  box-shadow: none;
+}
+
+/* 原版设置页在 HUD 里要能自己滚动，宿主给满高 */
+.work-bd.is-settings {
+  padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+.settings-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+.settings-host .settings-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: 0;
+  background: transparent;
+}
+.settings-host .sv-header {
+  display: none; /* 面板头已经有「设置」标题，避免双标题 */
+}
+.settings-host .sv-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.settings-host .sv-nav {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}

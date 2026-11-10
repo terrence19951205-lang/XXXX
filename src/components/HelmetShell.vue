@@ -32,6 +32,7 @@ import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
 import HelmetStickyPanel from './helmet/HelmetStickyPanel.vue'
 import HelmetCountdownPanel from './helmet/HelmetCountdownPanel.vue'
+import HelmetSettingsFullPanel from './helmet/HelmetSettingsFullPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
 import GlobalSearch from './GlobalSearch.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
@@ -85,6 +86,8 @@ function persistCollapsed(v: boolean) {
 
 const mode = ref<Mode>('idle')
 const panel = ref<PanelKey>('todos')
+/** 设置面板的两个页签：system = 原版 SettingsView（系统级配置）；island = 小岛自己的口径 */
+const settingsTab = ref<'system' | 'island'>('system')
 const ready = ref(false)
 const noAnim = ref(false)
 const ignoring = ref<boolean | null>(null)
@@ -831,6 +834,9 @@ function showToast(msg: string) {
 
 // 挂进来的原版组件（TodoView 等）用 inject('showToast') 弹提示，接到壳的 toast 上
 provide('hudToast', showToast)
+// 原版组件（设置/AI 面板等）注入的是 'showToast'，转同一个提示出口，
+// 否则它们的保存/失败提示会被静默吞掉。
+provide('showToast', showToast)
 
 async function refreshBadges() {
   if (!isTauri()) return
@@ -1317,7 +1323,12 @@ defineExpose({ openPanel, setMode })
         <aside
           class="panel-col panel hit"
           :class="{
-            'is-wide': panel === 'launch' || panel === 'todos' || panel === 'notes' || panel === 'clipboard',
+            'is-wide':
+              panel === 'launch' ||
+              panel === 'todos' ||
+              panel === 'notes' ||
+              panel === 'clipboard' ||
+              panel === 'settings',
             'is-mid': panel === 'sticky' || panel === 'countdown',
           }"
           aria-label="shell-hub 面板"
@@ -1342,7 +1353,31 @@ defineExpose({ openPanel, setMode })
                 ✕
               </button>
             </div>
-            <div class="work-bd">
+            <div class="set-tabs">
+              <button
+                class="set-tab cut-sm"
+                type="button"
+                :class="{ 'is-on': settingsTab === 'system' }"
+                data-settings-tab="system"
+                @click="settingsTab = 'system'"
+              >
+                系统设置
+              </button>
+              <button
+                class="set-tab cut-sm"
+                type="button"
+                :class="{ 'is-on': settingsTab === 'island' }"
+                data-settings-tab="island"
+                @click="settingsTab = 'island'"
+              >
+                小岛
+              </button>
+            </div>
+            <!-- 系统设置：挂原版 SettingsView（通用/账号/AI/外观/数据/功能/扩展/工作台） -->
+            <div v-if="settingsTab === 'system'" class="work-bd is-settings">
+              <HelmetSettingsFullPanel />
+            </div>
+            <div v-else class="work-bd">
               <div class="set-block">
                 <h4>上下班 · 日衰口径</h4>
                 <p class="set-note">灵动岛的百分比按这段区间衰减，到下班点为 0%。</p>

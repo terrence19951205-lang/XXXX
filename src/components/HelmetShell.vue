@@ -12,7 +12,7 @@
  * 穿透：非 idle 时窗口铺满工作区，默认整窗穿透，80ms 轮询
  * `helmet_cursor_local` 命中 `.hit` 才临时关穿透（Windows 单窗方案）。
  */
-import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, provide, ref, watch, watchEffect } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
@@ -26,7 +26,7 @@ import {
   type SearchResult,
 } from '../api/tauri'
 import HelmetChatCabin from './helmet/HelmetChatCabin.vue'
-import HelmetTodoPanel from './helmet/HelmetTodoPanel.vue'
+import HelmetTodoFullPanel from './helmet/HelmetTodoFullPanel.vue'
 import HelmetNotesPanel from './helmet/HelmetNotesPanel.vue'
 import HelmetNoteEditor from './helmet/HelmetNoteEditor.vue'
 import HelmetClipboardPanel from './helmet/HelmetClipboardPanel.vue'
@@ -820,6 +820,9 @@ function showToast(msg: string) {
   toastTimer = window.setTimeout(() => (toastMsg.value = ''), 2200)
 }
 
+// 挂进来的原版组件（TodoView 等）用 inject('showToast') 弹提示，接到壳的 toast 上
+provide('hudToast', showToast)
+
 async function refreshBadges() {
   if (!isTauri()) return
   try {
@@ -1293,17 +1296,12 @@ defineExpose({ openPanel, setMode })
           :class="{
             'is-notes-list': panel === 'notes',
             'is-collapsed': panel === 'notes' && !noteListOpen,
-            'is-wide': panel === 'launch',
+            'is-wide': panel === 'launch' || panel === 'todos',
           }"
           aria-label="shell-hub 面板"
         >
           <pre class="ascii-bg is-work" aria-hidden="true">{{ asciiPanel }}</pre>
-          <HelmetTodoPanel
-            v-show="panel === 'todos'"
-            @count="todoCount = $event"
-            @toast="showToast"
-            @close="setMode('idle')"
-          />
+          <HelmetTodoFullPanel v-if="panel === 'todos'" />
           <HelmetNotesPanel v-if="panel === 'notes'" @toast="showToast" />
           <HelmetClipboardPanel
             v-if="panel === 'clipboard'"

@@ -5,6 +5,7 @@
  * 与主窗、独立对话窗共用一套会话，不绑 claw。
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import PromptManageDialog from '../PromptManageDialog.vue'
 import {
   PLATFORM_ENTRY_NAME,
   isPlatformModel,
@@ -58,6 +59,8 @@ const preferredModel = ref('')
 const snippets = ref<Snippet[]>([])
 const promptId = ref<number | null>(null)
 const promptOpen = ref(false)
+/** 原版提示词管理弹窗（增删改/置顶），挂在舱内 */
+const promptManageOpen = ref(false)
 const promptErr = ref('')
 const promptBar = ref<HTMLElement | null>(null)
 
@@ -427,9 +430,21 @@ defineExpose({ load, loadPrompts })
           </span>
           <span class="pi-p">{{ promptPreview(s.content) }}</span>
         </button>
+        <button type="button" class="prompt-manage" data-prompt-manage @click="promptManageOpen = true">
+          管理提示词（增删改 / 置顶）
+        </button>
       </div>
     </div>
     <div v-if="promptErr" class="chat-err">{{ promptErr }}</div>
+
+    <!-- 原版提示词管理（420 行）：增删改、置顶；关掉后刷新列表 -->
+    <PromptManageDialog
+      :visible="promptManageOpen"
+      @close="
+        promptManageOpen = false;
+        refreshSnippets()
+      "
+    />
 
     <div class="composer">
       <textarea

@@ -2146,3 +2146,18 @@ select:focus {
      桌面/别的窗口的字会透进来，alpha 0.98 也一样看得到。宽面板干脆做实底。 */
   background: linear-gradient(180deg, #0a0e15, #070a10);
 }
+
+/* 对话舱：提示词弹层里的「管理提示词」入口（打开原版 PromptManageDialog） */
+.prompt-manage {
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  color: var(--cyan);
+  background: rgba(0, 229, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.2);
+}
+.prompt-manage:hover {
+  background: rgba(0, 229, 255, 0.14);
+}

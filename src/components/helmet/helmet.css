@@ -533,7 +533,7 @@ select:focus {
   resize: none;
 }
 
-/* 提示词：舱内选用 / 切换。只读提示词百宝箱（snippets），不在此增删改。 */
+/* 提示词：舱内选用 / 切换。只读库（snippets），增删改走「管理提示词」。 */
 .prompt-bar {
   position: relative;
   display: flex;

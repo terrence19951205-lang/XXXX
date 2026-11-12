@@ -35,7 +35,7 @@ def launch(log_name='run-v09.log'):
         try:
             ts = cdp.list_targets(PORT)
             names = [t.get('title') for t in ts]
-            if any('Helmet' in (n or '') for n in names):
+            if any((n or '') in ('shell-hub', 'Helmet', 'x-hub Helmet') or 'helmet.html' in (n or '') for n in names):
                 print('targets:', names)
                 return p.pid, True
         except Exception:  # noqa: BLE001

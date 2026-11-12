@@ -35,7 +35,7 @@ fn build_window(app: &AppHandle) -> Result<WebviewWindow, String> {
         // 轻量入口 helmet.html：只挂座舱壳，不加载完整 SPA
         WebviewUrl::App("helmet.html".into()),
     )
-    .title("Helmet")
+    .title("shell-hub")
     .inner_size(1280.0, 720.0) // 占位；show 时按主屏 work area 重设
     .decorations(false)
     .transparent(true)

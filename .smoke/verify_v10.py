@@ -93,9 +93,14 @@ def windows(pid):
     return out
 
 
+def is_helmet_title(title):
+    """HUD 窗原生标题：旧为 Helmet，本轮改为 shell-hub（精确匹配，避免误伤 shell-hub 主窗 / 对话）。"""
+    return title in ('Helmet', 'shell-hub')
+
+
 def helmet_hwnd(pid):
     for x in windows(pid):
-        if x['title'] == 'Helmet':
+        if is_helmet_title(x['title']):
             return int(x['hwnd'], 16), x
     return None, None
 
@@ -150,7 +155,12 @@ def connect_ws(wait=60):
         try:
             with urllib.request.urlopen(f'http://127.0.0.1:{PORT}/json', timeout=3) as r:
                 ts = json.loads(r.read().decode('utf-8', 'replace'))
-            cand = [t for t in ts if 'Helmet' in (t.get('title') or '')]
+            def _is_helmet_target(t):
+                title = t.get('title') or ''
+                url = t.get('url') or ''
+                # 必须认 helmet.html：index.html 初始 title 也曾是 shell-hub，会误连主窗。
+                return 'helmet.html' in url or title in ('Helmet', 'x-hub Helmet')
+            cand = [t for t in ts if _is_helmet_target(t)]
             if cand:
                 WS = cand[0]['webSocketDebuggerUrl']
                 return True

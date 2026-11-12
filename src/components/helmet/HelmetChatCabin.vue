@@ -53,7 +53,7 @@ const busy = ref(false)
 const preferredModel = ref('')
 
 /* ---------------------------------------------------------------- 提示词
- * 只读提示词百宝箱（snippets）：舱内选用 / 切换，不在这里新建、改名、删除。
+ * 舱内只读选用 / 切换已有提示词（snippets），不在这里新建、改名、删除。
  * 选中的 id 落 localStorage，重开进程还在；重开时输入框为空则把内容回填，
  * 「选用」= 把提示词放到输入框，发不发由人决定（不替人发消息）。
  */
@@ -600,7 +600,7 @@ defineExpose({ load, loadPrompts })
         class="prompt-open"
         :class="{ 'is-on': promptOpen }"
         data-prompt-open
-        :title="snippets.length ? '从提示词百宝箱选用' : '提示词库为空'"
+        :title="snippets.length ? '选用提示词' : '提示词库为空'"
         :aria-expanded="promptOpen"
         @click="togglePrompts"
       >
@@ -618,7 +618,7 @@ defineExpose({ load, loadPrompts })
       </span>
       <div v-if="promptOpen" class="prompt-pop" data-prompt-pop>
         <div v-if="!snippets.length" class="prompt-empty">
-          提示词库为空。在主窗「提示词百宝箱」里加条目后，这里就能直接选用。
+          提示词库为空。点下方「管理提示词」即可新增，然后在这里选用。
         </div>
         <button
           v-for="s in snippets"

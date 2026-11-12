@@ -3,11 +3,10 @@
  * Helmet 座舱壳 v0.8 · 灵动岛
  *
  * 形态（PRD v0.4.1）：
- *  - idle：只留顶部居中小岛（shell-hub + 剩余工时%）与右上「展开」，
- *          窗口本身缩到这两个控件的外包矩形 → 中央与大部分桌面天然可点。
- *  - deck：短暂态；左侧序号轨 + 面板（待办/笔记/剪贴板/速达）+ 底栏搜索；
- *          无右栏；中央洞始终可点桌面。
- *  - chat：点小岛，完整对话舱挂在岛下（多会话/模型/消息线/输入框）。
+ *  - idle：只留顶部小岛（shell-hub + 日衰% + ▾），中央桌面可点。
+ *  - deck：左轨（功能短名常显）+ 面板从轨右缘铺开 + 底栏搜索；中央洞可点桌面。
+ *  - chat：点小岛（或左轨「聊天」），完整对话舱挂在岛下。
+ *  对话舱与 HUD 壳（左轨/面板）相互独立：可同时开；收起对话只收舱，▾ 仍只管壳。
  *
  * 穿透：非 idle 时窗口铺满工作区，默认整窗穿透，80ms 轮询
  * `helmet_cursor_local` 命中 `.hit` 才临时关穿透（Windows 单窗方案）。
@@ -84,7 +83,8 @@ function persistCollapsed(v: boolean) {
   }
 }
 
-const mode = ref<Mode>('idle')
+const deckOn = ref(false)
+const chatOn = ref(false)
 const panel = ref<PanelKey>('todos')
 /** 设置面板的两个页签：system = 原版 SettingsView（系统级配置）；island = 小岛自己的口径 */
 const settingsTab = ref<'system' | 'island'>('system')
@@ -170,8 +170,14 @@ const islandEl = ref<HTMLElement | null>(null)
 
 /** 调试角标只在 ?dbg=1 时出现，正常使用时界面上不留内部状态字样 */
 const showDbg = typeof location !== 'undefined' && new URLSearchParams(location.search).has('dbg')
-const chatOpen = computed(() => mode.value === 'chat')
-const deckOpen = computed(() => mode.value === 'deck')
+const chatOpen = computed(() => chatOn.value)
+const deckOpen = computed(() => deckOn.value)
+/** 旧脚本兼容：仅对话开时为 chat；HUD 开（不论对话是否开）为 deck；都关为 idle */
+const mode = computed<Mode>(() => {
+  if (deckOn.value) return 'deck'
+  if (chatOn.value) return 'chat'
+  return 'idle'
+})
 
 /* ------------------------------------------------------------------ */
 /* 展开全屏仪式光效                                                     */
@@ -399,26 +405,48 @@ async function syncWindow() {
   startPoll()
 }
 
-async function setMode(next: Mode) {
-  if (mode.value === next) return
-  const wasIdle = mode.value === 'idle'
-  mode.value = next
+async function syncAfterShape() {
   hoursOpen.value = false
   await nextTick()
   await syncWindow()
   try {
-    localStorage.setItem(LS_OLD_COLLAPSE, next === 'idle' ? '1' : '0')
+    localStorage.setItem(LS_OLD_COLLAPSE, !deckOn.value && !chatOn.value ? '1' : '0')
   } catch {
     /* ignore */
   }
-  if (!wasIdle || next !== 'idle') debugText.value = ''
-  if (next !== 'idle') void refreshBadges()
-  else scheduleHide()
+  if (deckOn.value || chatOn.value) {
+    debugText.value = ''
+    void refreshBadges()
+  } else {
+    scheduleHide()
+  }
+}
+
+/**
+ * 形态切换：'chat' 只开对话舱，'deck' 只开 HUD 壳，'idle' 只收 HUD 壳。
+ * 收起对话请走 closeChat()，不要用 setMode('idle')——那会把已开面板一起收掉。
+ */
+async function setMode(next: Mode) {
+  if (next === 'chat') {
+    if (chatOn.value) return
+    chatOn.value = true
+    await syncAfterShape()
+    return
+  }
+  if (next === 'deck') {
+    if (deckOn.value) return
+    deckOn.value = true
+    await syncAfterShape()
+    return
+  }
+  if (!deckOn.value) return
+  deckOn.value = false
+  await syncAfterShape()
 }
 
 function openPanel(key: PanelKey) {
   panel.value = key
-  if (mode.value !== 'deck') void setMode('deck')
+  if (!deckOn.value) void setMode('deck')
   if (key === 'notes') {
     noteStore.openList()
   }
@@ -439,7 +467,7 @@ function toggleNotes() {
 
 /** 左栏「搜索」：底栏搜索框是全局入口，把它叫到焦点即可，不另造第二个搜索面板 */
 async function focusSearch() {
-  if (mode.value !== 'deck') await setMode('deck')
+  if (!deckOn.value) await setMode('deck')
   // 舱里点「搜索」时，点完那一帧焦点还落在被卸掉的舱上，focus 会被随后的一次
   // 点击/卸载抢走；重试几帧直到真的拿到焦点，而不是调一次就宣布成功。
   for (let i = 0; i < 8; i++) {
@@ -454,32 +482,96 @@ async function focusSearch() {
   }
 }
 
-/** 岛右侧 ▾/▴：唯一的 HUD 展开/收起入口 */
+/** 岛右侧 ▾/▴：唯一的 HUD 壳展开/收起入口（不管对话舱） */
 function onToggleHud() {
-  if (deckOpen.value) void setMode('idle')
+  if (deckOn.value) void setMode('idle')
   else void openPanel(panel.value)
 }
 
-/** 点岛主体（品牌/灯/日衰区）→ 完整 AI 对话舱；⚙ 与 ▾ 各自 stop，不落到这里 */
+/** 点岛主体（品牌/灯/日衰区）→ 打开或聚焦对话舱；⚙ 与 ▾ 各自 stop，不落到这里 */
 function onIslandClick(e: MouseEvent) {
   const t = e.target as HTMLElement | null
-  if (t && (t.closest('.island-toggle') || t.closest('.island-gear') || t.closest('.island-chat'))) return
-  if (chatOpen.value) return
+  if (
+    t &&
+    (t.closest('.island-toggle') ||
+      t.closest('.island-gear') ||
+      t.closest('.island-chat') ||
+      t.closest('.island-act'))
+  )
+    return
+  if (chatOn.value) return
   void setMode('chat')
 }
 
+/** 只收对话舱：HUD 壳、左轨、已开功能面板保持 */
 function closeChat() {
-  void setMode('idle')
+  if (!chatOn.value) return
+  chatOn.value = false
+  void syncAfterShape()
 }
 
-/** 舱内功能直达：openPanel 会把 mode 切成 deck，对话舱随之收起 */
+/** 左轨「聊天」：展开或聚焦对话舱，不用对话替换当前面板 */
+function onRailChat() {
+  if (!chatOn.value) {
+    void setMode('chat')
+    return
+  }
+  void nextTick(() => document.querySelector<HTMLTextAreaElement>('.composer textarea')?.focus())
+}
+
+/** 舱内功能直达：打开对应面板，对话舱保持开着 */
 function openFromCabin(key: string) {
   if (key === 'search') {
     focusSearch()
     return
   }
+  if (key === 'chat') {
+    onRailChat()
+    return
+  }
   openPanel(key as PanelKey)
 }
+
+/** 对话 + 面板同时开时，把岛/舱挪到左轨面板右侧，避免挡住列表/输入/收起控件 */
+const besideDock = computed(() => chatOpen.value && deckOpen.value)
+const besideLeft = ref(0)
+const besideStyle = computed(() => {
+  if (!besideDock.value) return undefined
+  return {
+    left: `${besideLeft.value}px`,
+    transform: 'none',
+    '--beside-left': `${besideLeft.value}px`,
+  } as Record<string, string>
+})
+let dockRo: ResizeObserver | null = null
+
+function measureBeside() {
+  if (!besideDock.value) {
+    besideLeft.value = 0
+    return
+  }
+  const dock = document.querySelector('.hud.is-open .dock') as HTMLElement | null
+  const right = dock ? dock.getBoundingClientRect().right : 0
+  besideLeft.value = Math.max(0, Math.round(right + 16))
+}
+
+function bindDockObserver() {
+  dockRo?.disconnect()
+  dockRo = null
+  if (!besideDock.value) return
+  const dock = document.querySelector('.hud.is-open .dock')
+  if (dock && typeof ResizeObserver !== 'undefined') {
+    dockRo = new ResizeObserver(() => measureBeside())
+    dockRo.observe(dock)
+  }
+}
+
+watch([besideDock, panel], () => {
+  void nextTick(() => {
+    measureBeside()
+    bindDockObserver()
+  })
+})
 
 /** Esc / 快捷键收起：立即贴顶只剩唇边 + 顶部热区，绝不隐藏整个 helmet */
 async function collapseNow() {
@@ -927,8 +1019,8 @@ async function refreshBadges() {
 async function onHotkey(p: string) {
   if (bootActive.value) endBoot()
   if (p === 'toggle') {
-    // 总开关：已展开 → 收起；只在岛/唇边 → 展开上次的面板
-    if (mode.value !== 'idle') await setMode('idle')
+    // 总开关只管 HUD 壳：已展开 → 收起；只在岛/唇边 → 展开上次的面板。对话舱不动。
+    if (deckOn.value) await setMode('idle')
     else openPanel(panel.value)
     return
   }
@@ -950,7 +1042,7 @@ async function onHotkey(p: string) {
   }
   if (p === 'search') {
     // 原版全局搜索（分组结果 + 键盘上下选 + 回车打开），直接挂原版弹窗
-    if (mode.value === 'idle') await setMode('deck')
+    if (!deckOn.value) await setMode('deck')
     searchOpen.value = true
     return
   }
@@ -986,7 +1078,11 @@ function onKeydown(e: KeyboardEvent) {
       clearSearch()
       return
     }
-    if (mode.value !== 'idle') {
+    if (chatOn.value) {
+      closeChat()
+      return
+    }
+    if (deckOn.value) {
       void setMode('idle')
       return
     }
@@ -1001,7 +1097,7 @@ function onKeydown(e: KeyboardEvent) {
   }
   if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
     e.preventDefault()
-    if (mode.value !== 'deck') void openPanel('todos')
+    if (!deckOn.value) void openPanel('todos')
     nextTick(() => {
       const el = document.querySelector<HTMLInputElement>('.quick-search input')
       el?.focus()
@@ -1083,6 +1179,9 @@ onMounted(async () => {
   nowMs.value = Date.now()
   const tick = window.setInterval(() => (nowMs.value = Date.now()), 15000)
   unlisteners.push(() => window.clearInterval(tick))
+  const onWinResize = () => measureBeside()
+  window.addEventListener('resize', onWinResize)
+  unlisteners.push(() => window.removeEventListener('resize', onWinResize))
 
   bootActive.value = false
 
@@ -1166,6 +1265,8 @@ onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('pointerdown', onPointerDownAny, true)
   window.removeEventListener('pointermove', onAnyPointerMove)
+  dockRo?.disconnect()
+  dockRo = null
   disarmWatch()
   stopPoll()
   if (fxTimer != null) window.clearTimeout(fxTimer)
@@ -1236,7 +1337,14 @@ defineExpose({ openPanel, setMode })
     <div class="island-lip-tip" aria-hidden="true" />
 
     <!-- ******************************************** 灵动岛（常驻，可贴顶） -->
-    <div ref="wrapEl" class="island-wrap" @focusin="onFocusIn" @focusout="onFocusOut">
+    <div
+      ref="wrapEl"
+      class="island-wrap"
+      :class="{ 'is-beside-dock': besideDock }"
+      :style="besideStyle"
+      @focusin="onFocusIn"
+      @focusout="onFocusOut"
+    >
       <div
         ref="islandEl"
         class="island hit"
@@ -1253,7 +1361,7 @@ defineExpose({ openPanel, setMode })
           <span class="island-led" aria-hidden="true" />
           <div class="island-brand">
             <span class="cn">{{ chatOpen ? '聊天 · Comms' : 'shell-hub' }}</span>
-                        <span class="en">{{ chatOpen ? 'GENERAL AI · LOCAL' : 'SHELL-HUB' }}</span>
+            <span class="en">{{ chatOpen ? 'GENERAL AI · LOCAL' : '点击打开对话' }}</span>
           </div>
           <div class="island-decay">
             <span class="island-pct" :class="{ warn }">{{ pct }}%</span>
@@ -1353,12 +1461,22 @@ defineExpose({ openPanel, setMode })
           <span class="rail-cap">OPS</span>
           <button
             class="nav-btn"
+            data-nav="chat"
+            :class="{ 'is-on': chatOpen }"
+            title="聊天"
+            aria-label="聊天"
+            @click="onRailChat"
+          >
+            <span class="lab">聊天</span>
+          </button>
+          <button
+            class="nav-btn"
             data-nav="todos"
             :class="{ 'is-on': panel === 'todos' && deckOpen }"
             title="待办"
+            aria-label="待办"
             @click="openPanel('todos')"
           >
-            <span class="ico">01</span>
             <span class="badge" :class="{ 'is-zero': todoCount === 0 }">{{ todoCount }}</span>
             <span class="lab">待办</span>
           </button>
@@ -1367,9 +1485,9 @@ defineExpose({ openPanel, setMode })
             data-nav="notes"
             :class="{ 'is-on': panel === 'notes' && noteListOpen }"
             title="笔记"
+            aria-label="笔记"
             @click="toggleNotes"
           >
-            <span class="ico">02</span>
             <span class="lab">笔记</span>
           </button>
           <button
@@ -1377,9 +1495,9 @@ defineExpose({ openPanel, setMode })
             data-nav="clipboard"
             :class="{ 'is-on': panel === 'clipboard' && deckOpen }"
             title="剪贴板"
+            aria-label="剪贴板"
             @click="openPanel('clipboard')"
           >
-            <span class="ico">03</span>
             <span class="badge" :class="{ 'is-zero': clipCount === 0 }">{{ clipCount }}</span>
             <span class="lab">剪贴板</span>
           </button>
@@ -1388,9 +1506,9 @@ defineExpose({ openPanel, setMode })
             data-nav="sticky"
             :class="{ 'is-on': panel === 'sticky' && deckOpen }"
             title="便签"
+            aria-label="便签"
             @click="openPanel('sticky')"
           >
-            <span class="ico">04</span>
             <span class="lab">便签</span>
           </button>
           <button
@@ -1398,9 +1516,9 @@ defineExpose({ openPanel, setMode })
             data-nav="countdown"
             :class="{ 'is-on': panel === 'countdown' && deckOpen }"
             title="倒计时"
+            aria-label="倒计时"
             @click="openPanel('countdown')"
           >
-            <span class="ico">05</span>
             <span class="lab">倒计时</span>
           </button>
           <button
@@ -1408,13 +1526,18 @@ defineExpose({ openPanel, setMode })
             data-nav="launch"
             :class="{ 'is-on': panel === 'launch' && deckOpen }"
             title="启动常用工具"
+            aria-label="启动"
             @click="openPanel('launch')"
           >
-            <span class="ico">06</span>
-            <span class="lab">启动常用</span>
+            <span class="lab">启动</span>
           </button>
-          <button class="nav-btn" data-nav="search" title="搜索" @click="focusSearch">
-            <span class="ico">07</span>
+          <button
+            class="nav-btn"
+            data-nav="search"
+            title="搜索"
+            aria-label="搜索"
+            @click="focusSearch"
+          >
             <span class="lab">搜索</span>
           </button>
           <span class="rail-sep" aria-hidden="true" />
@@ -1423,9 +1546,9 @@ defineExpose({ openPanel, setMode })
             data-nav="settings"
             :class="{ 'is-on': panel === 'settings' && deckOpen }"
             title="设置"
+            aria-label="设置"
             @click="openPanel('settings')"
           >
-            <span class="ico">⚙</span>
             <span class="lab">设置</span>
           </button>
         </nav>

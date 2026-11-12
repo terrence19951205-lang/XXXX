@@ -472,7 +472,8 @@ defineExpose({ load, loadPrompts })
 
 <template>
   <div class="island-chat" @click.stop>
-    <div class="chat-top">
+    <div class="chat-hd">
+      <div class="chat-top">
       <select
         v-model="modelName"
         class="cut-sm"
@@ -484,7 +485,6 @@ defineExpose({ load, loadPrompts })
         <option v-for="o in modelOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
       </select>
       <button class="btn sm cut-sm" :disabled="streaming" @click="newSession">新会话</button>
-      <button class="btn sm cut-sm" @click="$emit('close')">收起</button>
       <button
         class="btn sm cut-sm"
         :class="{ 'is-on': agentMode }"
@@ -507,6 +507,17 @@ defineExpose({ load, loadPrompts })
         {{ PERM_LABEL[permissionMode] }}
       </button>
       <button v-if="activeTurnId" class="btn sm cut-sm" data-stop-turn @click="stopTurn">停止</button>
+      </div>
+      <button
+        type="button"
+        class="chat-collapse cut-sm"
+        data-collapse-chat
+        title="只收起对话舱，HUD 壳与已开面板保持"
+        aria-label="收起对话"
+        @click="$emit('close')"
+      >
+        ▴ 收起对话
+      </button>
     </div>
 
     <!-- 功能直达条：AI 对话在所有功能之上，从舱里一步切到任一面板 -->

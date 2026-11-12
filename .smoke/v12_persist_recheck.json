@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "killed": true,
+  "old_pid": 39752,
+  "new_pid": 40744,
+  "cdp": true,
+  "opened": true,
+  "sid": 21,
+  "before": {
+    "mode": "chat",
+    "hasChat": true,
+    "text": "这是一条只用于重启回填复检的提示词，用完即删。",
+    "chip": {
+      "id": "",
+      "text": "【V12复检】落盘 ×"
+    },
+    "ls": "",
+    "store": null,
+    "sendDisabled": null
+  },
+  "after": {
+    "mode": "chat",
+    "hasChat": true,
+    "text": "这是一条只用于重启回填复检的提示词，用完即删。",
+    "chip": {
+      "id": "",
+      "text": "【V12复检】落盘 ×"
+    },
+    "ls": "",
+    "store": null,
+    "sendDisabled": null
+  }
+}

@@ -35,9 +35,54 @@ export function initSystemTheme() {
   mq.addEventListener('change', mqHandler)
 }
 
+/**
+ * shell-hub 的 HUD 是深色壳。原版独立浮窗若跟随 theme_mode（常为浅色），
+ * 和 HUD 并排会割裂。这里只改本窗渲染，不改 theme_mode 落盘。
+ */
+const HUD_ALIGN_FLOAT_LABELS = new Set([
+  'prompt-float',
+  'todo-float',
+  'clipboard',
+  'chat',
+  'notice',
+  'floating-ball',
+])
+
+let hudAlignFloatFlag: boolean | null = null
+
+export function shouldForceFloatDark(): boolean {
+  if (hudAlignFloatFlag != null) return hudAlignFloatFlag
+  if (!isTauri()) {
+    if (typeof document !== 'undefined') {
+      const ds = document.documentElement.dataset
+      if ('todoFloat' in ds || 'promptFloat' in ds || 'noticeWindow' in ds || 'chatWindow' in ds) {
+        hudAlignFloatFlag = true
+        return true
+      }
+    }
+    hudAlignFloatFlag = false
+    return false
+  }
+  try {
+    const label = getCurrentWindow().label
+    hudAlignFloatFlag =
+      HUD_ALIGN_FLOAT_LABELS.has(label) ||
+      label.startsWith('sticky-') ||
+      label.startsWith('countdown-') ||
+      label.startsWith('ext-') ||
+      /^suda-web-\d+-chrome$/.test(label)
+    return hudAlignFloatFlag
+  } catch {
+    return false
+  }
+}
+
 export function applyTheme(opts: { mode: string; preset: string; accent: string | null; darkOverride?: boolean }) {
   const el = document.documentElement
-  const dark = opts.mode === 'dark' || (opts.mode === 'system' && (opts.darkOverride ?? systemDark.value))
+  const dark =
+    shouldForceFloatDark() ||
+    opts.mode === 'dark' ||
+    (opts.mode === 'system' && (opts.darkOverride ?? systemDark.value))
   el.dataset.theme = dark ? 'dark' : ''
   el.dataset.preset = opts.preset
   if (opts.accent) {

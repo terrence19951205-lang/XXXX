@@ -92,8 +92,8 @@ def burst_expand(frames=80):
     V.key_escape()
     time.sleep(1.9)
     collapsed = P.grab(rect)
-    if not P.reveal_island():
-        raise RuntimeError('唇边没唤出')
+    if not P.ensure_island_visible():
+        raise RuntimeError('岛未可见，无法点 ▾')
     px, py = click_toggle()
     t_click = {'v': None}
 
@@ -190,10 +190,15 @@ TRACE_JS = """(() => {
 
 
 def a1_trigger():
-    V.key_escape()
-    time.sleep(1.9)
-    if not P.reveal_island():
-        raise RuntimeError('唇边没唤出')
+    for _ in range(3):
+        if js('__helmet.mode') == 'idle':
+            break
+        V.key_escape()
+        time.sleep(1.2)
+    if js('__helmet.mode') != 'idle':
+        raise RuntimeError('回不到 idle：' + str(js('__helmet.mode')))
+    if not P.ensure_island_visible():
+        raise RuntimeError('岛未可见：' + str(js('JSON.stringify({geo:__helmet.geo,docked:__helmet.docked})')))
     js(REC)
     rec_reset()
     js(TRACE_JS)                 # 页面内 8ms 自采样：150ms 的窗口靠 CDP 往返抓不住
@@ -230,6 +235,27 @@ def a3_no_flash_on_close():
          mode_before=before, mode_after=after, events=rec['count'])
 
 
+def _kill_repo_xhub():
+    """Stop only x-hub.exe whose path is under this repo's src-tauri/target."""
+    import subprocess
+    root = os.path.join(ROOT, 'src-tauri', 'target') + os.sep
+    raw = subprocess.check_output(
+        ['powershell', '-NoProfile', '-Command',
+         "Get-CimInstance Win32_Process -Filter \"Name='x-hub.exe'\" | "
+         "Select-Object ProcessId,ExecutablePath | ConvertTo-Json -Compress"],
+        text=True, encoding='utf-8', errors='replace')
+    raw = (raw or '').strip()
+    if not raw:
+        return
+    data = json.loads(raw)
+    if isinstance(data, dict):
+        data = [data]
+    for proc in data:
+        path = proc.get('ExecutablePath') or ''
+        pid = proc.get('ProcessId')
+        if pid and path.replace('/', '\\').lower().startswith(root.replace('/', '\\').lower()):
+            subprocess.run(['taskkill', '/PID', str(pid), '/F'], capture_output=True)
+
 def a5_reduced_motion():
     """CDP 的 Emulation.setEmulatedMedia 在 WebView2 上返回成功但 matchMedia 不变，
     所以这条必须用浏览器启动参数（--force-prefers-reduced-motion）真改媒体状态，
@@ -238,9 +264,8 @@ def a5_reduced_motion():
     exe = os.path.join(ROOT, 'src-tauri', 'target', 'debug', 'x-hub.exe')
     cfg = json.load(open(os.path.join(HERE, 'tauri.smoke.json'), encoding='utf-8'))
     base = cfg['app']['windows'][0]['additionalBrowserArgs']
-    subprocess.run(['powershell', '-NoProfile', '-Command',
-                    'Get-Process x-hub -ErrorAction SilentlyContinue | Stop-Process -Force'],
-                   capture_output=True)
+    # 只杀仓库 target 下的冒烟实例，绝不碰 Downloads 里用户正在用的原版包
+    _kill_repo_xhub()
     time.sleep(1.5)
     env = dict(os.environ)
     env['WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS'] = base + ' --force-prefers-reduced-motion'
@@ -256,8 +281,8 @@ def a5_reduced_motion():
     media = V.js("matchMedia('(prefers-reduced-motion: reduce)').matches")
     js(REC)
     rec_reset()
-    if not P.reveal_island():
-        note('A5 reduced-motion 跳过', False, media_matched=media, why='唇边没唤出')
+    if not P.ensure_island_visible():
+        note('A5 reduced-motion 跳过', False, media_matched=media, why='岛未可见')
         return
     px, py = click_toggle()
     V.click_at(px, py)
@@ -327,18 +352,23 @@ def main():
     pid = V.pid_of()
 
     a1_trigger()
-    # A2：屏幕像素量的是「合成结果」，亮背景下 screen 混色会被压到 <1/255，
-    # 所以改在页面内临时铺同款深色底（#02040a，位于 .fx 之下）量这一闪本身的贡献。
-    import verify_fx_layer as L
-    lay = L.measure()
-    note('A2 峰值帧的光效贡献（深色底，量 .fx 自身）',
-         bool(lay.get('ok')),
-         delta_max=lay.get('delta_max'), delta_mean=lay.get('delta_mean'),
-         px_gt3=lay.get('px_gt3'), computed=lay.get('peak_computed'),
-         ref='用户录屏同帧全屏均值 3.42（本项 3.44）')
+    # A2：只用真实桌面连拍帧（收起→点▾→峰值→展开稳态）。
+    # 旧口径在页面里垫 #02040a 再量 .fx，CSS 写了就算过，桌面 intensity 却是 0，算假绿。
     b = burst_expand()
     art = save_artifacts(b)
-    pk = b['peak']
+    pk = b['peak'] or {}
+    # 点击后 420ms 内，中央不变桌面区（排除面板布局）要有可测闪光，再回落。
+    c_max = int(pk.get('c_max') or 0)
+    c_mean = float(pk.get('c_mean') or 0)
+    c_hit = float(pk.get('c_hit') or 0)
+    visible = c_max >= 6 and (c_mean >= 0.4 or c_hit >= 0.02)
+    note('A2 真实桌面峰值（连拍帧，不用注入深色底）',
+         visible,
+         c_max=c_max, c_mean=c_mean, c_hit=c_hit,
+         t_ms=pk.get('t'), click_ms=b.get('click_ms'),
+         mask_frac=b.get('mask_frac'),
+         peak_png=art.get('peak_png'), gif=art.get('gif'),
+         reason='中央穿透区相对展开稳态的像素差；c_max>=6 且 (c_mean>=0.4 或 c_hit>=0.02)')
     a3_no_flash_on_close()
     a4_passthrough()
     a5_reduced_motion()

@@ -1,0 +1,278 @@
+{
+  "pre": {
+    "mode": "idle",
+    "panel": "todos",
+    "geo": "full",
+    "docked": false
+  },
+  "click_toggle": {
+    "ok": true,
+    "screen": [
+      1447,
+      48
+    ]
+  },
+  "opened": {
+    "mode": "deck",
+    "panel": "todos",
+    "geo": "full",
+    "docked": false
+  },
+  "click_nav_todos": {
+    "ok": true,
+    "screen": [
+      60,
+      183
+    ]
+  },
+  "click_todo_float": {
+    "ok": true,
+    "screen": [
+      185,
+      123
+    ]
+  },
+  "click_prompt_open": {
+    "ok": true,
+    "screen": [
+      1020,
+      669
+    ]
+  },
+  "click_prompt_float": {
+    "ok": true,
+    "screen": [
+      1280,
+      615
+    ]
+  },
+  "targets": [
+    "x-hub 提示词",
+    "x-hub 待办",
+    "x-hub Helmet",
+    "x-hub 贴图",
+    "x-hub 贴图",
+    "x-hub 贴图",
+    "x-hub 截图 / 录屏",
+    "x-hub 截图 / 录屏",
+    "x-hub 浏览器",
+    "about:blank",
+    "about:blank",
+    "x-hub 对话",
+    "x-hub 导出",
+    "x-hub 通知",
+    "x-hub 剪贴板",
+    "x-hub 主窗"
+  ],
+  "todo_theme": {
+    "value": "{\"theme\":\"dark\",\"bg\":\"rgba(28, 29, 41, 0.95)\",\"color\":\"rgb(242, 239, 232)\",\"title\":\"x-hub 待办\"}",
+    "title": "x-hub 待办",
+    "url": "http://tauri.localhost/",
+    "parsed": {
+      "theme": "dark",
+      "bg": "rgba(28, 29, 41, 0.95)",
+      "color": "rgb(242, 239, 232)",
+      "title": "x-hub 待办"
+    }
+  },
+  "prompt_theme": {
+    "value": "{\"theme\":\"dark\",\"bg\":\"rgba(28, 29, 41, 0.95)\",\"color\":\"rgb(242, 239, 232)\",\"title\":\"x-hub 提示词\"}",
+    "title": "x-hub 提示词",
+    "url": "http://tauri.localhost/",
+    "parsed": {
+      "theme": "dark",
+      "bg": "rgba(28, 29, 41, 0.95)",
+      "color": "rgb(242, 239, 232)",
+      "title": "x-hub 提示词"
+    }
+  },
+  "theme_mode_before": "light",
+  "theme_mode_after": "light",
+  "side_by_side": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\float_dark\\hud_and_floats_side_by_side.png",
+  "windows": [
+    {
+      "title": "提示词",
+      "rect": [
+        190,
+        190,
+        640,
+        820
+      ]
+    },
+    {
+      "title": "Helmet",
+      "rect": [
+        0,
+        0,
+        2560,
+        1528
+      ]
+    },
+    {
+      "title": "待办",
+      "rect": [
+        114,
+        114,
+        594,
+        774
+      ]
+    },
+    {
+      "title": "贴图",
+      "rect": [
+        342,
+        342,
+        822,
+        702
+      ]
+    },
+    {
+      "title": "贴图",
+      "rect": [
+        266,
+        266,
+        746,
+        626
+      ]
+    },
+    {
+      "title": "贴图",
+      "rect": [
+        190,
+        190,
+        670,
+        550
+      ]
+    },
+    {
+      "title": "GIF 录制",
+      "rect": [
+        114,
+        114,
+        414,
+        210
+      ]
+    },
+    {
+      "title": "截图 / 录屏选区",
+      "rect": [
+        38,
+        38,
+        1238,
+        938
+      ]
+    },
+    {
+      "title": "通知",
+      "rect": [
+        38,
+        38,
+        578,
+        194
+      ]
+    },
+    {
+      "title": "剪贴板历史",
+      "rect": [
+        342,
+        342,
+        1122,
+        1002
+      ]
+    },
+    {
+      "title": "shell-hub (helmet smoke)",
+      "rect": [
+        460,
+        115,
+        2560,
+        1465
+      ]
+    },
+    {
+      "title": "",
+      "rect": [
+        266,
+        266,
+        2186,
+        1383
+      ]
+    },
+    {
+      "title": "",
+      "rect": [
+        304,
+        304,
+        2224,
+        1421
+      ]
+    },
+    {
+      "title": "x-hub 导出",
+      "rect": [
+        114,
+        0,
+        1576,
+        1626
+      ]
+    },
+    {
+      "title": "AI 对话",
+      "rect": [
+        190,
+        190,
+        880,
+        1150
+      ]
+    },
+    {
+      "title": "应用内浏览器",
+      "rect": [
+        304,
+        304,
+        1862,
+        1440
+      ]
+    },
+    {
+      "title": "x-hub-helmet-smoke-siw",
+      "rect": [
+        0,
+        0,
+        6,
+        6
+      ]
+    },
+    {
+      "title": "",
+      "rect": [
+        0,
+        0,
+        6,
+        6
+      ]
+    },
+    {
+      "title": "MSCTFIME UI",
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "title": "Default IME",
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "ok": true,
+  "todo_dark": true,
+  "prompt_dark": true,
+  "persist_unchanged": true
+}

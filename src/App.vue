@@ -60,9 +60,9 @@ if (isTauri()) {
       : isClipboardOverlay
         ? 'x-hub 剪贴板'
         : isPromptFloat
-          ? 'x-hub 提示词'
+          ? 'shell-hub 提示词'
           : isTodoFloat
-            ? 'x-hub 待办'
+            ? 'shell-hub 待办'
             : isExtensionWindow
               ? 'x-hub 扩展'
               : isStickyWindow

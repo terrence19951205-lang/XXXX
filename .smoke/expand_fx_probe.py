@@ -113,8 +113,25 @@ def reveal_island():
     return V.js('__helmet.geo') == 'band'
 
 
+def island_visible():
+    st = V.js("JSON.stringify({mode:__helmet.mode,geo:__helmet.geo,docked:__helmet.docked})")
+    import json as _json
+    try:
+        d = _json.loads(st) if isinstance(st, str) else st
+    except Exception:
+        d = {}
+    return (not d.get('docked')) and d.get('geo') in ('band', 'full')
+
+
+def ensure_island_visible():
+    """lip/贴顶才唤岛；已是 band/full 且未 docked 则直接可用，不要硬走唇边。"""
+    if island_visible():
+        return True
+    return reveal_island() or island_visible()
+
+
 def to_expanded_steady():
-    """HUD 展开且不在仪式里：连按 Esc 到 idle，唇边唤出，再点 ▾ 展开"""
+    """HUD 展开且不在仪式里：连按 Esc 到 idle，必要时唤岛，再点 ▾ 展开"""
     for _ in range(3):
         m = V.js('__helmet.mode')
         if m == 'idle':
@@ -123,8 +140,8 @@ def to_expanded_steady():
         time.sleep(1.6)
     if V.js('__helmet.mode') != 'idle':
         raise RuntimeError('回不到 idle：' + str(V.js('__helmet.mode')))
-    if not reveal_island():
-        raise RuntimeError('唇边没唤出（geo 不是 band）')
+    if not ensure_island_visible():
+        raise RuntimeError('岛未可见：' + str(V.js('JSON.stringify({geo:__helmet.geo,docked:__helmet.docked})')))
     click_css('.island-toggle', 1.4)
     if not V.js("!!document.querySelector('.hud.is-open')"):
         raise RuntimeError('点 ▾ 没展开')
@@ -199,8 +216,8 @@ def burst(tag='p1', frames=26, gap=0.03):
     if V.js('__helmet.mode') != 'idle':
         raise RuntimeError('收起失败')
     pid = V.pid_of()
-    if not reveal_island():
-        raise RuntimeError('唇边没唤出')
+    if not ensure_island_visible():
+        raise RuntimeError('岛未可见')
     _h, win = V.helmet_hwnd(pid)
     sc = (win['rect'][2] - win['rect'][0]) / max(1, V.js('innerWidth'))
     pt = V.screen_pt('.island-toggle')

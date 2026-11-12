@@ -49,10 +49,23 @@ u32.keybd_event.argtypes = [ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_uint, ctype
 
 # ------------------------------------------------------------------ 基础
 def pid_of():
-    out = subprocess.run(['powershell', '-NoProfile', '-Command',
-                          '(Get-Process x-hub -ErrorAction SilentlyContinue | Select-Object -First 1).Id'],
-                         capture_output=True, text=True).stdout.strip()
-    return int(out) if out.isdigit() else None
+    """只认仓库 src-tauri/target 下的冒烟实例，绝不误取 Downloads 原版包。"""
+    root = os.path.join(ROOT, 'src-tauri', 'target') + os.sep
+    raw = subprocess.run(
+        ['powershell', '-NoProfile', '-Command',
+         "Get-CimInstance Win32_Process -Filter \"Name='x-hub.exe'\" | "
+         "Select-Object ProcessId,ExecutablePath | ConvertTo-Json -Compress"],
+        capture_output=True, text=True, encoding='utf-8', errors='replace').stdout.strip()
+    if not raw:
+        return None
+    data = json.loads(raw)
+    if isinstance(data, dict):
+        data = [data]
+    for proc in data:
+        path = (proc.get('ExecutablePath') or '').replace('/', '\\')
+        if path.lower().startswith(root.replace('/', '\\').lower()):
+            return int(proc['ProcessId'])
+    return None
 
 
 def win_title(h):

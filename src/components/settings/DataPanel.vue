@@ -273,12 +273,12 @@ onMounted(() => {
             </button>
           </div>
 
-          <h3 class="sv-sec-title gap-above">速记维护</h3>
+          <h3 class="sv-sec-title gap-above">笔记维护</h3>
 
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">回收站保留天数</span>
-              <span class="setting-desc">速记删除先进回收站；到期自动清理（0 = 永久保留），启动与更改设置时生效</span>
+              <span class="setting-desc">笔记删除先进回收站；到期自动清理（0 = 永久保留），启动与更改设置时生效</span>
             </div>
             <AppSelect
               v-model="noteRetention"

@@ -1642,31 +1642,9 @@ defineExpose({ openPanel, setMode })
                 ✕
               </button>
             </div>
-            <div class="set-tabs">
-              <button
-                class="set-tab cut-sm"
-                type="button"
-                :class="{ 'is-on': settingsTab === 'system' }"
-                data-settings-tab="system"
-                @click="settingsTab = 'system'"
-              >
-                系统设置
-              </button>
-              <button
-                class="set-tab cut-sm"
-                type="button"
-                :class="{ 'is-on': settingsTab === 'island' }"
-                data-settings-tab="island"
-                @click="settingsTab = 'island'"
-              >
-                小岛
-              </button>
-            </div>
-            <!-- 系统设置：挂原版 SettingsView（通用/AI/外观/数据/功能/工作台；扩展、账号按 config/features 隐藏） -->
-            <div v-if="settingsTab === 'system'" class="work-bd is-settings">
-              <HelmetSettingsFullPanel />
-            </div>
-            <div v-else class="work-bd">
+            <div class="work-bd is-settings">
+              <HelmetSettingsFullPanel v-model:tab="settingsTab">
+                <template #island>
               <div class="set-block">
                 <h4>上下班 · 日衰口径</h4>
                 <p class="set-note">灵动岛的百分比按这段区间衰减，到下班点为 0%。</p>
@@ -1728,6 +1706,8 @@ defineExpose({ openPanel, setMode })
                   </button>
                 </div>
               </div>
+                </template>
+              </HelmetSettingsFullPanel>
             </div>
           </div>
         </aside>

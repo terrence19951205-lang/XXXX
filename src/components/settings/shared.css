@@ -232,6 +232,7 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: var(--space-4) var(--space-6);
   background: var(--frost-surface);
@@ -282,10 +283,11 @@
   margin-top: 0;
 }
 .settings-view .setting-row{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 16px;
+  row-gap: 6px;
   padding: 14px 0;
 }
 .settings-view .setting-row + .setting-row{
@@ -293,13 +295,18 @@
 }
 .settings-view .setting-info{
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 .settings-view .setting-desc{
-  flex-basis: 100%;
+  flex-basis: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .settings-view .setting-name{
   font-size: 0.875rem;
@@ -549,8 +556,10 @@
   min-width: 0;
 }
 .settings-view .num-edit{
-  min-width: 120px;
+  min-width: 88px;
   flex-shrink: 0;
+  justify-self: end;
+  align-self: start;
 }
 .settings-view .num-input{
   width: 100%;
@@ -572,16 +581,18 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  width: auto;
 }
 .settings-view .num-edit.with-unit .num-input{
-  flex: 1;
-  min-width: 0;
-  width: auto;
+  flex: 0 0 56px;
+  min-width: 56px;
+  width: 56px;
 }
 .settings-view .num-unit{
   flex-shrink: 0;
   font-size: 0.75rem;
   color: var(--text-3);
+  line-height: 1;
 }
 .settings-view .data-btn.danger{
   color: var(--c-red-ink);
@@ -592,10 +603,16 @@
   border-color: transparent;
 }
 .settings-view .shortcut-edit{
-  min-width: 240px;
+  min-width: 0;
+  width: max-content;
+  max-width: 100%;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
+  justify-self: end;
+  align-self: start;
+  flex-shrink: 0;
 }
 /* 禁用态（该快捷键已关）：输入框整体压暗，明确「保留但不生效」 */
 .settings-view .shortcut-edit.off .shortcut-input-wrap{
@@ -606,9 +623,9 @@
   flex-shrink: 0;
 }
 .settings-view .shortcut-input-wrap{
-  width: 100%;
-  flex: 1;
-  min-width: 0;
+  width: 13.75em;
+  flex: 0 0 13.75em;
+  min-width: 13.75em;
   position: relative;
 }
 .settings-view .shortcut-icon{
@@ -620,14 +637,18 @@
 }
 .settings-view .shortcut-input{
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
   background: var(--input-bg);
   color: var(--text-1);
   font-size: 0.8125rem;
   font-family: inherit;
-  padding: 9px 84px 9px 32px;
+  padding: 9px 72px 9px 32px;
   outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 .settings-view .shortcut-input:focus{
   border-color: var(--brand-500);
@@ -1027,3 +1048,53 @@
 }
 
 /* 更改数据存储路径弹窗 */
+
+
+/* —— shell-hub 设置铺法（2026-11-16）：窄屏收第三栏、分类页签、返回、禁止横向滚动 —— */
+.settings-view .sv-body{
+  overflow-x: hidden;
+}
+.settings-view .set-tabs{
+  display: flex;
+  gap: 6px;
+  padding: 0 0 10px;
+  margin: 0 0 2px;
+  flex: 0 0 auto;
+}
+.settings-view .sv-back{
+  display: none;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card-soft);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.settings-view .sv-back:hover{
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+.settings-view.is-narrow.has-items .sv-back{
+  display: inline-flex;
+}
+.settings-view.is-narrow .sv-content{
+  display: none;
+}
+.settings-view.is-narrow.has-items .sv-nav{
+  display: none;
+}
+.settings-view.is-narrow.has-items .sv-content{
+  display: block;
+}
+.settings-view .sv-nav-group:not(:has(.sv-nav-caret)){
+  /* 无子项的分组（如使用说明）不留出三角空位 */
+}
+.settings-view .toggle{
+  justify-self: end;
+  align-self: start;
+  margin-top: 2px;
+}

@@ -16,7 +16,8 @@ import '../settings/shared.css'
 import SettingsView from '../SettingsView.vue'
 
 /** 从外侧指定打开哪一类（暂不传 = 默认首项） */
-const props = defineProps<{ initialSection?: string }>()
+const props = defineProps<{ initialSection?: string; tab?: 'system' | 'island' }>()
+const emit = defineEmits<{ (e: 'update:tab', v: 'system' | 'island'): void }>()
 
 /** 原版某些子面板异步分包，给宿主一个底高，避免首帧塌成一条 */
 const ready = ref(false)
@@ -27,6 +28,14 @@ onMounted(() => {
 
 <template>
   <div class="xhub-host settings-host" :class="{ 'is-ready': ready }" data-settings-host>
-    <SettingsView :initial-section="props.initialSection" />
+    <SettingsView
+      :initial-section="props.initialSection"
+      :tab="props.tab"
+      @update:tab="emit('update:tab', $event)"
+    >
+      <template #island>
+        <slot name="island" />
+      </template>
+    </SettingsView>
   </div>
 </template>

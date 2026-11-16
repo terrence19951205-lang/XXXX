@@ -2089,6 +2089,16 @@ select:focus {
   --radius-pill: 999px;
   --shadow-card: none;
   --shadow-dock: none;
+  --shadow-focus: 0 0 0 3px rgba(0, 229, 255, 0.18);
+  --input-bg: rgba(0, 0, 0, 0.4);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  /* 实底，不用主窗 frosted 渐变：WebView2 透明窗下半透明大面板会漏出桌面字 */
+  --frost-surface: #10161f;
   --c-red: #ff3b5c;
   --c-green: var(--success, #3dff9a);
   --c-green-ink: var(--success, #3dff9a);
@@ -2338,8 +2348,13 @@ select:focus {
 .set-tabs {
   display: flex;
   gap: 6px;
-  padding: 0 12px 8px;
+  padding: 0 0 8px;
   flex: 0 0 auto;
+}
+.settings-view .set-tab {
+  flex: 1 1 0;
+  text-align: center;
+  min-width: 0;
 }
 .set-tab {
   padding: 4px 12px;
@@ -2355,27 +2370,45 @@ select:focus {
   box-shadow: none;
 }
 
-/* 原版设置页在 HUD 里要能自己滚动，宿主给满高 */
+/* 原版设置页在 HUD 里要能自己滚动，宿主给满高。
+   衬底用实色：WebView2 透明窗下 0.96 玻璃也会漏出日历/对话舱的字。只改设置页。 */
+.panel-col:has(.is-settings),
+.panel-col:has(.settings-host) {
+  background: #0b0f16;
+}
 .work-bd.is-settings {
   padding: 0;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   overflow: hidden;
+  background: #0b0f16;
 }
 .settings-host {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   height: 100%;
   display: flex;
   overflow: hidden;
+  background: #0b0f16;
 }
 .settings-host .settings-view {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   height: 100%;
+  width: 100%;
   border-radius: 0;
-  background: transparent;
+  background: #0b0f16;
+  overflow: hidden;
+}
+.settings-host .sv-content {
+  background: #10161f;
+}
+.settings-host .island-settings,
+.settings-host .set-block {
+  min-width: 0;
 }
 .settings-host .sv-header {
   display: none; /* 面板头已经有「设置」标题，避免双标题 */

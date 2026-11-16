@@ -21,13 +21,23 @@ import {
 const IS_MAC =
   /Mac|iPhone|iPad/.test(navigator.userAgent) || /Mac|iPhone|iPad/.test(navigator.platform)
 
-/** 把 CommandOrControl 按平台显示为 Ctrl（macOS 保持不变） */
-export function normalizeShortcutDisplay(s: string): string {
-  if (IS_MAC) return s
+/** 落盘 / 校验用的紧凑写法（Ctrl+`） */
+export function compactShortcut(s: string): string {
   return s
     .split('+')
-    .map((p) => (p === 'CommandOrControl' ? 'Ctrl' : p))
+    .map((p) => {
+      const t = p.trim()
+      if (!IS_MAC && t === 'CommandOrControl') return 'Ctrl'
+      return t
+    })
+    .filter(Boolean)
     .join('+')
+}
+
+/** 把 CommandOrControl 按平台显示为 Ctrl，并用「Ctrl + `」这种带空格的写法，避免键名被裁成 Ctrl+ */
+export function normalizeShortcutDisplay(s: string): string {
+  const compact = compactShortcut(s)
+  return compact.split('+').filter(Boolean).join(' + ')
 }
 
 export interface ShortcutRecorderOptions {
@@ -54,9 +64,11 @@ export function useShortcutRecorder(options: ShortcutRecorderOptions) {
 
   async function commit() {
     if (!isTauri() || saving.value) return
-    const v = normalized.value
-    if (!v || v === saved.value) {
+    const v = compactShortcut(normalized.value)
+    const savedCompact = compactShortcut(saved.value)
+    if (!v || v === savedCompact) {
       error.value = ''
+      value.value = normalizeShortcutDisplay(saved.value)
       return
     }
     // 手工输入的旁路同样过一遍校验：单独一个空格/字母存进去就是全局劫持该按键
@@ -118,7 +130,7 @@ export function useShortcutRecorder(options: ShortcutRecorderOptions) {
     const modifier = modifierTokenFromEvent(e, IS_MAC)
     if (modifier) {
       pressedKeys.value.add(modifier)
-      value.value = formatShortcutTokens(pressedKeys.value)
+      value.value = normalizeShortcutDisplay(formatShortcutTokens(pressedKeys.value))
       return
     }
     // 输入法组合态（中文选词中）的按键不是用户想录的快捷键，直接忽略：
@@ -128,7 +140,7 @@ export function useShortcutRecorder(options: ShortcutRecorderOptions) {
     // 主键按下即完成录制（一个快捷键只有一个主键），避免后续按键污染组合
     const keys = new Set(pressedKeys.value)
     keys.add(token)
-    const display = formatShortcutTokens(keys)
+    const display = normalizeShortcutDisplay(formatShortcutTokens(keys))
     const invalid = validateShortcutTokens(keys)
     if (invalid) {
       // 不保存、不留在录入态空等：还原成原值并说明原因（如「空格不能单独作快捷键」）

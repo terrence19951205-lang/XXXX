@@ -322,7 +322,6 @@ onMounted(async () => {
 
 <template>
         <section id="sv-sec-general" class="sv-sec" aria-label="常规">
-          <h3 class="sv-sec-title">常规</h3>
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">开机自动启动</span>

@@ -4,19 +4,37 @@
 // 为什么拆：以前是单文件（模板 + 脚本 + 样式共 3000 余行），点开设置要下载/解析整份代码，
 // 于是先出现一段空白再显示内容。现在外壳 + 当前大类按需加载，切大类才取对应面板。
 // 样式统一在 ./settings/shared.css（规则带 .settings-view 前缀，避免外移后污染其它视图）。
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, defineAsyncComponent, inject, nextTick, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
 import { Bot, ChevronRight, CircleHelp, Database, LayoutGrid, Palette, Puzzle, Search, Settings, Sparkles, User, X } from 'lucide-vue-next';
 import { SETTINGS_INDEX } from './settingsIndex.generated';
 import PanelLoading from './settings/PanelLoading.vue';
 import { rewriteVisibleCopy, settingsGroupVisible, settingsSectionVisible, settingsTitleVisible } from '../config/features';
 
-const props = defineProps<{ initialSection?: string }>()
+const props = defineProps<{ initialSection?: string; tab?: 'system' | 'island' }>()
 
 const emit = defineEmits<{
   (e: 'open-layout-editor'): void
   /** 面板里的「去扩展中心」入口（本地扩展目录的增删已挪到扩展中心「我的扩展」标签页） */
   (e: 'open-extensions'): void
+  (e: 'update:tab', v: 'system' | 'island'): void
 }>()
+
+const tab = computed({
+  get: () => props.tab ?? 'system',
+  set: (v: 'system' | 'island') => emit('update:tab', v),
+})
+
+/** 窄屏：第三栏（设置项）收进第二栏，点分组后再推出 */
+const hudNarrow = inject<Ref<boolean>>('hudNarrow', ref(false))
+const narrowShowItems = ref(false)
+
+function backToNav() {
+  narrowShowItems.value = false
+}
+
+function revealItemsIfNarrow() {
+  if (hudNarrow.value) narrowShowItems.value = true
+}
 
 // ---- 两级分类导航 ----
 // 左栏只列 5 个大类，当前大类的子项在它下方缩进展开；右侧**只挂载当前大类**的分区。
@@ -110,6 +128,15 @@ function sectionsOf(id: GroupId): readonly SectionId[] {
   return SECTIONS.filter((s) => SECTION_GROUP[s.id] === id && settingsSectionVisible(s.id)).map((s) => s.id)
 }
 
+/**
+ * 左栏子项：分组名与子项同名时不列出（避免「常规」下再套一条「常规」）。
+ * 常规页因此只保留可跳转的「快捷键」；使用说明等只有同名子项的分组则点分组直接打开该页。
+ */
+function navKidsOf(id: GroupId): readonly SectionId[] {
+  const lab = groupLabel(id)
+  return sectionsOf(id).filter((sid) => SECTION_LABEL[sid] !== lab)
+}
+
 // ---- 设置项搜索 ----
 // 索引是**构建期从模板生成**的（scripts/gen-settings-index.mjs）：设置页只挂载当前大类，
 // 其它大类的设置项不在 DOM 里，所以搜索不能靠遍历页面。索引绑在 prebuild 上，不会漂移。
@@ -142,8 +169,10 @@ const searchResults = computed(() => {
 
 /** 跳到某个设置项：切大类 → 滚到那一行 → 短暂高亮（找不到行就退化为滚到该分区） */
 function jumpToSetting(section: SectionId, title: string, attempt = 0) {
+  tab.value = 'system'
   activeGroup.value = SECTION_GROUP[section]
   activeSection.value = section
+  revealItemsIfNarrow()
   void nextTick(() => {
     const container = contentRef.value
     if (!container) return
@@ -190,11 +219,13 @@ function selectGroup(id: GroupId) {
   if (activeGroup.value === id) {
     if (first) activeSection.value = first
     contentRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
+    revealItemsIfNarrow()
     return
   }
   activeGroup.value = id
   if (first) activeSection.value = first
   void nextTick(() => contentRef.value?.scrollTo({ top: 0 }))
+  revealItemsIfNarrow()
 }
 
 /**
@@ -203,6 +234,7 @@ function selectGroup(id: GroupId) {
  */
 function goToSection(id: SectionId, attempt = 0) {
   activeSection.value = id
+  revealItemsIfNarrow()
   const container = contentRef.value
   if (!container) return
   const el = container.querySelector<HTMLElement>(`#sv-sec-${id}`)
@@ -272,6 +304,22 @@ function preloadPanel(id: GroupId) {
 
 const currentPanel = computed(() => PANELS[activeGroup.value])
 
+function selectArea(next: 'system' | 'island') {
+  tab.value = next
+  if (next === 'island') {
+    revealItemsIfNarrow()
+  } else if (hudNarrow.value) {
+    narrowShowItems.value = false
+  }
+}
+
+watch(
+  () => tab.value,
+  (next) => {
+    if (next === 'island') revealItemsIfNarrow()
+  },
+)
+
 
 // 深链（如 AI 对话面板的「去配置」）：先切到目标分区所属大类，再滚动定位。
 // 面板是异步加载的，DOM 不一定已挂上 —— goToSection 自带重试。
@@ -292,14 +340,43 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="settings-view">
+  <div
+    class="settings-view"
+    :class="{ 'is-narrow': hudNarrow, 'has-items': narrowShowItems, 'is-island': tab === 'island' }"
+  >
     <header class="sv-header">
       <h2 class="sv-title">设置</h2>
     </header>
 
     <div class="sv-body">
-      <!-- 左侧分类：顶部搜索框 + 大类/子项两级导航（搜索时用结果列表替换导航） -->
+      <!-- 第二栏：系统设置/小岛 + 搜索 + 分组列表 -->
       <nav class="sv-nav" aria-label="设置分类">
+        <div class="set-tabs" role="tablist" aria-label="设置分区">
+          <button
+            class="set-tab cut-sm"
+            type="button"
+            role="tab"
+            :class="{ 'is-on': tab === 'system' }"
+            :aria-selected="tab === 'system'"
+            data-settings-tab="system"
+            @click="selectArea('system')"
+          >
+            系统设置
+          </button>
+          <button
+            class="set-tab cut-sm"
+            type="button"
+            role="tab"
+            :class="{ 'is-on': tab === 'island' }"
+            :aria-selected="tab === 'island'"
+            data-settings-tab="island"
+            @click="selectArea('island')"
+          >
+            小岛
+          </button>
+        </div>
+
+        <template v-if="tab !== 'island'">
         <div class="sv-search">
           <Search :size="13" :stroke-width="2" />
           <input
@@ -347,11 +424,17 @@ onMounted(() => {
             >
               <component :is="g.icon" :size="14" :stroke-width="2" />
               <span>{{ g.label }}</span>
-              <ChevronRight class="sv-nav-caret" :size="13" :stroke-width="2.5" aria-hidden="true" />
+              <ChevronRight
+                v-if="navKidsOf(g.id).length"
+                class="sv-nav-caret"
+                :size="13"
+                :stroke-width="2.5"
+                aria-hidden="true"
+              />
             </button>
-            <div v-if="activeGroup === g.id" class="sv-nav-kids">
+            <div v-if="activeGroup === g.id && navKidsOf(g.id).length" class="sv-nav-kids">
               <button
-                v-for="sid in sectionsOf(g.id)"
+                v-for="sid in navKidsOf(g.id)"
                 :key="sid"
                 type="button"
                 class="sv-nav-item sv-nav-sub"
@@ -364,12 +447,23 @@ onMounted(() => {
             </div>
           </template>
         </template>
+        </template>
       </nav>
 
-      <!-- 右侧内容：只挂载当前大类的分区（其余不渲染 —— 这是点设置不再先空白的关键） -->
+      <!-- 第三栏：设置项（窄屏时点分组后推出；小岛页走 slot） -->
       <div ref="contentRef" class="sv-content">
-        <!-- 当前大类面板（按需加载）：具体设置项都在 ./settings/*.vue 里 -->
+        <button
+          v-if="hudNarrow"
+          class="sv-back"
+          type="button"
+          data-settings-back
+          @click="backToNav"
+        >
+          返回分类
+        </button>
+        <slot v-if="tab === 'island'" name="island" />
         <component
+          v-else
           :is="currentPanel"
           @open-layout-editor="emit('open-layout-editor')"
           @open-extensions="emit('open-extensions')"

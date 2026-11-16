@@ -191,7 +191,7 @@ const importing = ref(false)
 
 async function importNotes() {
   if (!isTauri() || importBusy.value) return
-  const dir = await open({ multiple: false, directory: true, title: '选择导入目录（x-hub 导出的产物）' })
+  const dir = await open({ multiple: false, directory: true, title: '选择导入目录（shell hub 导出的产物）' })
   if (typeof dir !== 'string') return
   importBusy.value = true
   importing.value = true
@@ -326,7 +326,7 @@ onMounted(() => {
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">导入笔记</span>
-              <span class="setting-desc">仅支持导入 x-hub 自己导出的产物；来源相同（source_url）的笔记默认跳过</span>
+              <span class="setting-desc">仅支持导入 shell hub 自己导出的产物；来源相同（source_url）的笔记默认跳过</span>
             </div>
             <button class="ghost-btn data-btn" :disabled="importBusy" @click="importNotes">
               <Download :size="14" :stroke-width="2" />
@@ -357,7 +357,7 @@ onMounted(() => {
                 aria-label="更改数据存储路径"
               >
                 <h3 class="dm-title">迁移数据目录</h3>
-                <p class="dm-desc">是否确认将 x-hub 的所有数据挪到以下目录？确认后将重启软件。</p>
+                <p class="dm-desc">是否确认将 shell hub 的所有数据挪到以下目录？确认后将重启软件。</p>
                 <div class="dm-paths">
                   <div class="dm-path">
                     <span class="dm-label">新目录</span>

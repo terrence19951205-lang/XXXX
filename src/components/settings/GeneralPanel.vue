@@ -15,7 +15,9 @@ const showToast = inject<(msg: string) => void>('showToast', () => {})
 const store = useStore()
 
 // ---- 桌面悬浮球（ADR 0004）：启用 / 贴边自动隐藏 / 与主窗同显 / 静止转动 / 环形按钮增删排序 ----
-const ballButtons = computed(() => store.state.config.floating_ball_buttons ?? [])
+const ballButtons = computed(() => (store.state.config.floating_ball_buttons ?? []).filter((id) => id in FLOATING_BALL_BUTTONS))
+/** P1-3：被功能开关隐藏的按钮（如扩展中心）不显示，但写回配置时原样保留，不删用户数据 */
+const hiddenBallButtons = computed(() => (store.state.config.floating_ball_buttons ?? []).filter((id) => !(id in FLOATING_BALL_BUTTONS)))
 
 function onToggleFloatingBall() {
   void store.setFloatingBallEnabled(!store.state.config.floating_ball_enabled)
@@ -35,11 +37,11 @@ function onToggleFloatingBallIdleSpin() {
 
 async function addBallButton(id: string) {
   if (ballButtons.value.includes(id) || ballButtons.value.length >= FLOATING_BALL_MAX_BUTTONS) return
-  await store.setFloatingBallButtons([...ballButtons.value, id])
+  await store.setFloatingBallButtons([...ballButtons.value, id, ...hiddenBallButtons.value])
 }
 
 async function removeBallButton(id: string) {
-  await store.setFloatingBallButtons(ballButtons.value.filter((b) => b !== id))
+  await store.setFloatingBallButtons([...ballButtons.value.filter((b) => b !== id), ...hiddenBallButtons.value])
 }
 
 async function moveBallButton(index: number, delta: number) {
@@ -47,7 +49,7 @@ async function moveBallButton(index: number, delta: number) {
   if (target < 0 || target >= ballButtons.value.length) return
   const arr = [...ballButtons.value]
   ;[arr[index], arr[target]] = [arr[target], arr[index]]
-  await store.setFloatingBallButtons(arr)
+  await store.setFloatingBallButtons([...arr, ...hiddenBallButtons.value])
 }
 
 // ---- 快捷键录入：4 个可自定义快捷键（主窗/剪贴板/搜索/AI 对话）共用一套录制逻辑

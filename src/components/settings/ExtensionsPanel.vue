@@ -193,7 +193,7 @@ onMounted(() => {
             <div v-for="row in keepAliveRows" :key="row.id" class="setting-row">
               <div class="setting-info">
                 <span class="setting-name">{{ row.name }}</span>
-                <span class="setting-desc">切页不停、状态保留、切回秒开；「随应用启动」= 打开 x-hub 即在后台运行，无需先打开一次</span>
+                <span class="setting-desc">切页不停、状态保留、切回秒开；「随应用启动」= 打开 shell hub 即在后台运行，无需先打开一次</span>
               </div>
               <div class="ka-controls">
                 <span class="ka-ctl-label">常驻</span>

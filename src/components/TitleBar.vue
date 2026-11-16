@@ -164,7 +164,7 @@ function close() {
 <template>
   <div class="title-bar" @mousedown="onDragStart">
     <div class="window-title">
-      <span class="title-text">X-Hub</span>
+      <span class="title-text">shell hub</span>
     </div>
     <!-- 扩展标题栏小部件：media（媒体控制档）/ status（通用信息档），由常驻扩展经
          titlebar.set 推上标题栏。三个显示位（左/中/右）最多同显 3 个，位置由用户在

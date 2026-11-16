@@ -1188,6 +1188,15 @@ export interface ChatModelConfig {
 
 /** 平台免费额度在界面上的单一入口名（与后端 `chat.rs::PLATFORM_ENTRY_NAME` 是同一个值，改动需两端同步） */
 export const PLATFORM_ENTRY_NAME = 'x-hub 平台'
+/** 平台入口的**显示名**（P1-3）：PLATFORM_ENTRY_NAME 是落盘值（chat_selected_model /
+ *  note_ai_model / 会话 model 都存它），不能改；界面上一律显示这个。 */
+export const PLATFORM_ENTRY_LABEL = 'shell hub 平台'
+/** 模型名 → 显示名：只把平台入口换成显示名，其余原样 */
+export function displayModelName(name: string | null | undefined): string {
+  if (!name) return ''
+  if (name === PLATFORM_ENTRY_NAME) return PLATFORM_ENTRY_LABEL
+  return name.replace(/^x-hub 平台/, PLATFORM_ENTRY_LABEL)
+}
 
 /** 供应商预设（后台 /admin/ai/provider-presets 可配；客户端拉取失败时回落内置清单） */
 export interface ProviderPreset {

@@ -1281,7 +1281,7 @@ async function resolveAiModelLabel() {
     if (!v) {
       aiModelLabel.value = ''
     } else if (v === PLATFORM_ENTRY_NAME) {
-      aiModelLabel.value = 'x-hub 平台（自动负载切换）'
+      aiModelLabel.value = 'shell hub 平台（自动负载切换）'
     } else if (v.startsWith('platform:')) {
       aiModelLabel.value = `${v.slice('platform:'.length)}（平台）`
     } else {

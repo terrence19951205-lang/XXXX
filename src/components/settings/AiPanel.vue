@@ -10,6 +10,7 @@
 import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { isPlatformModel, isTauri, tauriApi, PLATFORM_ENTRY_NAME, type AccountStatus, type ChatModelConfig } from '../../api/tauri';
+import { FEATURES } from '../../config/features';
 import AppSelect from '../AppSelect.vue';
 import AiProviders from '../AiProviders.vue';
 import { useStore } from '../../stores/workbench';
@@ -68,12 +69,12 @@ const platformEnabled = computed(() => platformModels.value.length > 0)
 /// 具体是哪些模型不在这里列（用户不需要选，后端会负载切换）
 const platformStatusText = computed(() => {
   if (!platformEnabled.value) {
-    return '登录账号后即可使用平台提供的模型（走平台额度，不需要填 API Key）。开启后 AI 对话的模型列表里显示为「x-hub 平台」。'
+    return '登录账号后即可使用平台提供的模型（走平台额度，不需要填 API Key）。开启后 AI 对话的模型列表里显示为「shell hub 平台」。'
   }
   const n = platformModels.value.length
   return n > 1
-    ? `已开启 · 平台当前提供 ${n} 个模型，AI 对话里显示为「x-hub 平台」，多个模型之间自动负载切换`
-    : `已开启 · 平台当前提供 ${n} 个模型，AI 对话里显示为「x-hub 平台」`
+    ? `已开启 · 平台当前提供 ${n} 个模型，AI 对话里显示为「shell hub 平台」，多个模型之间自动负载切换`
+    : `已开启 · 平台当前提供 ${n} 个模型，AI 对话里显示为「shell hub 平台」`
 })
 
 /// 平台模型的列表与地址只能从平台账号接口取。
@@ -363,14 +364,15 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section id="sv-sec-credit" class="sv-sec" aria-label="额度">
+  <!-- 额度/积分依赖账号登录：账号功能隐藏时整段不渲染（config/features） -->
+  <section v-if="FEATURES.account" id="sv-sec-credit" class="sv-sec" aria-label="额度">
     <h3 class="sv-sec-title">额度</h3>
 
     <!-- 平台额度开关（自 AiProviders 迁入，原「使用 x-hub 平台免费额度」去掉「免费」二字）：
          与自备供应商刻意区分——它不是供应商，没有需要用户填的东西 -->
     <div class="setting-row ap-platform">
       <div class="setting-info">
-        <span class="setting-name">使用 x-hub 平台额度</span>
+        <span class="setting-name">使用 shell hub 平台额度</span>
         <span class="setting-desc">{{ platformStatusText }}</span>
       </div>
       <button

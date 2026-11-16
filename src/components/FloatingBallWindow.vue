@@ -38,7 +38,8 @@ const cvsEl = ref<HTMLCanvasElement | null>(null)
 
 const buttons = computed(() =>
   (st.value?.buttons ?? [])
-    .map((id) => ({ id, ...(FLOATING_BALL_BUTTONS[id] ?? { label: id, icon: null }) }))
+    .filter((id) => id in FLOATING_BALL_BUTTONS)
+    .map((id) => ({ id, ...FLOATING_BALL_BUTTONS[id] }))
     .filter((b) => b.label),
 )
 

@@ -8,6 +8,7 @@ import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, r
 import { Bot, ChevronRight, CircleHelp, Database, LayoutGrid, Palette, Puzzle, Search, Settings, Sparkles, User, X } from 'lucide-vue-next';
 import { SETTINGS_INDEX } from './settingsIndex.generated';
 import PanelLoading from './settings/PanelLoading.vue';
+import { settingsGroupVisible, settingsSectionVisible, settingsTitleVisible } from '../config/features';
 
 const props = defineProps<{ initialSection?: string }>()
 
@@ -66,6 +67,9 @@ const GROUPS = [
 
 type GroupId = (typeof GROUPS)[number]['id']
 
+/** P1-3：左栏只列开关打开的大类（扩展 / 账号 由 config/features 控制） */
+const VISIBLE_GROUPS = GROUPS.filter((g) => settingsGroupVisible(g.id))
+
 /** 分区 → 大类（Record 的键类型是 SectionId，漏一个分区编译期就报错） */
 const SECTION_GROUP: Record<SectionId, GroupId> = {
   general: 'general',
@@ -103,7 +107,7 @@ const contentRef = ref<HTMLElement | null>(null)
  * 表现为点子项时页面向反方向跳）。
  */
 function sectionsOf(id: GroupId): readonly SectionId[] {
-  return SECTIONS.filter((s) => SECTION_GROUP[s.id] === id).map((s) => s.id)
+  return SECTIONS.filter((s) => SECTION_GROUP[s.id] === id && settingsSectionVisible(s.id)).map((s) => s.id)
 }
 
 // ---- 设置项搜索 ----
@@ -122,6 +126,9 @@ const searchResults = computed(() => {
   for (const it of SETTINGS_INDEX) {
     const section = it.section as SectionId
     if (!(section in SECTION_GROUP)) continue
+    // P1-3：隐藏的功能（扩展 / 账号）不出现在设置搜索里
+    if (!settingsSectionVisible(section) || !settingsGroupVisible(SECTION_GROUP[section])) continue
+    if (!settingsTitleVisible(it.title)) continue
     const where = `${groupLabel(SECTION_GROUP[section])} / ${SECTION_LABEL[section]}`
     const idx = it.title.toLowerCase().indexOf(q)
     const whereHit = where.toLowerCase().includes(q)
@@ -323,7 +330,7 @@ onMounted(() => {
         </template>
 
         <template v-else>
-          <template v-for="g in GROUPS" :key="g.id">
+          <template v-for="g in VISIBLE_GROUPS" :key="g.id">
             <button
               type="button"
               class="sv-nav-item sv-nav-group"

@@ -9,6 +9,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-dialog';
 import { LocateFixed, MapPin, Trash2 } from 'lucide-vue-next';
 import { isPlatformModel, isTauri, tauriApi, PLATFORM_ENTRY_NAME, type ChatModelConfig } from '../../api/tauri';
+import { FEATURES } from '../../config/features';
 import AppSelect from '../AppSelect.vue';
 import SudaSubcategoryManager from './SudaSubcategoryManager.vue';
 import { useStore } from '../../stores/workbench';
@@ -107,7 +108,8 @@ const noteSourceOptions = computed(() => {
   }
   return [
     { value: 'auto', label: '自动（推荐）' },
-    { value: 'platform', label: 'x-hub 平台（平台内置）' },
+    // 平台模型依赖账号登录：账号功能关着（config/features）就不列
+    ...(FEATURES.account ? [{ value: 'platform', label: 'shell hub 平台（平台内置）' }] : []),
     ...providers.map((p) => ({ value: p, label: p })),
   ]
 })

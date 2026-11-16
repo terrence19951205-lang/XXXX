@@ -1063,7 +1063,7 @@ fn import_notes_sync(
         let (meta, body) = parse_front_matter(&content);
         if meta.is_empty() {
             // 没有 front-matter 的 .md 不是我们的导出产物：跳过并说明
-            report.failed.push(format!("{rel}: 缺少 front-matter（仅支持导入 x-hub 导出的产物）"));
+            report.failed.push(format!("{rel}: 缺少 front-matter（仅支持导入 shell hub 导出的产物）"));
             continue;
         }
         let title = meta

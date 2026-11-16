@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { noteThumb } from '../utils/noteThumb'
 import {
   Archive,
   ArchiveRestore,
@@ -1126,6 +1127,7 @@ export default { name: 'NoteFolderTree' }
               {{ folderPathOf(n) || '根目录' }}
             </span>
           </span>
+          <img v-if="noteThumb(n.content)" class="nft-thumb" :src="noteThumb(n.content)" alt="" loading="lazy" data-note-thumb />
         </div>
         <div v-if="filterResults.length === 0" class="nft-empty">
           <p>{{ activeTagId != null ? '该标签下还没有笔记' : '没有匹配的笔记' }}</p>
@@ -1239,6 +1241,7 @@ export default { name: 'NoteFolderTree' }
             <span class="nft-row-name" :class="{ 'is-untitled': row.note.title === '无标题笔记' }" :title="row.note.title">
               {{ row.note.title }}
             </span>
+            <img v-if="noteThumb(row.note.content)" class="nft-thumb" :src="noteThumb(row.note.content)" alt="" loading="lazy" data-note-thumb />
           </div>
         </template>
 
@@ -1690,5 +1693,14 @@ html[data-wallpaper-clear='1'] .nft-search-pop .nft-tag-pick li.on {
 }
 html[data-wallpaper-clear='1'] .nft-search-pop button.nft-sp-act:hover {
   background: rgba(255, 255, 255, 0.12);
+}
+.nft-thumb {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 24px;
+  margin-left: auto;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 </style>

@@ -4,10 +4,12 @@
  * 复用 x-hub 对话数据层：chat_sessions / chat_messages / 模型配置，
  * 与主窗、独立对话窗共用一套会话，不绑 claw。
  */
+import { FEATURES } from '../../config/features'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import PromptManageDialog from '../PromptManageDialog.vue'
 import {
   PLATFORM_ENTRY_NAME,
+  displayModelName,
   isPlatformModel,
   isTauri,
   tauriApi,
@@ -246,8 +248,9 @@ function onDocPointer(e: MouseEvent) {
 
 const modelOptions = computed(() => {
   const opts: { value: string; label: string }[] = []
-  if (models.value.some((m) => isPlatformModel(m))) {
-    opts.push({ value: PLATFORM_ENTRY_NAME, label: PLATFORM_ENTRY_NAME })
+  // 平台入口依赖账号登录：账号功能关着（config/features）就不列
+  if (FEATURES.account && models.value.some((m) => isPlatformModel(m))) {
+    opts.push({ value: PLATFORM_ENTRY_NAME, label: displayModelName(PLATFORM_ENTRY_NAME) })
   }
   for (const m of models.value) {
     if (isPlatformModel(m)) continue
@@ -258,7 +261,7 @@ const modelOptions = computed(() => {
 
 function displayModel(name: string): string {
   const m = models.value.find((x) => x.name === name)
-  return m && isPlatformModel(m) ? PLATFORM_ENTRY_NAME : name
+  return displayModelName(m && isPlatformModel(m) ? PLATFORM_ENTRY_NAME : name)
 }
 
 async function scrollBottom() {
@@ -461,12 +464,33 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
+/** 外部填草稿（剪贴板「插入」/ 录音转写）：追加到输入框，不发送 */
+function insertDraft(text: string) {
+  const v = (text || '').trim()
+  if (!v) return
+  input.value = input.value ? `${input.value.replace(/\s+$/, '')} ${v}` : v
+  void nextTick(() => {
+    const ta = document.querySelector<HTMLTextAreaElement>('.composer textarea')
+    if (ta) {
+      ta.focus()
+      ta.setSelectionRange(ta.value.length, ta.value.length)
+    }
+  })
+}
+function onCabinInsert(e: Event) {
+  insertDraft((e as CustomEvent<{ text?: string }>).detail?.text ?? '')
+}
+
 onMounted(() => {
   document.addEventListener('click', onDocPointer, true)
+  window.addEventListener('hud-cabin-insert', onCabinInsert)
   void load()
   void loadPrompts()
 })
-onBeforeUnmount(() => document.removeEventListener('click', onDocPointer, true))
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocPointer, true)
+  window.removeEventListener('hud-cabin-insert', onCabinInsert)
+})
 defineExpose({ load, loadPrompts })
 </script>
 

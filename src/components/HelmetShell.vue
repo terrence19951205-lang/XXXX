@@ -18,27 +18,32 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import { PhysicalPosition, PhysicalSize } from '@tauri-apps/api/dpi'
 import {
   PLATFORM_ENTRY_NAME,
+  displayModelName,
   isPlatformModel,
   isTauri,
   tauriApi,
   type ChatModelConfig,
-  type SearchResult,
+  type ClipboardItem,
+  type Countdown,
 } from '../api/tauri'
 import HelmetChatCabin from './helmet/HelmetChatCabin.vue'
-import HelmetTodoFullPanel from './helmet/HelmetTodoFullPanel.vue'
+import HelmetTodoTri from './helmet/HelmetTodoTri.vue'
 import HelmetNotesFullPanel from './helmet/HelmetNotesFullPanel.vue'
-import HelmetClipboardFullPanel from './helmet/HelmetClipboardFullPanel.vue'
+import HelmetClipTri from './helmet/HelmetClipTri.vue'
+import HelmetSearchTri from './helmet/HelmetSearchTri.vue'
 import HelmetSudaPanel from './helmet/HelmetSudaPanel.vue'
-import HelmetStickyPanel from './helmet/HelmetStickyPanel.vue'
-import HelmetCountdownPanel from './helmet/HelmetCountdownPanel.vue'
+import { pendingNoteId, pendingTodoId } from './helmet/hudBus'
 import HelmetSettingsFullPanel from './helmet/HelmetSettingsFullPanel.vue'
 import HelmetBoot from './helmet/HelmetBoot.vue'
-import GlobalSearch from './GlobalSearch.vue'
 import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
+import './helmet/hud-kit.css'
+import { FEATURES } from '../config/features'
 
 type Mode = 'idle' | 'deck' | 'chat'
-type PanelKey = 'todos' | 'notes' | 'clipboard' | 'sticky' | 'countdown' | 'launch' | 'settings'
+/** P1-3：便签并进笔记（笔记列表筛选「便签」），倒计时/日衰放到岛上一眼可见，二者不再占左轨 */
+type PanelKey = 'todos' | 'notes' | 'clipboard' | 'launch' | 'search' | 'settings'
+const PANEL_KEYS: PanelKey[] = ['todos', 'notes', 'clipboard', 'launch', 'search', 'settings']
 
 const LS_OLD_COLLAPSE = 'rr.hud.collapsed'
 const LS_HOURS = 'rr.hud.hours'
@@ -444,7 +449,18 @@ async function setMode(next: Mode) {
   await syncAfterShape()
 }
 
-function openPanel(key: PanelKey) {
+function openPanel(raw: PanelKey | 'sticky' | 'countdown') {
+  // 老入口（快捷键/脚本/舱内直达）还可能传 sticky / countdown：便签 → 笔记·便签筛选；倒计时 → 设置·小岛
+  let key: PanelKey
+  if (raw === 'sticky') {
+    notesView.value = 'sticky'
+    key = 'notes'
+  } else if (raw === 'countdown') {
+    settingsTab.value = 'island'
+    key = 'settings'
+  } else {
+    key = PANEL_KEYS.includes(raw) ? raw : 'todos'
+  }
   panel.value = key
   if (!deckOn.value) void setMode('deck')
   if (key === 'notes') {
@@ -465,14 +481,12 @@ function toggleNotes() {
   openPanel('notes')
 }
 
-/** 左栏「搜索」：底栏搜索框是全局入口，把它叫到焦点即可，不另造第二个搜索面板 */
+/** 左栏「搜索」：打开搜索三栏（结果按待办/笔记分组 + 预览），焦点给列表栏顶部的搜索框 */
 async function focusSearch() {
-  if (!deckOn.value) await setMode('deck')
-  // 舱里点「搜索」时，点完那一帧焦点还落在被卸掉的舱上，focus 会被随后的一次
-  // 点击/卸载抢走；重试几帧直到真的拿到焦点，而不是调一次就宣布成功。
+  openPanel('search')
   for (let i = 0; i < 8; i++) {
     await nextTick()
-    const el = document.querySelector<HTMLInputElement>('.quick-search input')
+    const el = document.querySelector<HTMLInputElement>('[data-search-input]')
     if (el) {
       el.focus()
       el.select()
@@ -480,6 +494,12 @@ async function focusSearch() {
     }
     await new Promise((r) => setTimeout(r, 40))
   }
+}
+
+/** 岛上 ⚙：上下班时间在「设置 · 小岛」里配（不再弹岛下浮层） */
+function openIslandSettings() {
+  settingsTab.value = 'island'
+  openPanel('settings')
 }
 
 /** 岛右侧 ▾/▴：唯一的 HUD 壳展开/收起入口（不管对话舱） */
@@ -878,15 +898,20 @@ const hotkeys = ref({
   notes: 'Ctrl+Shift+N',
 })
 
-function modelLabel(m: ChatModelConfig): string {
+/** 落盘值：平台入口存 PLATFORM_ENTRY_NAME（内部标识），自备模型存名字 */
+function modelValue(m: ChatModelConfig): string {
   return isPlatformModel(m) ? PLATFORM_ENTRY_NAME : m.name
+}
+function modelLabel(m: ChatModelConfig): string {
+  return displayModelName(modelValue(m))
 }
 
 async function loadSettings() {
   if (!isTauri()) return
   try {
     const cfg = await tauriApi.getUiConfig()
-    cfgModels.value = cfg.chat_models || []
+    // 平台入口依赖账号登录：账号功能关着就不列（config/features）
+    cfgModels.value = (cfg.chat_models || []).filter((m) => FEATURES.account || !isPlatformModel(m))
     modelPick.value = cfg.chat_selected_model || ''
     hotkeys.value = {
       toggle: cfg.global_shortcut || hotkeys.value.toggle,
@@ -906,7 +931,7 @@ async function saveModel() {
   const name = modelPick.value.trim()
   try {
     await tauriApi.setChatSelectedModel(name)
-    showToast(`聊天模型已存：${name || '未设置'}`)
+    showToast(`聊天模型已存：${displayModelName(name) || '未设置'}`)
   } catch (e) {
     showToast('模型保存失败')
     console.warn('[helmet] set_chat_selected_model failed', e)
@@ -918,64 +943,97 @@ async function saveModel() {
 /* ------------------------------------------------------------------ */
 
 const q = ref('')
-const results = ref<SearchResult | null>(null)
-const searching = ref(false)
-let searchTimer: number | null = null
+/** 笔记面板当前视图：笔记 / 便签（便签并入笔记的列表筛选） */
+const notesView = ref<'notes' | 'sticky'>('notes')
 
-async function runSearch() {
-  const kw = q.value.trim()
-  if (!kw || !isTauri()) {
-    results.value = null
-    return
-  }
-  searching.value = true
-  try {
-    results.value = await tauriApi.searchAll(kw)
-  } catch (e) {
-    console.warn('[helmet] search failed', e)
-    results.value = null
-  } finally {
-    searching.value = false
-  }
-}
-
-watch(q, () => {
-  if (searchTimer != null) window.clearTimeout(searchTimer)
-  searchTimer = window.setTimeout(() => void runSearch(), 220)
+/** 底栏搜索框与搜索三栏共用一个关键词：底栏一输入就把搜索面板打开 */
+watch(q, (v) => {
+  if (v.trim() && panel.value !== 'search') openPanel('search')
 })
 
 function clearSearch() {
   q.value = ''
-  results.value = null
 }
 
 function openNoteFromSearch(id: number) {
-  panel.value = 'notes'
-  noteStore.openList()
-  void noteStore.open(id)
-  clearSearch()
+  notesView.value = 'notes'
+  openPanel('notes')
+  pendingNoteId.value = id
 }
 
-async function launchFromSearch(id: number) {
+function openTodoFromSearch(id: number) {
+  pendingTodoId.value = id
+  openPanel('todos')
+}
+
+/* 剪贴板「插入」：对话舱开着 → 填进舱输入框（草稿，不发送）；否则收起 HUD、粘贴到上一个窗口 */
+async function onClipInsert(item: ClipboardItem) {
+  if (chatOn.value) {
+    if (item.kind !== 'text') {
+      try {
+        await tauriApi.clipboardCopy(item.id)
+      } catch {
+        /* ignore */
+      }
+      showToast('对话里不发图片：已复制到剪贴板')
+      return
+    }
+    window.dispatchEvent(new CustomEvent('hud-cabin-insert', { detail: { text: item.content } }))
+    showToast('已填进对话输入框（未发送）')
+    return
+  }
+  await setMode('idle')
   try {
-    await tauriApi.launchResource(id)
-    clearSearch()
-    await setMode('idle')
+    await tauriApi.clipboardPaste(item.id)
   } catch (e) {
-    showToast('启动失败：' + String(e).slice(0, 50))
+    showToast('插入失败：' + String(e).slice(0, 60))
   }
 }
 
-const searchTotal = computed(() => {
-  const r = results.value
-  return r ? r.todos.length + r.notes.length + r.resources.length : 0
+/* ------------------------------------------------------------------ */
+/* 宽度：三栏面板有上限，中央桌面始终留出可点区域；与对话舱同开时窄屏把详情收进列表 */
+/* ------------------------------------------------------------------ */
+const vw = ref(typeof window !== 'undefined' ? document.documentElement.clientWidth : 1600)
+/** 中央桌面至少留这么宽（CSS px）给用户点 */
+const CENTER_RESERVE = 220
+const TRI_MAX = 960
+const panelMaxW = computed(() => {
+  const chat = chatOpen.value ? 420 + 16 : 0
+  return Math.max(360, Math.min(TRI_MAX, vw.value - 14 - 72 - 16 - chat - CENTER_RESERVE))
+})
+/** 列表 + 详情两栏放不下（< 680）时进窄屏：详情收进列表，点条目 push 出来 */
+const hudNarrow = computed(() => panelMaxW.value < 680)
+provide('hudNarrow', hudNarrow)
+
+/* 岛上的倒计时：取最近一个未结束的，一眼可见（配置仍在原版倒计时数据里，不另开面板） */
+const countdowns = ref<Countdown[]>([])
+async function refreshCountdowns() {
+  if (!isTauri()) return
+  try {
+    countdowns.value = await tauriApi.listCountdowns()
+  } catch {
+    countdowns.value = []
+  }
+}
+const nextCountdown = computed(() => {
+  const now = nowMs.value
+  const live = countdowns.value.filter((c) => !c.finished && (c.paused || c.end_at > now))
+  live.sort((a, b) => (a.paused ? Infinity : a.end_at) - (b.paused ? Infinity : b.end_at))
+  return live[0] ?? null
+})
+const countdownLabel = computed(() => {
+  const c = nextCountdown.value
+  if (!c) return ''
+  const left = c.paused ? c.paused_remaining_ms ?? 0 : c.end_at - nowMs.value
+  const m = Math.max(0, Math.round(left / 60000))
+  const txt = m >= 1440 ? `${Math.floor(m / 1440)}天` : m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? (m % 60) + 'm' : ''}` : `${m}m`
+  return `${c.name} ${txt}`
 })
 
 /* ------------------------------------------------------------------ */
 /* 角标 / 提示                                                         */
 /* ------------------------------------------------------------------ */
 
-const searchOpen = ref(false)
 const todoCount = ref(0)
 const clipCount = ref(0)
 let toastTimer: number | null = null
@@ -1042,8 +1100,7 @@ async function onHotkey(p: string) {
   }
   if (p === 'search') {
     // 原版全局搜索（分组结果 + 键盘上下选 + 回车打开），直接挂原版弹窗
-    if (!deckOn.value) await setMode('deck')
-    searchOpen.value = true
+    await focusSearch()
     return
   }
 }
@@ -1051,6 +1108,18 @@ async function onHotkey(p: string) {
 /* ------------------------------------------------------------------ */
 /* 键盘                                                                */
 /* ------------------------------------------------------------------ */
+
+/** 关最上层原版弹层：优先 × / 关闭，其次「取消」；都没有就不动（不误删内容） */
+function closeTopModal() {
+  const masks = document.querySelectorAll<HTMLElement>('.modal-mask')
+  const top = masks[masks.length - 1]
+  if (!top) return
+  const btns = [...top.querySelectorAll<HTMLButtonElement>('button')]
+  const pick =
+    top.querySelector<HTMLButtonElement>('.te-close, .modal-close, [data-close], button[aria-label="关闭"]') ||
+    btns.find((b) => ['取消', '关闭', '×', '✕'].includes((b.textContent || '').trim()))
+  pick?.click()
+}
 
 function onKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement | null)?.tagName
@@ -1070,11 +1139,17 @@ function onKeydown(e: KeyboardEvent) {
   }
   if (e.key === 'Escape') {
     e.preventDefault()
+    // 原版弹层（待办编辑 / 倒计时 / 速达编辑…）开着：Esc 只关弹层，不动 HUD。
+    // 弹层自己处理了 Esc 就已经没了；还在的话替它点关闭/取消（遮罩不接点击，见 hud-kit.css）
+    if (document.querySelector('.modal-mask')) {
+      window.setTimeout(() => closeTopModal(), 0)
+      return
+    }
     if (hoursOpen.value) {
       hoursOpen.value = false
       return
     }
-    if (results.value) {
+    if (panel.value === 'search' && deckOn.value && q.value) {
       clearSearch()
       return
     }
@@ -1097,11 +1172,7 @@ function onKeydown(e: KeyboardEvent) {
   }
   if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
     e.preventDefault()
-    if (!deckOn.value) void openPanel('todos')
-    nextTick(() => {
-      const el = document.querySelector<HTMLInputElement>('.quick-search input')
-      el?.focus()
-    })
+    void focusSearch()
     return
   }
   if (!inField && e.key === '/' && mode.value === 'deck') {
@@ -1179,7 +1250,13 @@ onMounted(async () => {
   nowMs.value = Date.now()
   const tick = window.setInterval(() => (nowMs.value = Date.now()), 15000)
   unlisteners.push(() => window.clearInterval(tick))
-  const onWinResize = () => measureBeside()
+  void refreshCountdowns()
+  const cdTick = window.setInterval(() => void refreshCountdowns(), 60000)
+  unlisteners.push(() => window.clearInterval(cdTick))
+  const onWinResize = () => {
+    vw.value = document.documentElement.clientWidth
+    measureBeside()
+  }
   window.addEventListener('resize', onWinResize)
   unlisteners.push(() => window.removeEventListener('resize', onWinResize))
 
@@ -1379,6 +1456,10 @@ defineExpose({ openPanel, setMode })
               </svg>
             </span>
           </div>
+          <!-- 倒计时一眼可见（P1-3：不再单开面板）：最近一个未结束的倒计时 -->
+          <span v-if="countdownLabel && !chatOpen" class="island-cd" data-island-countdown :title="`倒计时 · ${countdownLabel}`">
+            ⏱ {{ countdownLabel }}
+          </span>
           <!-- 截图 / 录屏：唤起原版全屏选区层（recorder-overlay 窗由后端预创建） -->
           <button
             class="island-act hit"
@@ -1403,12 +1484,10 @@ defineExpose({ openPanel, setMode })
           <button
             class="island-gear"
             type="button"
-            title="设定上下班时间"
+            title="上下班时间（设置 · 小岛）"
             aria-label="设定上下班时间"
-            @click.stop="
-              hoursOpen = !hoursOpen;
-              hoursDraft = { ...hours }
-            "
+            data-island-hours
+            @click.stop="openIslandSettings"
           >
             ⚙
           </button>
@@ -1433,24 +1512,6 @@ defineExpose({ openPanel, setMode })
         />
       </div>
 
-      <!-- 上下班配置（挂岛下，独立 hit） -->
-      <div v-if="hoursOpen" class="hours-pop panel cut hit" @click.stop>
-        <h4>上下班 · 日衰口径</h4>
-        <div class="row">
-          <div class="cg">
-            <label>上班</label>
-            <input v-model="hoursDraft.start" type="time" step="60" />
-          </div>
-          <div class="cg">
-            <label>下班</label>
-            <input v-model="hoursDraft.end" type="time" step="60" />
-          </div>
-        </div>
-        <div class="acts">
-          <span class="hint">{{ remainLabel }} · {{ pct }}%</span>
-          <button class="btn primary sm cut-sm" @click="saveHours">保存</button>
-        </div>
-      </div>
     </div>
 
     <!-- ******************************************** 躯干：左轨 + 面板 + 底栏（无右栏） -->
@@ -1503,26 +1564,6 @@ defineExpose({ openPanel, setMode })
           </button>
           <button
             class="nav-btn"
-            data-nav="sticky"
-            :class="{ 'is-on': panel === 'sticky' && deckOpen }"
-            title="便签"
-            aria-label="便签"
-            @click="openPanel('sticky')"
-          >
-            <span class="lab">便签</span>
-          </button>
-          <button
-            class="nav-btn"
-            data-nav="countdown"
-            :class="{ 'is-on': panel === 'countdown' && deckOpen }"
-            title="倒计时"
-            aria-label="倒计时"
-            @click="openPanel('countdown')"
-          >
-            <span class="lab">倒计时</span>
-          </button>
-          <button
-            class="nav-btn"
             data-nav="launch"
             :class="{ 'is-on': panel === 'launch' && deckOpen }"
             title="启动常用工具"
@@ -1534,6 +1575,7 @@ defineExpose({ openPanel, setMode })
           <button
             class="nav-btn"
             data-nav="search"
+            :class="{ 'is-on': panel === 'search' && deckOpen }"
             title="搜索"
             aria-label="搜索"
             @click="focusSearch"
@@ -1555,23 +1597,18 @@ defineExpose({ openPanel, setMode })
 
         <aside
           class="panel-col panel hit"
-          :class="{
-            'is-wide':
-              panel === 'launch' ||
-              panel === 'todos' ||
-              panel === 'notes' ||
-              panel === 'clipboard' ||
-              panel === 'settings',
-            'is-mid': panel === 'sticky' || panel === 'countdown',
-          }"
+          :class="{ 'is-tri': true, 'is-narrow': hudNarrow }"
+          :style="{ width: `${panelMaxW}px` }"
+          :data-tri-w="panelMaxW"
           aria-label="shell-hub 面板"
         >
           <pre class="ascii-bg is-work" aria-hidden="true">{{ asciiPanel }}</pre>
-          <HelmetTodoFullPanel v-if="panel === 'todos'" />
-          <HelmetNotesFullPanel v-if="panel === 'notes'" />
-          <HelmetClipboardFullPanel v-if="panel === 'clipboard'" />
-          <HelmetStickyPanel v-if="panel === 'sticky'" />
-          <HelmetCountdownPanel v-if="panel === 'countdown'" />
+          <div v-if="panel === 'todos'" class="work"><HelmetTodoTri /></div>
+          <HelmetNotesFullPanel v-if="panel === 'notes'" v-model:view="notesView" />
+          <div v-if="panel === 'clipboard'" class="work"><HelmetClipTri @insert="onClipInsert" /></div>
+          <div v-if="panel === 'search'" class="work">
+            <HelmetSearchTri v-model="q" @open-todo="openTodoFromSearch" @open-note="openNoteFromSearch" />
+          </div>
           <HelmetSudaPanel v-if="panel === 'launch'" />
           <div v-if="panel === 'settings'" class="work">
             <div class="work-hd">
@@ -1606,7 +1643,7 @@ defineExpose({ openPanel, setMode })
                 小岛
               </button>
             </div>
-            <!-- 系统设置：挂原版 SettingsView（通用/账号/AI/外观/数据/功能/扩展/工作台） -->
+            <!-- 系统设置：挂原版 SettingsView（通用/AI/外观/数据/功能/工作台；扩展、账号按 config/features 隐藏） -->
             <div v-if="settingsTab === 'system'" class="work-bd is-settings">
               <HelmetSettingsFullPanel />
             </div>
@@ -1637,14 +1674,14 @@ defineExpose({ openPanel, setMode })
                     <label>模型</label>
                     <select v-model="modelPick" class="cut-sm" title="聊天默认模型" @change="saveModel">
                       <option value="">（未设置）</option>
-                      <option v-for="m in cfgModels" :key="m.id" :value="modelLabel(m)">
+                      <option v-for="m in cfgModels" :key="m.id" :value="modelValue(m)">
                         {{ modelLabel(m) }}
                       </option>
                     </select>
                   </div>
                 </div>
                 <div class="set-acts">
-                  <span class="hint">{{ modelPick || '未设置' }} · {{ cfgModels.length }} 个可用</span>
+                  <span class="hint">{{ displayModelName(modelPick) || '未设置' }} · {{ cfgModels.length }} 个可用</span>
                   <button class="btn sm cut-sm" type="button" @click="loadSettings">重新读取</button>
                 </div>
               </div>
@@ -1677,49 +1714,16 @@ defineExpose({ openPanel, setMode })
           <input
             v-model="q"
             class="cut-sm"
-            placeholder="搜待办 / 笔记 / 速达，回车打开"
+            placeholder="搜待办 / 笔记，回车打开搜索面板"
             spellcheck="false"
-            @keydown.enter.prevent="runSearch"
+            @keydown.enter.prevent="focusSearch"
           />
         </div>
         <span class="ctx-hint">
-          {{ searching ? '检索中…' : results ? `${searchTotal} 条` : '待办 · 笔记 · 速达' }}
+          待办 · 笔记
         </span>
       </footer>
 
-      <div v-if="results" class="search-pop panel cut hit">
-        <div v-if="!searchTotal" class="empty" style="padding: 14px">没有命中「{{ q }}」。</div>
-        <button
-          v-for="t in results.todos"
-          :key="'t' + t.id"
-          class="search-hit"
-          @click="
-            openPanel('todos');
-            clearSearch()
-          "
-        >
-          <span class="kind">待办</span>
-          <span class="t">{{ t.title }}</span>
-        </button>
-        <button
-          v-for="n in results.notes"
-          :key="'n' + n.id"
-          class="search-hit"
-          @click="openNoteFromSearch(n.id)"
-        >
-          <span class="kind">笔记</span>
-          <span class="t">{{ n.title }}</span>
-        </button>
-        <button
-          v-for="r in results.resources"
-          :key="'r' + r.id"
-          class="search-hit"
-          @click="launchFromSearch(r.id)"
-        >
-          <span class="kind">速达 · {{ r.kind }}</span>
-          <span class="t">{{ r.name }}</span>
-        </button>
-      </div>
     </div>
 
     <!-- 装饰（不吃事件）：淡 vignette + 轻扫描线常驻展开态；
@@ -1742,29 +1746,6 @@ defineExpose({ openPanel, setMode })
       </div>
     </div>
 
-    <!-- 原版全局搜索（Teleport 到 body 的模态）：分组结果 + ↑↓ 选 + 回车打开 -->
-    <GlobalSearch
-      :visible="searchOpen"
-      @close="searchOpen = false"
-      @open-resource="
-        (r) => {
-          searchOpen = false
-          launchFromSearch(r.id)
-        }
-      "
-      @open-note="
-        (n) => {
-          searchOpen = false
-          openNoteFromSearch(n.id)
-        }
-      "
-      @open-todo="
-        () => {
-          searchOpen = false
-          openPanel('todos')
-        }
-      "
-    />
     <!-- 开场：ASCII 海洋（只作开机，结束即卸载） -->
     <HelmetBoot v-if="bootActive" @done="endBoot" />
 

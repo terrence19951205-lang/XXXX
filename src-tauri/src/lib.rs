@@ -47,6 +47,8 @@ mod todo_reminder;
 mod todo_recurrence;
 mod tray;
 pub mod updater;
+mod voice;
+mod note_media;
 mod webview_mem;
 mod win_taskbar;
 mod xhub_api;
@@ -1416,6 +1418,9 @@ pub fn run() {
             updater::snooze_update,
             process::open_external,
             xhub_api::xhub_call,
+            // P1-3 录音转文字（笔记编辑器 / 对话舱输入框）
+            voice::transcribe_audio,
+            note_media::read_drop_image,
             commands::check_connectivity,
             commands::get_weather,
             commands::get_quote,

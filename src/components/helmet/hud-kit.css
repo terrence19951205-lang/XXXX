@@ -588,3 +588,23 @@
   color: var(--amber, #e8b84a);
   opacity: 0.9;
 }
+
+/* ── 六、录音按钮（笔记 / 对话舱） ─────────────────────────────────────────── */
+.mic-btn.is-rec {
+  color: #fff !important;
+  background: rgba(255, 46, 151, 0.22) !important;
+  border-color: rgba(255, 46, 151, 0.6) !important;
+  box-shadow: 0 0 0 0 rgba(255, 46, 151, 0.5);
+  animation: hud-rec 1.2s ease-out infinite;
+}
+.mic-btn.is-busy {
+  opacity: 0.75;
+}
+@keyframes hud-rec {
+  0% { box-shadow: 0 0 0 0 rgba(255, 46, 151, 0.45); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 46, 151, 0); }
+}
+.composer .mic-btn {
+  flex: 0 0 auto;
+  min-width: 34px;
+}

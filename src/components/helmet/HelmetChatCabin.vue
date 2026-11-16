@@ -4,6 +4,7 @@
  * 复用 x-hub 对话数据层：chat_sessions / chat_messages / 模型配置，
  * 与主窗、独立对话窗共用一套会话，不绑 claw。
  */
+import { useVoiceInput } from '../../composables/useVoiceInput'
 import { FEATURES } from '../../config/features'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import PromptManageDialog from '../PromptManageDialog.vue'
@@ -477,6 +478,16 @@ function insertDraft(text: string) {
     }
   })
 }
+/** 录音 → 转写 → 填进输入框（草稿，不自动发送）；收起对话即停录 */
+const voice = useVoiceInput({
+  owner: 'cabin',
+  onText: (text) => {
+    insertDraft(text)
+    emit('toast', '已转成文字，填进输入框（未发送）')
+  },
+  toast: (m) => emit('toast', m),
+})
+
 function onCabinInsert(e: Event) {
   insertDraft((e as CustomEvent<{ text?: string }>).detail?.text ?? '')
 }
@@ -698,6 +709,20 @@ defineExpose({ load, loadPrompts })
         spellcheck="false"
         @keydown="onKeydown"
       />
+      <button
+        class="btn sm cut-sm mic-btn"
+        type="button"
+        data-voice="cabin"
+        :data-voice-state="voice.state.value"
+        :class="{ 'is-rec': voice.state.value === 'recording', 'is-busy': voice.state.value === 'transcribing' || voice.state.value === 'asking' }"
+        :title="voice.state.value === 'recording' ? '停止录音并转成文字' : '按一下开始录音，再按一下结束；转好的文字填进输入框，不会自动发送'"
+        :aria-label="voice.state.value === 'recording' ? '停止录音' : '语音输入'"
+        :disabled="voice.state.value === 'transcribing'"
+        @mousedown.prevent
+        @click="voice.toggle()"
+      >
+        {{ voice.state.value === 'recording' ? `■ ${voice.elapsed.value}s` : voice.state.value === 'transcribing' ? '转写中' : voice.state.value === 'asking' ? '授权中' : '🎙' }}
+      </button>
       <button class="btn primary cut-sm" :disabled="streaming || !input.trim()" @click="send">
         {{ streaming ? '生成中' : '发送' }}
       </button>

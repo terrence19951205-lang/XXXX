@@ -250,6 +250,11 @@ function playCollapseOut() {
   })
 }
 
+/* 录音不在后台继续：HUD 壳收起时笔记那一路立即停录丢弃（对话舱收起会卸载组件，自己停） */
+watch(deckOpen, (open) => {
+  if (!open) window.dispatchEvent(new CustomEvent('hud-voice-stop', { detail: { owner: 'notes', reason: '录音已停止（HUD 已收起，这段未保存）' } }))
+})
+
 watch(
   deckOpen,
   (open, was) => {

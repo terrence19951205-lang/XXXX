@@ -3,11 +3,11 @@ import { inject, onMounted, ref } from 'vue'
 import { ExternalLink, RefreshCw } from 'lucide-vue-next'
 import { isTauri, tauriApi } from '../api/tauri'
 import { useStore } from '../stores/workbench'
+import { FEATURES } from '../config/features'
 
 const store = useStore()
 const showToast = inject<(msg: string) => void>('showToast', () => {})
 
-const version = ref('')
 const loading = ref(true)
 
 // 版本历史的唯一线上出处：GitHub Releases（客户端内不再内置历史列表）
@@ -40,7 +40,7 @@ async function onCheckUpdate() {
       // 后端已广播 update-available → 全局弹窗自动弹出并展示版本/说明
       if (info.ready) showToast(`新版 v${info.version} 已就绪，请在弹窗中点击「立即重启」`)
     } else {
-      showToast(`已是最新版本（v${info.current}）`)
+      showToast('已是最新版本')
     }
   } catch (e) {
     showToast(`检查更新失败：${String(e)}`)
@@ -51,10 +51,9 @@ async function onCheckUpdate() {
 
 onMounted(async () => {
   try {
-    const info = await tauriApi.getAppInfo()
-    version.value = info.version
+    await tauriApi.getAppInfo()
   } catch {
-    version.value = ''
+    /* 内部版本号不再展示 */
   } finally {
     loading.value = false
   }
@@ -70,10 +69,10 @@ function onToggleAutoUpdate() {
     <div class="setting-row">
       <div class="setting-info">
         <span class="setting-name">当前版本</span>
-        <span class="setting-desc">版本号以 README 为准，随安装包构建同步</span>
+        <span class="setting-desc">产品名以界面展示为准；内部标识与数据目录保持不变</span>
       </div>
       <div class="about-version-wrap">
-        <span class="about-version">{{ loading ? '…' : `v${version}` }}</span>
+        <span class="about-version">{{ loading ? '…' : 'shell-hub' }}</span>
         <button class="ghost-btn upd-check-btn" type="button" :disabled="checking" @click="onCheckUpdate">
           <RefreshCw
             :size="13"
@@ -103,7 +102,7 @@ function onToggleAutoUpdate() {
       </button>
     </div>
 
-    <div class="setting-row">
+    <div v-if="FEATURES.upstreamLinks" class="setting-row">
       <div class="setting-info">
         <span class="setting-name">开源许可</span>
         <span class="setting-desc">本项目基于 MIT 许可开源</span>
@@ -118,7 +117,7 @@ function onToggleAutoUpdate() {
       </a>
     </div>
 
-    <div class="setting-row">
+    <div v-if="FEATURES.upstreamLinks" class="setting-row">
       <div class="setting-info">
         <span class="setting-name">版本历史</span>
         <span class="setting-desc">各版本更新说明托管在 GitHub Releases，点按即可查看</span>

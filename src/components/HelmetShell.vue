@@ -39,11 +39,13 @@ import { useHelmetNotes } from '../composables/useHelmetNotes'
 import './helmet/helmet.css'
 import './helmet/hud-kit.css'
 import { FEATURES } from '../config/features'
+import { useStore } from '../stores/workbench'
 
 type Mode = 'idle' | 'deck' | 'chat'
 /** P1-3：便签并进笔记（笔记列表筛选「便签」），倒计时/日衰放到岛上一眼可见，二者不再占左轨 */
 type PanelKey = 'todos' | 'notes' | 'clipboard' | 'launch' | 'search' | 'settings'
 const PANEL_KEYS: PanelKey[] = ['todos', 'notes', 'clipboard', 'launch', 'search', 'settings']
+const store = useStore()
 
 const LS_OLD_COLLAPSE = 'rr.hud.collapsed'
 const LS_HOURS = 'rr.hud.hours'
@@ -914,6 +916,13 @@ function modelLabel(m: ChatModelConfig): string {
 async function loadSettings() {
   if (!isTauri()) return
   try {
+    if (!store.state.loaded) {
+      try {
+        await store.loadInitialData()
+      } catch {
+        /* 小岛提示音等依赖 config；失败时保持默认关闭 */
+      }
+    }
     const cfg = await tauriApi.getUiConfig()
     // 平台入口依赖账号登录：账号功能关着就不列（config/features）
     cfgModels.value = (cfg.chat_models || []).filter((m) => FEATURES.account || !isPlatformModel(m))
@@ -941,6 +950,10 @@ async function saveModel() {
     showToast('模型保存失败')
     console.warn('[helmet] set_chat_selected_model failed', e)
   }
+}
+
+function toggleCountdownSound() {
+  void store.setCountdownSound(!store.state.config.countdown_sound)
 }
 
 /* ------------------------------------------------------------------ */
@@ -1116,8 +1129,9 @@ async function onHotkey(p: string) {
 
 /** 关最上层原版弹层：优先 × / 关闭，其次「取消」；都没有就不动（不误删内容） */
 function closeTopModal() {
+  const sheets = document.querySelectorAll<HTMLElement>('[data-inline-sheet]')
   const masks = document.querySelectorAll<HTMLElement>('.modal-mask')
-  const top = masks[masks.length - 1]
+  const top = sheets[sheets.length - 1] ?? masks[masks.length - 1]
   if (!top) return
   const btns = [...top.querySelectorAll<HTMLButtonElement>('button')]
   const pick =
@@ -1146,7 +1160,7 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     // 原版弹层（待办编辑 / 倒计时 / 速达编辑…）开着：Esc 只关弹层，不动 HUD。
     // 弹层自己处理了 Esc 就已经没了；还在的话替它点关闭/取消（遮罩不接点击，见 hud-kit.css）
-    if (document.querySelector('.modal-mask')) {
+    if (document.querySelector('.modal-mask, [data-inline-sheet]')) {
       window.setTimeout(() => closeTopModal(), 0)
       return
     }
@@ -1442,7 +1456,7 @@ defineExpose({ openPanel, setMode })
         <div class="island-face">
           <span class="island-led" aria-hidden="true" />
           <div class="island-brand">
-            <span class="cn">{{ chatOpen ? '聊天 · Comms' : 'shell-hub' }}</span>
+            <span class="cn">shell-hub</span>
             <span class="en">{{ chatOpen ? 'GENERAL AI · LOCAL' : '点击打开对话' }}</span>
           </div>
           <div class="island-decay">
@@ -1703,6 +1717,16 @@ defineExpose({ openPanel, setMode })
                 <div class="set-row"><span>产品</span><b>shell-hub</b></div>
                 <div class="set-row"><span>展开 / 收起</span><b>岛右侧 ▾</b></div>
                 <div class="set-row"><span>贴顶收起</span><b>Esc 收回唇边</b></div>
+              </div>
+              <div class="set-block">
+                <h4>倒计时到点提示音</h4>
+                <p class="set-note">岛上倒计时到点时额外播放提示音（默认关闭）。</p>
+                <div class="set-acts">
+                  <span class="hint">{{ store.state.config.countdown_sound ? '已开启' : '已关闭' }}</span>
+                  <button class="btn sm cut-sm" type="button" @click="toggleCountdownSound">
+                    {{ store.state.config.countdown_sound ? '关闭' : '开启' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

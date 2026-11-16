@@ -123,7 +123,7 @@ function onCatInput(path: string, e: Event) {
 const CONF = {
   apps: {
     title: '扫描已安装应用',
-    sub: '勾选要加入速达的应用，未勾选的将忽略',
+    sub: '勾选要加入启动的应用，未勾选的将忽略',
     placeholder: '搜索应用名称…',
     loading: '正在扫描已安装应用…',
     loadingHint: '首次扫描需提取程序图标，可能稍慢',
@@ -138,7 +138,7 @@ const CONF = {
     loading: '正在扫描桌面…',
     loadingHint: '正在解析快捷方式并提取图标，可能稍慢',
     empty: '桌面上没有可导入的项目',
-    confirm: '加入速达',
+    confirm: '加入启动',
     aria: '扫描桌面',
   },
   bookmarks: {
@@ -675,7 +675,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <p class="scan-warn">
               <AlertTriangle :size="14" :stroke-width="2.2" aria-hidden="true" />
               <span>
-                加入速达只会记下一条快捷方式，<b>不会复制、也不会删除</b>桌面上的原文件。桌面上的东西请按你自己的需要处理。
+                加入启动只会记下一条快捷方式，<b>不会复制、也不会删除</b>桌面上的原文件。桌面上的东西请按你自己的需要处理。
               </span>
             </p>
             <label class="scan-clean" :class="{ disabled: selectedShortcuts === 0 }">
@@ -700,7 +700,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                 @change="groupByFolder = !groupByFolder"
               />
               <span>
-                按<b>浏览器文件夹</b>设置速达小类，目录层级原样保留（如「书签栏/开发/前端」→ 小类「开发/前端」，在速达中逐级嵌套选择）；各文件夹的小类可在列表中直接修改，留空归默认，改同名即合并；缺的小类自动创建<template v-if="newCategoryCount > 0">，本次将新建 {{ newCategoryCount }} 个</template>
+                按<b>浏览器文件夹</b>设置启动小类，目录层级原样保留（如「书签栏/开发/前端」→ 小类「开发/前端」，在启动中逐级嵌套选择）；各文件夹的小类可在列表中直接修改，留空归默认，改同名即合并；缺的小类自动创建<template v-if="newCategoryCount > 0">，本次将新建 {{ newCategoryCount }} 个</template>
               </span>
             </label>
             <!-- 数量口径：解释「x-hub 计数 ≠ 浏览器收藏夹管理器计数」（所有配置文件合并 + 同网址只算一条） -->
@@ -829,7 +829,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                       ''
                     "
                     placeholder="默认"
-                    title="导入时归入的速达小类（可用 / 分层级，如「开发/前端」），可修改；留空 = 按默认小类归档；多个文件夹改成同名会合并进同一个小类"
+                    title="导入时归入的启动小类（可用 / 分层级，如「开发/前端」），可修改；留空 = 按默认小类归档；多个文件夹改成同名会合并进同一个小类"
                     @keydown.stop
                     @input="onCatInput(row.node.rawFolder, $event)"
                   />

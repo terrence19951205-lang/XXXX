@@ -211,6 +211,8 @@ const dateChipLabel = computed(() => {
 const titleDraft = ref('')
 const descDraft = ref('')
 const dueDay = ref('')
+/** 详情日期框展示文案（年/月/日数字，如 2026/11/16）；空时显示占位「年/月/日」 */
+const dueDayText = ref('')
 const dueTime = ref('18:00')
 const subDraft = ref('')
 const confirmDel = ref(false)
@@ -224,14 +226,50 @@ watch(
     if (t?.due_at != null) {
       const d = new Date(t.due_at)
       dueDay.value = dayKey(t.due_at)
+      dueDayText.value = dueDay.value.replaceAll('-', '/')
       dueTime.value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     } else {
       dueDay.value = ''
+      dueDayText.value = ''
       dueTime.value = '18:00'
     }
   },
   { immediate: true },
 )
+
+/** 把输入解析成 YYYY-MM-DD；支持 2026/11/16、2026-11-16、2026年11月16日。失败返回 null。 */
+function parseDueDay(raw: string): string | null {
+  const s = raw
+    .trim()
+    .replace(/[年./]/g, '-')
+    .replace(/月/g, '-')
+    .replace(/日/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+  if (!m) return null
+  const y = Number(m[1])
+  const mo = Number(m[2])
+  const d = Number(m[3])
+  const dt = new Date(y, mo - 1, d)
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null
+  return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+}
+
+function formatDueDay(key: string): string {
+  return key.replaceAll('-', '/')
+}
+
+function commitDueDay() {
+  const parsed = parseDueDay(dueDayText.value)
+  if (!parsed) {
+    dueDayText.value = dueDay.value ? formatDueDay(dueDay.value) : ''
+    return
+  }
+  dueDay.value = parsed
+  dueDayText.value = formatDueDay(parsed)
+  void setDue(parsed)
+}
 
 async function saveTitle() {
   const t = active.value
@@ -464,8 +502,20 @@ defineExpose({ focusNew: () => nextTick(() => listInput.value?.focus()) })
               <button class="hud-chip" type="button" :disabled="active.due_at == null" @click="setDue(null)">清除</button>
             </div>
             <div class="due-row">
-              <input v-model="dueDay" class="hud-input" type="date" data-todo-due-day @change="dueDay && setDue(dueDay)" />
-              <input v-model="dueTime" class="hud-input" type="time" step="60" @change="dueDay && setDue(dueDay)" />
+              <!-- 不用原生 type=date：Chromium zh-CN 空值占位会变成 yyyy/mm/日，且露出系统控件 -->
+              <input
+                v-model="dueDayText"
+                class="hud-input due-day-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="年/月/日"
+                data-todo-due-day
+                autocomplete="off"
+                spellcheck="false"
+                @change="commitDueDay"
+                @keydown.enter.prevent="commitDueDay"
+              />
+              <input v-model="dueTime" class="hud-input due-time-input" type="time" step="60" @change="dueDay && setDue(dueDay)" />
             </div>
           </div>
           <div class="tri-field" data-todo-repeat>
@@ -569,6 +619,15 @@ defineExpose({ focusNew: () => nextTick(() => listInput.value?.focus()) })
   grid-template-columns: 1fr 110px;
   gap: 6px;
 }
+.due-day-input {
+  flex: 1 1 9.5em;
+  min-width: 9.5em;
+}
+.due-time-input {
+  flex: 0 0 auto;
+  width: 8em;
+}
+
 .sub-row {
   display: flex;
   align-items: center;

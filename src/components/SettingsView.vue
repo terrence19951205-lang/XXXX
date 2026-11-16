@@ -8,7 +8,7 @@ import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, r
 import { Bot, ChevronRight, CircleHelp, Database, LayoutGrid, Palette, Puzzle, Search, Settings, Sparkles, User, X } from 'lucide-vue-next';
 import { SETTINGS_INDEX } from './settingsIndex.generated';
 import PanelLoading from './settings/PanelLoading.vue';
-import { settingsGroupVisible, settingsSectionVisible, settingsTitleVisible } from '../config/features';
+import { rewriteVisibleCopy, settingsGroupVisible, settingsSectionVisible, settingsTitleVisible } from '../config/features';
 
 const props = defineProps<{ initialSection?: string }>()
 
@@ -29,8 +29,8 @@ const SECTIONS = [
   { id: 'ai', label: '面板' },
   { id: 'credit', label: '额度' },
   { id: 'providers', label: '供应商' },
-  { id: 'suda', label: '速达' },
-  { id: 'notes', label: '速记' },
+  { id: 'suda', label: '启动' },
+  { id: 'notes', label: '笔记' },
   { id: 'appearance', label: '外观' },
   { id: 'workbench', label: '工作台' },
   { id: 'shortcut', label: '快捷键' },
@@ -129,12 +129,13 @@ const searchResults = computed(() => {
     // P1-3：隐藏的功能（扩展 / 账号）不出现在设置搜索里
     if (!settingsSectionVisible(section) || !settingsGroupVisible(SECTION_GROUP[section])) continue
     if (!settingsTitleVisible(it.title)) continue
+    const title = rewriteVisibleCopy(it.title)
     const where = `${groupLabel(SECTION_GROUP[section])} / ${SECTION_LABEL[section]}`
-    const idx = it.title.toLowerCase().indexOf(q)
+    const idx = title.toLowerCase().indexOf(q)
     const whereHit = where.toLowerCase().includes(q)
     if (idx < 0 && !whereHit) continue
     // 排序：标题开头命中 > 标题中间命中 > 只命中「所属位置」
-    hits.push({ section, title: it.title, where, rank: idx === 0 ? 0 : idx > 0 ? 1 : 2 })
+    hits.push({ section, title, where, rank: idx === 0 ? 0 : idx > 0 ? 1 : 2 })
   }
   return hits.sort((a, b) => a.rank - b.rank || a.title.length - b.title.length).slice(0, 30)
 })
@@ -278,6 +279,11 @@ onMounted(() => {
   if (!props.initialSection) return
   const target = props.initialSection as SectionId
   if (!SECTIONS.some((s) => s.id === target)) return
+  if (!settingsSectionVisible(target) || !settingsGroupVisible(SECTION_GROUP[target])) {
+    activeGroup.value = 'general'
+    activeSection.value = 'general'
+    return
+  }
   activeGroup.value = SECTION_GROUP[target]
   activeSection.value = target
   void nextTick(() => goToSection(target))

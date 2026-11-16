@@ -8,6 +8,7 @@ import { Keyboard } from 'lucide-vue-next';
 import { isTauri, tauriApi } from '../../api/tauri';
 import type { AutostartStatus } from '../../api/tauri';
 import { useStore } from '../../stores/workbench';
+import { FEATURES } from '../../config/features';
 import { normalizeShortcutDisplay, useShortcutRecorder } from '../../composables/useShortcutRecorder';
 import { FLOATING_BALL_BUTTONS, FLOATING_BALL_MAX_BUTTONS } from '../../composables/floatingBallButtons';
 
@@ -130,7 +131,7 @@ const {
   onKeydown: onNotesShortcutKeydown,
 } = useShortcutRecorder({
   initial: normalizeShortcutDisplay(store.state.config.notes_shortcut ?? 'Ctrl+Shift+N'),
-  label: '速记快捷键',
+  label: '笔记快捷键',
   save: (v) => store.setNotesShortcut(v),
   showToast,
 })
@@ -208,7 +209,7 @@ async function toggleShortcutEnabled(kind: ShortcutKind) {
   shortcutToggleBusy.value = true
   try {
     await store.setShortcutEnabled(kind, next)
-    const label = { main: '全局', clipboard: '剪贴板', search: '搜索', chat: 'AI 对话', notes: '速记', shot: '截图', recorder: 'GIF 录制' }[kind]
+    const label = { main: '全局', clipboard: '剪贴板', search: '搜索', chat: 'AI 对话', notes: '笔记', shot: '截图', recorder: 'GIF 录制' }[kind]
     showToast(next ? `${label}快捷键已启用` : `${label}快捷键已禁用（键值保留，随时可重开）`)
   } catch (e) {
     showToast(`设置失败：${String(e)}`)
@@ -325,7 +326,7 @@ onMounted(async () => {
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">开机自动启动</span>
-              <span class="setting-desc">登录 Windows 后自动在后台运行并驻留托盘（不弹出主窗口，点托盘图标可随时唤出）</span>
+              <span class="setting-desc">登录 Windows 后自动在后台运行并驻留托盘（不弹出界面，点托盘图标可随时唤出）</span>
               <span v-if="autostartFailed" class="autostart-warn">
                 ⚠ 开机自启动已失效：{{ autostartFailReason }}
                 <button type="button" class="autostart-repair" :disabled="autostartBusy" @click="repairAutostart">
@@ -367,7 +368,7 @@ onMounted(async () => {
           </div>
         </section>
 
-        <section id="sv-sec-ball" class="sv-sec" aria-label="悬浮球">
+        <section v-if="FEATURES.floatingBall" id="sv-sec-ball" class="sv-sec" aria-label="悬浮球">
           <h3 class="sv-sec-title">悬浮球</h3>
 
           <div class="setting-row">
@@ -477,7 +478,7 @@ onMounted(async () => {
           <div class="setting-row shortcut-row">
             <div class="setting-info">
               <span class="setting-name">全局快捷键</span>
-              <span class="setting-desc">支持手动输入或按键录入，无冲突自动保存；右侧开关可临时禁用（保留键值）</span>
+              <span class="setting-desc">唤起 / 收起 HUD；支持手动输入或按键录入，无冲突自动保存；右侧开关可临时禁用（保留键值）</span>
             </div>
             <div class="shortcut-edit" :class="{ off: !store.state.config.global_shortcut_enabled }">
               <div class="shortcut-input-wrap">
@@ -517,7 +518,7 @@ onMounted(async () => {
           <div class="setting-row shortcut-row">
             <div class="setting-info">
               <span class="setting-name">剪贴板呼出快捷键</span>
-              <span class="setting-desc">任何应用中一键唤起剪贴板历史浮层；右侧开关可临时禁用（保留键值）</span>
+              <span class="setting-desc">呼出 HUD 内剪贴板面板；右侧开关可临时禁用（保留键值）</span>
             </div>
             <div class="shortcut-edit" :class="{ off: !store.state.config.clipboard_shortcut_enabled }">
               <div class="shortcut-input-wrap">
@@ -557,7 +558,7 @@ onMounted(async () => {
           <div class="setting-row shortcut-row">
             <div class="setting-info">
               <span class="setting-name">搜索呼出快捷键</span>
-              <span class="setting-desc">任何应用中一键唤起全局搜索；弹窗内的快捷键提示也会随之更新；右侧开关可临时禁用（保留键值）</span>
+              <span class="setting-desc">呼出 HUD 内搜索面板；右侧开关可临时禁用（保留键值）</span>
             </div>
             <div class="shortcut-edit" :class="{ off: !store.state.config.search_shortcut_enabled }">
               <div class="shortcut-input-wrap">
@@ -597,7 +598,7 @@ onMounted(async () => {
           <div class="setting-row shortcut-row">
             <div class="setting-info">
               <span class="setting-name">AI 对话呼出快捷键</span>
-              <span class="setting-desc">任何应用中一键唤起 AI 对话（形态由「AI 助手」里的开关决定）；右侧开关可临时禁用（保留键值）</span>
+              <span class="setting-desc">打开对话舱；右侧开关可临时禁用（保留键值）</span>
             </div>
             <div class="shortcut-edit" :class="{ off: !store.state.config.chat_shortcut_enabled }">
               <div class="shortcut-input-wrap">
@@ -636,8 +637,8 @@ onMounted(async () => {
 
           <div class="setting-row shortcut-row">
             <div class="setting-info">
-              <span class="setting-name">速记呼出快捷键</span>
-              <span class="setting-desc">任何应用中一键呼出主窗并新建速记；右侧开关可临时禁用（保留键值）</span>
+              <span class="setting-name">笔记呼出快捷键</span>
+              <span class="setting-desc">呼出 HUD 内笔记面板；右侧开关可临时禁用（保留键值）</span>
             </div>
             <div class="shortcut-edit" :class="{ off: !store.state.config.notes_shortcut_enabled }">
               <div class="shortcut-input-wrap">

@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
         <span class="toggle-knob"></span>
       </button>
     </div>
-    <div class="setting-row">
+    <div v-if="FEATURES.extensions" class="setting-row">
       <div class="setting-info">
         <span class="setting-name">允许调用扩展提供的工具</span>
         <span class="setting-desc">service 扩展可在 manifest 里声明 AI 工具（数据查询等），AI 按其声明的档位受同一套审批约束；每个扩展还可单独在扩展详情的设置弹窗里关闭</span>
@@ -307,7 +307,7 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section id="sv-sec-ai" class="sv-sec" aria-label="面板">
+  <section v-if="FEATURES.aiPanel" id="sv-sec-ai" class="sv-sec" aria-label="面板">
     <h3 class="sv-sec-title">面板</h3>
 
     <div class="setting-row">

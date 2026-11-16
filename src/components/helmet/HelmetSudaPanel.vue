@@ -9,11 +9,12 @@
  * 这里只做三件事：备好主题 token（在 helmet.css 的 .xhub-host 里映射）、
  * 保证 store 已加载、给它一个够大的宿主盒子。
  */
-import { onMounted, ref } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 import Suda from '../Suda.vue'
 import { useStore } from '../../stores/workbench'
 
 const store = useStore()
+provide('sudaInlineForm', true)
 const ready = ref(false)
 
 onMounted(async () => {
@@ -33,7 +34,7 @@ onMounted(async () => {
     <div v-if="ready" class="suda-mount">
       <Suda />
     </div>
-    <div v-else class="panel-hint">正在载入速达…</div>
+    <div v-else class="panel-hint">正在载入启动…</div>
   </div>
 </template>
 

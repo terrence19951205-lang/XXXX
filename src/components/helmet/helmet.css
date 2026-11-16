@@ -2129,6 +2129,97 @@ select:focus {
   background: rgba(0, 229, 255, 0.1) !important;
 }
 
+/* 启动面板（Suda）在 HUD 里：原版 .filter-tab 写在主窗 style.css，Helmet 不加载，
+   分类钮会挤成「全部常用应用网页文件」。分区框默认 3 列定宽，窄栏/第三栏打开时会挤、溢出或挡住添加。 */
+.xhub-host .filter-tabs,
+.xhub-host .suda-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  overflow: visible;
+  padding-bottom: 0;
+}
+.xhub-host .filter-tab {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.3;
+  transition: background 0.18s, color 0.18s;
+}
+.xhub-host .filter-tab:hover {
+  background: var(--brand-50);
+  color: var(--brand-500);
+}
+.xhub-host .filter-tab--primary.active {
+  background: var(--brand-500);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+.xhub-host .filter-tab--tag {
+  padding: 4px 10px;
+  font-size: 0.6875rem;
+}
+.xhub-host .filter-tab--tag.active {
+  background: var(--brand-50);
+  color: var(--brand-500);
+  font-weight: 600;
+}
+.xhub-host .suda-tabs-row {
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.xhub-host .suda-tabs-row .suda-tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.xhub-host .suda-zone-add {
+  flex: 0 0 auto;
+}
+.xhub-host .suda,
+.xhub-host .suda-main,
+.xhub-host .suda-zone-flow {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.xhub-host .suda.is-split .suda-main {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: hidden;
+}
+/* 分区块在面板里纵向铺开、宽度跟列表栏，卡片按栏宽自动折列，不再横向挤出或挡住添加/列表 */
+.xhub-host .suda-zone-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+.xhub-host .suda-zone:not(.flat) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.xhub-host .suda-zone:not(.unzoned-block):not(.flat) .suda-zone-grid {
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(var(--suda-cell-w), 1fr));
+  justify-content: start;
+}
+.xhub-host .suda-zone.unzoned-block {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 /* 原版全局搜索弹窗（GlobalSearch）在 Helmet 里的形态：
    它自带整屏压暗遮罩——在透明 HUD 上等于给整个桌面蒙一层，
    这里只保留卡片本身，遮罩透明；卡片下移到岛上沿附近，像从岛里落下来。 */
@@ -2205,6 +2296,43 @@ select:focus {
 }
 .modal-mask .search-card .result-sub {
   color: #9fb1c4;
+}
+
+/* AppSelect / ContextMenu 被 Teleport 到 body，吃不到 .xhub-host 的 token；
+   --bg-card 未定义时菜单背景是透明、字是默认黑，在透明 HUD 里等于「弹窗看不见」。
+   这里给实底，覆盖启动面板右上「标准」下拉、设置里的模型下拉、分区「…」右键菜单等同款弹层。 */
+.app-select-menu,
+.ctx-menu {
+  background: #10161f;
+  color: #eef3f8;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  --bg-card: #10161f;
+  --text-1: #eef3f8;
+  --text-2: #c5d0db;
+  --text-3: #8fa2b5;
+  --text-4: rgba(180, 196, 212, 0.7);
+  --brand-500: #00e5ff;
+  --brand-50: rgba(0, 229, 255, 0.12);
+  --border-soft: rgba(255, 255, 255, 0.16);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --shadow-dock: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-focus: 0 0 0 3px rgba(0, 229, 255, 0.18);
+}
+.app-select-option,
+.ctx-item {
+  color: #c5d0db;
+}
+.app-select-option.active,
+.app-select-option.selected,
+.app-select-option:hover,
+.ctx-item:hover {
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
 }
 
 /* 宽面板：原版工作台级组件（速达/待办/笔记）在 328px 里放不下，按需放宽。

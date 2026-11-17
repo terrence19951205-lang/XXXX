@@ -231,6 +231,18 @@ select:focus {
     0 0 40px rgba(0, 229, 255, 0.06);
 }
 
+/* 已开功能面板时，舱体与面板可见外框同顶、同底、同高；岛位置不变，舱宽仍走原规则。 */
+.island.is-chat.is-align-panel {
+  height: var(--cabin-align-island-h);
+  min-height: var(--cabin-align-island-h);
+  max-height: none;
+}
+.island.is-chat.is-align-panel .island-chat {
+  height: var(--cabin-align-h);
+  min-height: var(--cabin-align-h);
+  margin-top: var(--cabin-align-gap, 0px);
+}
+
 .island-face {
   display: flex;
   align-items: center;
@@ -2030,10 +2042,19 @@ select:focus {
   content: none !important;
   display: none !important;
 }
-/* 二、侧栏 + 工作面板外壳（笔记/待办/剪贴板/速达共用 .panel-col）同款圆角细边 */
-.rail.panel,
-.panel-col.panel {
+/* 二、侧栏 + 工作面板外壳（笔记/待办/剪贴板/启动共用 .panel-col）同款圆角细边。
+   功能面板必须实底：WebView2 透明窗里 --glass-chat（0.96–0.97）会透出桌面时钟/图标。 */
+.rail.panel {
   background: var(--glass-chat);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.panel-col.panel,
+.panel-col.is-tri {
+  background: linear-gradient(180deg, #1c2430 0%, #0b1018 100%);
   border: 1px solid rgba(0, 229, 255, 0.22);
   border-radius: 12px;
   box-shadow:
@@ -2117,9 +2138,14 @@ select:focus {
 /* 原版卡片在深色底上会「黑吃黑」：把卡面提亮一档、加细边和一缕投影，
    深色 HUD 里才有层级（原版是浅色主题，卡面本身就比背景亮）。 */
 .xhub-host .suda-app-card,
-.xhub-host .suda-cell,
+.xhub-host .suda-cell {
+  background: #1a2230 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.35) !important;
+}
 .xhub-host .suda-zone {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: #161c26 !important;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.16),
     0 4px 12px rgba(0, 0, 0, 0.35) !important;
@@ -2216,8 +2242,10 @@ select:focus {
   justify-content: start;
 }
 .xhub-host .suda-zone.unzoned-block {
-  background: transparent !important;
-  box-shadow: none !important;
+  background: #141a24 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.10),
+    0 4px 12px rgba(0, 0, 0, 0.28) !important;
 }
 
 /* 原版全局搜索弹窗（GlobalSearch）在 Helmet 里的形态：

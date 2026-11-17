@@ -58,7 +58,6 @@ export function settingsTitleVisible(title: string): boolean {
   if (!FEATURES.onlineWeather && /联网功能|天气城市/.test(title)) return false
   if (!FEATURES.embedPanel && /内嵌面板/.test(title)) return false
   if (!FEATURES.upstreamLinks && /开源许可|版本历史/.test(title)) return false
-  if (/界面总览|窗口操作与退出/.test(title)) return false
   return true
 }
 

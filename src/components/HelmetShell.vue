@@ -582,20 +582,67 @@ function measureBeside() {
   besideLeft.value = Math.max(0, Math.round(right + 16))
 }
 
-function bindDockObserver() {
-  dockRo?.disconnect()
-  dockRo = null
-  if (!besideDock.value) return
-  const dock = document.querySelector('.hud.is-open .dock')
-  if (dock && typeof ResizeObserver !== 'undefined') {
-    dockRo = new ResizeObserver(() => measureBeside())
-    dockRo.observe(dock)
+/** 已开功能面板时，对话舱与该面板可见外框顶对齐、底对齐、同高；无面板则回到默认高度。岛位置不变。 */
+const cabinAlignOn = ref(false)
+const cabinAlignVars = ref<Record<string, string>>({})
+const wrapLayoutStyle = computed(() => {
+  const base = besideStyle.value ?? {}
+  return { ...base, ...cabinAlignVars.value }
+})
+
+function measureCabinAlign() {
+  if (!chatOpen.value || !deckOpen.value) {
+    cabinAlignOn.value = false
+    cabinAlignVars.value = {}
+    return
+  }
+  const panelEl = document.querySelector('.hud.is-open .panel-col') as HTMLElement | null
+  const island = islandEl.value
+  const face = island?.querySelector('.island-face') as HTMLElement | null
+  if (!panelEl || !island || !face) {
+    cabinAlignOn.value = false
+    cabinAlignVars.value = {}
+    return
+  }
+  const pr = panelEl.getBoundingClientRect()
+  const ir = island.getBoundingClientRect()
+  const fr = face.getBoundingClientRect()
+  if (pr.height < 40) {
+    cabinAlignOn.value = false
+    cabinAlignVars.value = {}
+    return
+  }
+  const islandH = Math.max(1, Math.round(pr.bottom - ir.top))
+  const cabinH = Math.max(1, Math.round(pr.height))
+  const gap = Math.max(0, Math.round(pr.top - fr.bottom))
+  cabinAlignOn.value = true
+  cabinAlignVars.value = {
+    '--cabin-align-island-h': `${islandH}px`,
+    '--cabin-align-h': `${cabinH}px`,
+    '--cabin-align-gap': `${gap}px`,
   }
 }
 
-watch([besideDock, panel], () => {
+function layoutDockAndCabin() {
+  measureBeside()
+  measureCabinAlign()
+}
+
+function bindDockObserver() {
+  dockRo?.disconnect()
+  dockRo = null
+  const dock = document.querySelector('.hud.is-open .dock')
+  const panelEl = document.querySelector('.hud.is-open .panel-col')
+  if (typeof ResizeObserver !== 'undefined' && (dock || panelEl)) {
+    dockRo = new ResizeObserver(() => layoutDockAndCabin())
+    if (dock) dockRo.observe(dock)
+    if (panelEl && panelEl !== dock) dockRo.observe(panelEl)
+  }
+  layoutDockAndCabin()
+}
+
+watch([besideDock, panel, chatOpen, deckOpen], () => {
   void nextTick(() => {
-    measureBeside()
     bindDockObserver()
   })
 })
@@ -1274,7 +1321,7 @@ onMounted(async () => {
   unlisteners.push(() => window.clearInterval(cdTick))
   const onWinResize = () => {
     vw.value = document.documentElement.clientWidth
-    measureBeside()
+    layoutDockAndCabin()
   }
   window.addEventListener('resize', onWinResize)
   unlisteners.push(() => window.removeEventListener('resize', onWinResize))
@@ -1436,15 +1483,15 @@ defineExpose({ openPanel, setMode })
     <div
       ref="wrapEl"
       class="island-wrap"
-      :class="{ 'is-beside-dock': besideDock }"
-      :style="besideStyle"
+      :class="{ 'is-beside-dock': besideDock, 'is-align-panel': cabinAlignOn }"
+      :style="wrapLayoutStyle"
       @focusin="onFocusIn"
       @focusout="onFocusOut"
     >
       <div
         ref="islandEl"
         class="island hit"
-        :class="{ 'is-chat': chatOpen }"
+        :class="{ 'is-chat': chatOpen, 'is-align-panel': cabinAlignOn }"
         role="button"
         :aria-expanded="chatOpen"
         :aria-label="chatOpen ? '对话舱' : 'shell-hub · 点击打开 AI 对话'"

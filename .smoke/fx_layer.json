@@ -1,0 +1,19 @@
+{
+ "ok": true,
+ "peak_computed": "0.65|0.04|cFlash|gFlash",
+ "delta_max": 10,
+ "delta_mean": 1.794,
+ "px_gt1": 1022036,
+ "px_gt3": 98433,
+ "frame_px": 1739433,
+ "frame_shape": [
+  1019,
+  1707
+ ],
+ "note": "深色底 #02040a（同参考稿 --void）下，峰值帧相对无仪式帧的差值；diff_x24.png 为 24 倍放大",
+ "artifacts": {
+  "base": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_layer\\base.png",
+  "peak": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_layer\\peak.png",
+  "diff_x24": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_layer\\diff_x24.png"
+ }
+}

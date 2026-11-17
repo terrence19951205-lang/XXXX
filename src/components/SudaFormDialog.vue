@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import { open } from '@tauri-apps/plugin-dialog'
 import { Eye, EyeOff, FolderOpen, ImageDown, ImagePlus, Link } from 'lucide-vue-next'
 import { isTauri, tauriApi, type Resource } from '../api/tauri'
@@ -13,6 +13,8 @@ const store = useStore()
 
 const props = defineProps<{
   visible: boolean
+  /** 在启动面板内以第三栏展示，不使用挡住穿透区的大模态 */
+  inline?: boolean
   editing: Resource | null
   prefill: {
     name?: string
@@ -70,6 +72,7 @@ const isDir = ref(false)
 const error = ref('')
 const cardRef = ref<HTMLElement | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
+const targetInputRef = ref<HTMLInputElement | null>(null)
 
 useFocusTrap(toRef(props, 'visible'), cardRef, nameInputRef)
 
@@ -311,20 +314,34 @@ function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && props.visible) emit('close')
 }
 
+watch(
+  () => [props.visible, target.value] as const,
+  async ([vis]) => {
+    if (!vis) return
+    await nextTick()
+    const el = targetInputRef.value
+    if (el) el.scrollLeft = el.scrollWidth
+  },
+)
+
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition name="mask">
-      <div v-if="visible" class="modal-mask">
+  <Teleport to="body" :disabled="inline">
+    <Transition :name="inline ? undefined : 'mask'">
+      <div
+        v-if="visible"
+        :class="inline ? 'suda-form-col' : 'modal-mask'"
+        :data-inline-sheet="inline ? '' : undefined"
+      >
         <div
           ref="cardRef"
-          class="modal-card form-card"
+          :class="inline ? 'suda-form-inner' : 'modal-card form-card'"
           role="dialog"
-          aria-label="速达资源编辑"
-          aria-modal="true"
+          aria-label="启动资源编辑"
+          :aria-modal="inline ? undefined : 'true'"
         >
           <h2 class="dialog-title">{{ isEdit ? '编辑' : '添加' }}</h2>
 
@@ -349,7 +366,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               :class="{ active: kind === 'file' }"
               @click="onKindChange('file')"
             >
-              文件/文件夹
+              文件或文件夹
             </button>
           </div>
 
@@ -393,11 +410,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <label class="field-label">{{ targetLabel }}</label>
           <div class="input-with-btn">
             <input
+              ref="targetInputRef"
               v-model="target"
-              class="field-input"
+              class="field-input path-input"
               type="text"
               :readonly="kind === 'file'"
               :placeholder="targetPlaceholder"
+              :title="target"
               @keydown="onKeydown"
               @blur="normalizeWebTarget"
             />
@@ -468,12 +487,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <template v-else>
             <label class="field-label">小类</label>
             <p class="link-hint">
-              该大类还没有小类，可到 设置 → 功能 → 速达 中新增；当前将显示为「未归类」
+              该大类还没有小类，可到 设置 → 功能 → 启动 中新增；当前将显示为「未归类」
             </p>
           </template>
           <!-- 分区（「全部」tab 成组陈列）：建了分区才出现；不影响应用/网页/文件 tab 的小类筛选 -->
           <template v-if="zoneOptions.length > 1">
-            <label class="field-label">分区</label>
+            <label class="field-label">所属分区</label>
             <AppSelect
               v-model="zoneValue"
               :options="zoneOptions"
@@ -553,6 +572,52 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </template>
 
 <style scoped>
+.suda-form-col {
+  flex: 0 0 min(320px, 46%);
+  width: min(320px, 46%);
+  max-width: 46%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 0 0 10px;
+  border-left: 1px solid rgba(0, 229, 255, 0.18);
+}
+.suda-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 4px 2px 12px;
+}
+.suda-form-inner .grid-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.suda-form-inner .span-2 {
+  width: 100%;
+}
+.suda-form-inner .dialog-title {
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+.suda-form-inner .path-input {
+  overflow-x: auto;
+  text-overflow: clip;
+  white-space: nowrap;
+  min-width: 0;
+}
+.suda-form-inner .input-with-btn,
+.suda-form-inner .icon-row,
+.suda-form-inner .field-input,
+.suda-form-inner .remark-field {
+  min-width: 0;
+  max-width: 100%;
+}
 .form-card {
   width: 640px;
   max-height: calc(100vh - 80px);

@@ -233,7 +233,7 @@ onMounted(() => {
         <span class="skill-meta">随客户端 v{{ skill.app_version }}</span>
       </div>
       <p class="skill-card-desc">
-        让助手按 x-hub 扩展规范生成扩展（manifest + 入口页面 + 可选 service 后端）：{{ skill.file_count }} 个文件 /
+        让助手按 shell hub 扩展规范生成扩展（manifest + 入口页面 + 可选 service 后端）：{{ skill.file_count }} 个文件 /
         {{ fmtSize(skill.size) }}，一键装到下面的助手目录。
       </p>
       <div class="skill-actions">

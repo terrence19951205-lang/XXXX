@@ -4,7 +4,8 @@ import { marked, Renderer } from 'marked'
 import DOMPurify from 'dompurify'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { Check, ChevronDown, CircleOff, Copy, MessageSquare, PanelRightClose, Plus, Send, Settings2, Square, X, Zap } from 'lucide-vue-next'
-import { PLATFORM_ENTRY_NAME, isPlatformModel, isTauri, tauriApi, type AccountStatus, type AgentApprovalAsk, type AppConfig, type ChatMessage, type ChatModelConfig, type ChatSession, type ChatStreamEvent } from '../api/tauri'
+import { FEATURES } from '../config/features'
+import { PLATFORM_ENTRY_NAME, PLATFORM_ENTRY_LABEL, isPlatformModel, isTauri, tauriApi, type AccountStatus, type AgentApprovalAsk, type AppConfig, type ChatMessage, type ChatModelConfig, type ChatSession, type ChatStreamEvent } from '../api/tauri'
 import AppSelect from './AppSelect.vue'
 
 const props = defineProps<{
@@ -244,13 +245,13 @@ const currentTitle = computed(() => activeSession.value?.title || '新对话')
 // （挂载与每次唤起都会随 loadModels 重查），让绿点/发送提示在发送前就说清原因
 const accountLoggedIn = ref(false)
 
-const platformEnabled = computed(() => models.value.some((m) => isPlatformModel(m)))
+const platformEnabled = computed(() => FEATURES.account && models.value.some((m) => isPlatformModel(m)))
 
 const modelOptions = computed(() => {
   const opts: { value: string; label: string; group: string }[] = []
   if (platformEnabled.value) {
     // 不设分组名：平台只有一个入口项，再套一层同名组头就成了「x-hub 平台 / x-hub 平台」两行
-    opts.push({ value: PLATFORM_ENTRY_NAME, label: PLATFORM_ENTRY_NAME, group: '' })
+    opts.push({ value: PLATFORM_ENTRY_NAME, label: PLATFORM_ENTRY_LABEL, group: '' })
   }
   for (const m of models.value) {
     if (isPlatformModel(m)) continue

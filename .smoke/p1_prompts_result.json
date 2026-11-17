@@ -1,0 +1,175 @@
+{
+  "items": {
+    "P1-1 对话舱内能看到并选用已有提示词": {
+      "ok": true,
+      "click": {
+        "ok": true,
+        "screen": [
+          1028,
+          669
+        ],
+        "sel": "[data-prompt-open]"
+      },
+      "promptBtn": "提示词\n2",
+      "items": [
+        {
+          "id": "27",
+          "on": false,
+          "text": "【P1】会议纪要"
+        },
+        {
+          "id": "26",
+          "on": false,
+          "text": "【P1】摘要提炼"
+        }
+      ],
+      "hasChat": true,
+      "pop": true,
+      "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\01_list_in_chat.png"
+    },
+    "P1-2 选用一条：输入框回填、chip 显示选中": {
+      "ok": true,
+      "click": {
+        "ok": true,
+        "screen": [
+          1280,
+          501
+        ],
+        "sel": "[data-prompt-item=\"26\"]"
+      },
+      "chip": {
+        "id": "26",
+        "text": "【P1】摘要提炼\n×"
+      },
+      "text": "把下面的内容压成三条要点，每条不超过 20 字：",
+      "ls": "26",
+      "on_ids": [
+        "26"
+      ],
+      "marked": true,
+      "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\02_selected_a.png",
+      "shot_mark": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\02b_selected_mark.png"
+    },
+    "P1-3 切换到另一条：只保留一个选中态": {
+      "ok": true,
+      "click": {
+        "ok": true,
+        "screen": [
+          1280,
+          429
+        ],
+        "sel": "[data-prompt-item=\"27\"]"
+      },
+      "chip": {
+        "id": "27",
+        "text": "【P1】会议纪要\n×"
+      },
+      "text": "按「结论 / 待办 / 风险」整理下面的会议记录：",
+      "ls": "27",
+      "on_ids": [
+        "27"
+      ],
+      "marked_b": true,
+      "marked_a_still": false,
+      "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\03_switched_b.png",
+      "shot_mark": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\03b_switch_mark.png"
+    },
+    "P1-4 杀掉仓库进程再拉起后选中项仍在": {
+      "ok": true,
+      "old_pid": 40220,
+      "new_pid": 37756,
+      "killed": true,
+      "cdp": true,
+      "opened": true,
+      "chip": {
+        "id": "27",
+        "text": "【P1】会议纪要\n×"
+      },
+      "text": "按「结论 / 待办 / 风险」整理下面的会议记录：",
+      "ls": "27",
+      "hud": {
+        "mode": "chat",
+        "geo": "full",
+        "docked": false,
+        "panel": "todos"
+      },
+      "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\04_after_restart.png"
+    },
+    "P1-5 不出现新的侧栏百宝箱入口": {
+      "ok": true,
+      "navs": [
+        {
+          "nav": "todos",
+          "title": "待办"
+        },
+        {
+          "nav": "notes",
+          "title": "笔记"
+        },
+        {
+          "nav": "clipboard",
+          "title": "剪贴板"
+        },
+        {
+          "nav": "sticky",
+          "title": "便签"
+        },
+        {
+          "nav": "countdown",
+          "title": "倒计时"
+        },
+        {
+          "nav": "launch",
+          "title": "启动常用工具"
+        },
+        {
+          "nav": "search",
+          "title": "搜索"
+        },
+        {
+          "nav": "settings",
+          "title": "设置"
+        }
+      ],
+      "forbidden": [],
+      "extra": {
+        "railPrompt": 0,
+        "panelPromptOpen": 0,
+        "navLabels": [
+          "todos:待办",
+          "notes:笔记",
+          "clipboard:剪贴板",
+          "sticky:便签",
+          "countdown:倒计时",
+          "launch:启动常用工具",
+          "search:搜索",
+          "settings:设置"
+        ]
+      },
+      "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\05_no_sidebar_chest.png"
+    }
+  },
+  "ok": true,
+  "titles_after": [
+    "shell-hub",
+    "shell-hub 贴图",
+    "shell-hub 贴图",
+    "shell-hub 贴图",
+    "shell-hub 截图 / 录屏",
+    "shell-hub 截图 / 录屏",
+    "shell-hub 浏览器",
+    "about:blank",
+    "about:blank",
+    "shell-hub 对话",
+    "shell-hub 导出",
+    "shell-hub 通知",
+    "shell-hub 剪贴板",
+    "shell-hub 主窗"
+  ],
+  "xhub_titles": [],
+  "cleaned": [
+    27,
+    26
+  ],
+  "pid": 37756
+}

@@ -1,0 +1,52 @@
+[
+ {
+  "step": "N0-躯干态",
+  "ok": true,
+  "mode": "deck"
+ },
+ {
+  "step": "N1-笔记面板",
+  "ok": true,
+  "panel": "notes"
+ },
+ {
+  "step": "N2-新建按钮",
+  "ok": true,
+  "editor": true
+ },
+ {
+  "step": "N3-真键标题",
+  "ok": true,
+  "fg": true,
+  "active": "INPUT.title cut-sm#text",
+  "dom": "头盔笔记-真键验收"
+ },
+ {
+  "step": "N4-真键正文",
+  "ok": true,
+  "fg": true,
+  "active": "TEXTAREA.cut-sm#textarea",
+  "dom": "这是真键盘写下的正文第一行。\n第二行：验收用。",
+  "status": "已落盘",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_note-real.png"
+ },
+ {
+  "step": "N5-落库正文非空",
+  "ok": true,
+  "notes": 5,
+  "db": {
+   "id": 5,
+   "title": "头盔笔记-真键验收",
+   "content": "这是真键盘写下的正文第一行。\n第二行：验收用。",
+   "updated_at": "2026-11-05 16:13:41.318263"
+  }
+ },
+ {
+  "step": "N6-手动保存不丢",
+  "ok": true,
+  "db": {
+   "id": 5,
+   "content": "这是真键盘写下的正文第一行。\n第二行：验收用。"
+  }
+ }
+]

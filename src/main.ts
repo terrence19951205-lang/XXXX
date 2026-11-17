@@ -42,11 +42,16 @@ disableContextMenu()
 // tauri.conf.json 里主窗口 visible:false，等 HTML 解析、欢迎页已就位后这里再 show。
 // 浮窗便签（sticky-* 标签）由 Rust 自行控制显示，不受影响。
 // 开机自启动（--autostart-hidden）时不显示主窗口，直接驻留托盘。
+// 冒烟构建（-smoke）同样不显示原版主仪表盘：烟雾包的入口形态只有 Helmet 座舱壳，
+// 后端也已按同一口径不建悬浮球、托盘/热键只唤起 Helmet。
 if (isTauri() && getCurrentWindow().label === 'main') {
   void (async () => {
     const win = getCurrentWindow()
-    const hiddenLaunched = await tauriApi.getStartupHidden().catch(() => false)
-    if (hiddenLaunched) {
+    const [hiddenLaunched, smokeBuild] = await Promise.all([
+      tauriApi.getStartupHidden().catch(() => false),
+      tauriApi.getSmokeMode().catch(() => false),
+    ])
+    if (hiddenLaunched || smokeBuild) {
       void win.hide()
     } else {
       void win.show()

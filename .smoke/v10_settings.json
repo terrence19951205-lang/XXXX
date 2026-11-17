@@ -1,0 +1,86 @@
+{
+ "pid": 40820,
+ "B1_hours": {
+  "panel": "settings",
+  "settings_open": true,
+  "pct_before": "11%",
+  "pct_after": "31%",
+  "hours_before": {
+   "start": "09:00",
+   "end": "17:30"
+  },
+  "hours_after": "{\"start\":\"00:00\",\"end\":\"23:59\"}",
+  "island_label": "00:00–23:59",
+  "applied": true,
+  "ok": true
+ },
+ "B2_model": {
+  "options": {
+   "value": "本地模拟",
+   "opts": [
+    "",
+    "本地模拟"
+   ]
+  },
+  "new_value": "",
+  "config_chat_selected_model": "",
+  "ok": true
+ },
+ "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_settings.png",
+ "prep_collapsed": {
+  "docked": true,
+  "geo": "lip",
+  "lsCollapsed": "1",
+  "window": {
+   "hwnd": "0x270866",
+   "title": "Helmet",
+   "visible": true,
+   "rect": [
+    640,
+    0,
+    1068,
+    10
+   ]
+  }
+ },
+ "orig": {
+  "hours": {
+   "start": "09:00",
+   "end": "17:30"
+  },
+  "model": "本地模拟"
+ },
+ "SUMMARY": {
+  "B1_hours_apply_and_persist": true,
+  "B2_model_persist": true,
+  "A4_collapsed_restored": true,
+  "ok": true
+ },
+ "A4_collapsed_restored": {
+  "docked": true,
+  "geo": "lip",
+  "lsCollapsed": "1",
+  "window_rect": [
+   640,
+   0,
+   1068,
+   10
+  ],
+  "window_height": 10,
+  "hud_deck_open": false,
+  "chat_open": false,
+  "ok": true
+ },
+ "B1_hours_persisted": {
+  "lsHours": "{\"start\":\"00:00\",\"end\":\"23:59\"}",
+  "pct": "31%",
+  "island_hours_label": "00:00–23:59",
+  "config_hours": null,
+  "ok": true
+ },
+ "B2_model_persisted": {
+  "select_value_after_restart": "",
+  "config_chat_selected_model": "",
+  "ok": true
+ }
+}

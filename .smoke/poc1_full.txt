@@ -1,0 +1,32 @@
+== 0. 清记忆 + 重新挂载（无 rr.hud.collapsed）==
+reload
+page ready: True
+probes on, ls=null
+== 1. helmet_show（无记忆 → 应默认收起）==
+shown
+{"step": "1-shown", "state": {"cls": "helmet-root collapsed ready anchored", "anchored": true, "collapsed": true, "bar": [0, 0, 156, 36], "barOffset": [156, 36], "hud": "none", "iw": 156, "ih": 36, "dpr": 1.5, "ls": null, "dbg": "HIT · collapsed", "hits": [], "win": {"rect": [2305, 18, 2539, 72], "size": [234, 54], "visible": true, "ex_transparent": false}, "scale": 1.5, "win_css": [156, 36]}}
+== 2. 收起态中央点穿 ==
+{"step": "2-center-collapsed", "state": {"cls": "helmet-root collapsed ready anchored", "anchored": true, "collapsed": true, "bar": [0, 0, 156, 36], "barOffset": [156, 36], "hud": "none", "iw": 156, "ih": 36, "dpr": 1.5, "ls": null, "dbg": "HIT · collapsed", "hits": [], "win": {"rect": [2305, 18, 2539, 72], "size": [234, 54], "visible": true, "ex_transparent": false}, "scale": 1.5, "win_css": [156, 36]}, "hit": {"pt": [1280, 764], "hwnd": "0x2117e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x431048", "root_title": "x-hub", "root_class": "Tauri Window", "is_helmet": false}, "hits_before": "[]", "hits_after": "[]", "fg": {"hwnd": "0x431048", "title": "x-hub", "class": "Tauri Window"}}
+== 3. 点唤起条展开 + 展开态中央点穿 ==
+bar center screen = (2422, 45)
+{"step": "3-expanded", "state": {"cls": "helmet-root open ready", "anchored": false, "collapsed": false, "bar": [1538, 12, 156, 36], "barOffset": [156, 36], "hud": "block", "iw": 1707, "ih": 1019, "dpr": 1.5, "ls": "0", "dbg": "HIT · open", "hits": ["invoke-bar hit@78,18"], "win": {"rect": [0, 0, 2560, 1528], "size": [2560, 1528], "visible": true, "ex_transparent": false}, "scale": 1.4997, "win_css": [1707, 1019]}, "bar_screen_pt": [2422, 45]}
+{"step": "3b-center-expanded", "state": {"cls": "helmet-root open ready", "anchored": false, "collapsed": false, "bar": [1538, 12, 156, 36], "barOffset": [156, 36], "hud": "block", "iw": 1707, "ih": 1019, "dpr": 1.5, "ls": "0", "dbg": "PASS · open", "hits": ["invoke-bar hit@78,18"], "win": {"rect": [0, 0, 2560, 1528], "size": [2560, 1528], "visible": true, "ex_transparent": true}, "scale": 1.4997, "win_css": [1707, 1019]}, "hit": {"pt": [1280, 764], "hwnd": "0x2117e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x431048", "root_title": "x-hub", "root_class": "Tauri Window", "is_helmet": false}, "hits_before": "[\"invoke-bar hit@78,18\"]", "hits_after": "[\"invoke-bar hit@78,18\"]", "fg": {"hwnd": "0x431048", "title": "x-hub", "class": "Tauri Window"}}
+== 4. 展开态边缘 .hit 可点（上檐）==
+top eave css = [455, 12, 797.3333740234375, 87.33333587646484] screen = (1280, 83)
+{"step": "4-eave-click", "state": {"cls": "helmet-root open ready", "anchored": false, "collapsed": false, "bar": [1538, 12, 156, 36], "barOffset": [156, 36], "hud": "block", "iw": 1707, "ih": 1019, "dpr": 1.5, "ls": "0", "dbg": "HIT · open", "hits": ["invoke-bar hit@78,18", "top cut-panel hit@853,55"], "win": {"rect": [0, 0, 2560, 1528], "size": [2560, 1528], "visible": true, "ex_transparent": false}, "scale": 1.4997, "win_css": [1707, 1019]}, "pt": [1280, 83], "hit": {"pt": [1280, 83], "hwnd": "0xce0f5e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x4d098e", "root_title": "Helmet", "root_class": "Tauri Window", "is_helmet": true}, "hits_before": "[\"invoke-bar hit@78,18\"]", "hits_after": "[\"invoke-bar hit@78,18\",\"top cut-panel hit@853,55\"]", "fg": {"hwnd": "0x4d098e", "title": "Helmet", "class": "Tauri Window"}}
+== 5. 再收起（点条）==
+bar center screen = (2424, 45)
+{"step": "5-collapsed-again", "state": {"cls": "helmet-root collapsed ready anchored", "anchored": true, "collapsed": true, "bar": [0, 0, 156, 36], "barOffset": [156, 36], "hud": "none", "iw": 156, "ih": 36, "dpr": 1.5, "ls": "1", "dbg": "HIT · collapsed", "hits": ["invoke-bar hit@78,18", "top cut-panel hit@853,55", "invoke-bar hit is-open@1616,30"], "win": {"rect": [2305, 18, 2539, 72], "size": [234, 54], "visible": true, "ex_transparent": false}, "scale": 1.5, "win_css": [156, 36]}, "bar_screen_pt": [2424, 45]}
+collapsed win rect = [2305, 18, 2539, 72]  / bar screen rect = [2305, 18, 2539, 72]
+== 6. 收起后只留唤起条 / 桌面可用 ==
+{"step": "6-desktop", "state": {"cls": "helmet-root collapsed ready anchored", "anchored": true, "collapsed": true, "bar": [0, 0, 156, 36], "barOffset": [156, 36], "hud": "none", "iw": 156, "ih": 36, "dpr": 1.5, "ls": "1", "dbg": "HIT · collapsed", "hits": ["invoke-bar hit@78,18", "top cut-panel hit@853,55", "invoke-bar hit is-open@1616,30"], "win": {"rect": [2305, 18, 2539, 72], "size": [234, 54], "visible": true, "ex_transparent": false}, "scale": 1.5, "win_css": [156, 36]}, "hit": {"center": {"pt": [1280, 764], "hwnd": "0x2117e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x431048", "root_title": "x-hub", "root_class": "Tauri Window", "is_helmet": false}, "p600": {"pt": [600, 600], "hwnd": "0x2117e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x431048", "root_title": "x-hub", "root_class": "Tauri Window", "is_helmet": false}, "p2100_1300": {"pt": [2100, 1300], "hwnd": "0x2117e", "class": "Chrome_RenderWidgetHostHWND", "title": "Chrome Legacy Window", "root": "0x431048", "root_title": "x-hub", "root_class": "Tauri Window", "is_helmet": false}, "p1280_40": {"pt": [1280, 40], "hwnd": "0x504e6", "class": "Chrome_WidgetWin_1", "title": "Hermes", "root": "0x504e6", "root_title": "Hermes", "root_class": "Chrome_WidgetWin_1", "is_helmet": false}}, "hits_before": "[\"invoke-bar hit@78,18\",\"top cut-panel hit@853,55\",\"invoke-bar hit is-open@1616,30\"]", "hits_after": "[\"invoke-bar hit@78,18\",\"top cut-panel hit@853,55\",\"invoke-bar hit is-open@1616,30\"]", "fg": {"hwnd": "0x431048", "title": "x-hub", "class": "Tauri Window"}}
+== 6b. 收起态下真实桌面程序可点（主窗 DOM 探针）==
+main window rect [230, 89, 2330, 1439]
+main probe on
+click main window center (1280, 764) {'pt': [1280, 764], 'hwnd': '0x2117e', 'class': 'Chrome_RenderWidgetHostHWND', 'title': 'Chrome Legacy Window', 'root': '0x431048', 'root_title': 'x-hub', 'root_class': 'Tauri Window', 'is_helmet': False}
+main window hits: ["pd@700,450"]
+fg after main click {'hwnd': '0x431048', 'title': 'x-hub', 'class': 'Tauri Window'}
+helmet hits after: ["invoke-bar hit@78,18","top cut-panel hit@853,55","invoke-bar hit is-open@1616,30"]
+== 7. 截图 ==
+saved .smoke\poc1_collapsed.png (2560, 1600)
+WROTE .smoke\poc1_result.json

@@ -30,9 +30,8 @@ const timers = new Map<number, ReturnType<typeof setTimeout>>()
 // ---------- 主题：独立窗口自取初始值 + 跟随主窗推送 ----------
 function applyTheme(t: { mode?: string; preset?: string; accent?: string | null }) {
   const el = document.documentElement
-  const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
-  const dark = t.mode === 'dark' || (t.mode === 'system' && systemDark)
-  el.dataset.theme = dark ? 'dark' : ''
+  // 与深色 HUD 对齐：通知浮窗不跟随原版浅色 theme_mode，只改本窗渲染。
+  el.dataset.theme = 'dark'
   if (t.preset) el.dataset.preset = t.preset
   if (t.accent) el.style.setProperty('--accent', t.accent)
   else el.style.removeProperty('--accent')

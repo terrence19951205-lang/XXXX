@@ -10,7 +10,24 @@ import { ArrowUp, BookOpen, Search, X } from 'lucide-vue-next'
 import guideSource from '../../../docs/user-guide.md?raw'
 import { countOccurrences, splitGuideDocument } from '../../utils/guideToc'
 
-const doc = splitGuideDocument(guideSource as string)
+import { settingsTitleVisible, rewriteVisibleCopy } from '../../config/features'
+
+// P1-3：隐藏功能（扩展 / 账号）对应的章节不在使用说明里出现（开关见 config/features）
+const rawDoc = splitGuideDocument(guideSource as string)
+const doc = {
+  title: rewriteVisibleCopy(rawDoc.title),
+  preamble: rewriteVisibleCopy(rawDoc.preamble),
+  chapters: rawDoc.chapters
+    .filter((c) => settingsTitleVisible(c.title))
+    .map((c) => ({
+      ...c,
+      title: rewriteVisibleCopy(c.title),
+      body: rewriteVisibleCopy(c.body),
+      sections: c.sections
+        .filter((s) => settingsTitleVisible(s.title))
+        .map((s) => ({ ...s, title: rewriteVisibleCopy(s.title), body: rewriteVisibleCopy(s.body) })),
+    })),
+}
 
 // marked + DOMPurify 体积不小（几十 KB），只在真正打开本面板时才取下来
 const md = shallowRef<typeof import('../../utils/markdownHtml') | null>(null)

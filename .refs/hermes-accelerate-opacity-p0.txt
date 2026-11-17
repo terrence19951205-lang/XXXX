@@ -1,0 +1,26 @@
+【加速——立刻改、立刻编、零停接下一块；禁止再勘察】
+
+不要再 grep/通读/找 COMMS。定稿已知，直接改源码。
+
+【A 透明度 — 马上做完交 v8】
+对照：.refs\shell-hub-notes-3col-OPACITY-PATCH.md + explore + shots 04/05
+在 helmet CSS（侧栏 rail + 中/右笔记 col-panel 的等价选择器）写入：
+--glass-chat: linear-gradient(180deg, rgba(28,36,48,0.96) 0%, rgba(8,12,20,0.97) 100%);
+background: var(--glass-chat);
+border: 1px solid rgba(0,229,255,0.22);
+border-radius: 12px;
+删除/替换一切 rgba(5,9,16,0.58) 过透背景。
+改前可快速截一张；改完与可一并的前端改动一起，只做一次 debug smoke 构建 → rcedit → launch_smoke 保持可见 → .smoke/v8_result.json + v8_before/after 截图。短报 O1–O4。
+
+【B 同一会话零间隔接下一块 P0 — 前端能改的先改，再与 A 同一次或紧随一次编译，禁止第二路抢 exe】
+1 待办：侧栏今日待办，新增/改标题/完成/落盘
+2 聊天/AI：完整多会话可配模型，非字幕
+3 剪贴板历史：侧栏或热键，点选取用
+4 启动常用：调起应用/网页/文件后回穿透
+5 搜索：一处搜待办+笔记，点击直达
+6 日衰：灵动岛剩余工时%，可配上下班
+不回退禁悬浮球与笔记三栏；不做 Bento/养成/摸鱼/日历周期/Agent 全套。
+分项 .smoke/v9_*.json 或 v9_result.json；每完成一项立刻在终端写出短报（项名+是否可点+证据路径），不要攒到全做完。
+总交卷：PID、标题、有无悬浮球、笔记三栏、透明度、各项可点、改动文件。
+
+只杀 debug x-hub PID，禁 taskkill /IM x-hub.exe。不要写产品已交付。

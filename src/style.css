@@ -828,6 +828,13 @@ html[data-todo-float] .tf-root {
   background: var(--bg-card-solid);
   box-shadow: var(--shadow-dock);
 }
+/* 独立浮窗跟深色 HUD 并排：暗色 --bg-card-solid 是 20% 白，浮窗 body 又透明，
+   叠在浅色桌面上会浅底浅字（与壁纸态弹窗同一问题）。改用已有实底令牌，不改尺寸/文案/落盘。 */
+html[data-theme="dark"][data-todo-float] .tf-root,
+html[data-theme="dark"][data-prompt-float] .pf-root,
+html[data-theme="dark"][data-sticky-window] .floating-sticky {
+  background: rgba(28, 29, 41, 0.95);
+}
 /* 根字号基准：全局字体缩放通过 --fs-global 调整 rem 基准（1rem = 16px × 缩放） */
 html {
   font-size: calc(16px * var(--fs-global, 1));

@@ -1,0 +1,166 @@
+{
+ "pid": 41716,
+ "title": "Helmet",
+ "cases": {
+  "toggle_open": {
+   "combo": "Ctrl+Shift+space",
+   "expect": "deck_open",
+   "mode": "deck",
+   "panel": "launch",
+   "deck": true,
+   "chat": false,
+   "active": "BODY||",
+   "visible_windows": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "new_windows": [],
+   "state_before": {
+    "mode": "idle",
+    "docked": true
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_hotkey_toggle_open.png",
+   "elapsed": 2.07,
+   "ok": true
+  },
+  "toggle_close": {
+   "mode": "idle",
+   "docked": false,
+   "ok": true
+  },
+  "chat": {
+   "combo": "Ctrl+Shift+k",
+   "expect": "chat",
+   "mode": "chat",
+   "panel": "launch",
+   "deck": false,
+   "chat": true,
+   "active": "BODY||",
+   "visible_windows": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "new_windows": [],
+   "state_before": {
+    "mode": "idle",
+    "docked": true
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_hotkey_chat.png",
+   "elapsed": 1.92,
+   "ok": true
+  },
+  "clipboard": {
+   "combo": "Ctrl+`",
+   "expect": "clipboard",
+   "mode": "deck",
+   "panel": "clipboard",
+   "deck": true,
+   "chat": false,
+   "active": "BODY||",
+   "visible_windows": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "new_windows": [],
+   "state_before": {
+    "mode": "idle",
+    "docked": false
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_hotkey_clipboard.png",
+   "elapsed": 2.08,
+   "ok": true
+  },
+  "search": {
+   "combo": "Ctrl+k",
+   "expect": "search",
+   "mode": "deck",
+   "panel": "clipboard",
+   "deck": true,
+   "chat": false,
+   "active": "INPUT|cut-sm|quick-search",
+   "visible_windows": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "new_windows": [],
+   "state_before": {
+    "mode": "idle",
+    "docked": false
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_hotkey_search.png",
+   "elapsed": 2.12,
+   "ok": true
+  },
+  "notes": {
+   "combo": "Ctrl+Shift+n",
+   "expect": "notes",
+   "mode": "deck",
+   "panel": "notes",
+   "deck": true,
+   "chat": false,
+   "active": "BODY||",
+   "visible_windows": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "new_windows": [],
+   "state_before": {
+    "mode": "idle",
+    "docked": false
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_hotkey_notes.png",
+   "elapsed": 2.14,
+   "ok": true
+  }
+ },
+ "no_extra_windows": {
+  "visible_before": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "visible_after": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "clipboard_overlay_visible": [],
+  "chat_window_visible": [],
+  "ball": [],
+  "ok": true
+ },
+ "notes_untouched": {
+  "before": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "after": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "ok": true
+ },
+ "log_evidence": [
+  "[2026-11-06][17:18:50][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+  "[2026-11-06][17:25:08][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+  "[2026-11-06][17:26:11][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+  "[2026-11-06][17:28:40][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+  "[2026-11-06][17:28:42][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+Space state=Pressed",
+  "[2026-11-06][17:28:46][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+KeyK state=Pressed",
+  "[2026-11-06][17:28:50][app_lib::shortcut][INFO] [快捷键] 事件触发: control+Backquote state=Pressed",
+  "[2026-11-06][17:28:54][app_lib::shortcut][INFO] [快捷键] 事件触发: control+KeyK state=Pressed",
+  "[2026-11-06][17:28:58][app_lib::shortcut][INFO] [快捷键] 事件触发: shift+control+KeyN state=Pressed"
+ ]
+}

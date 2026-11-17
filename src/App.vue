@@ -54,27 +54,27 @@ const isSudaBrowserContent = /^suda-web-\d+-content$/.test(label)
 // 悬浮球/通知/chrome 页走轻量入口，各自 html 里已带独立标题，不经这里。
 if (isTauri()) {
   document.title = isMainWindow
-    ? 'x-hub 主窗'
+    ? 'shell-hub 主窗'
     : isChatWindow
-      ? 'x-hub 对话'
+      ? 'shell-hub 对话'
       : isClipboardOverlay
-        ? 'x-hub 剪贴板'
+        ? 'shell-hub 剪贴板'
         : isPromptFloat
-          ? 'x-hub 提示词'
+          ? 'shell-hub 提示词'
           : isTodoFloat
-            ? 'x-hub 待办'
+            ? 'shell-hub 待办'
             : isExtensionWindow
-              ? 'x-hub 扩展'
+              ? 'shell-hub 扩展'
               : isStickyWindow
-                ? 'x-hub 便签'
+                ? 'shell-hub 便签'
                 : isCountdownFloat
-                  ? 'x-hub 倒计时'
+                  ? 'shell-hub 倒计时'
                   : isRecorderOverlay
-                    ? 'x-hub 截图选区'
+                    ? 'shell-hub 截图选区'
                     : isRecorderControl
-                      ? 'x-hub 录制'
+                      ? 'shell-hub 录制'
                       : isPinShotWindow
-                        ? 'x-hub 贴图'
+                        ? 'shell-hub 贴图'
                         : document.title
 }
 

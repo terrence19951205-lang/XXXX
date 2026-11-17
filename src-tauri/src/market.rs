@@ -249,7 +249,7 @@ pub async fn refresh_market_registry() -> Result<MarketStatus, String> {
     };
     if registry.schema_version > 2 {
         return Ok(fallback_cache(format!(
-            "市场清单 schemaVersion={} 高于宿主支持的 v2，请升级 x-hub",
+            "市场清单 schemaVersion={} 高于宿主支持的 v2，请升级 shell hub",
             registry.schema_version
         )));
     }

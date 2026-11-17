@@ -23,6 +23,7 @@ import {
   X,
 } from 'lucide-vue-next'
 import { isTauri, tauriApi, type InstalledBrowser, type Resource, type ResourceZone } from '../api/tauri'
+import { FEATURES } from '../config/features'
 import { categorize } from '../utils/categories'
 import { useStore } from '../stores/workbench'
 import { reportClientError } from '../utils/error-report'
@@ -40,6 +41,7 @@ import SudaScanDialog, { type ScanItem, type ScanMode } from './SudaScanDialog.v
 import AppSelect, { type AppSelectOption } from './AppSelect.vue'
 
 const store = useStore()
+const inlineForm = inject('sudaInlineForm', false)
 const showToast = inject<(msg: string, action?: { label: string; onClick: () => void }) => void>(
   'showToast',
   () => {},
@@ -153,7 +155,7 @@ async function handleDrop(file: string, zoneId: number | null = null) {
   // 命中已有资源的路径直接提示跳过：exe/lnk 还可省去 PowerShell 解析
   const direct = findDuplicateTarget(file)
   if (direct) {
-    showToast(`「${direct.name}」已在速达中，已跳过重复添加`)
+    showToast(`「${direct.name}」已在启动中，已跳过重复添加`)
     return
   }
   const ext = file.split('.').pop()?.toLowerCase()
@@ -164,7 +166,7 @@ async function handleDrop(file: string, zoneId: number | null = null) {
       // .lnk 解析出的目标 exe 可能已用别的方式添加过（如另一个指向同一程序的快捷方式）
       const dup = findDuplicateTarget(info.target)
       if (dup) {
-        showToast(`「${dup.name}」已在速达中，已跳过重复添加`)
+        showToast(`「${dup.name}」已在启动中，已跳过重复添加`)
         return
       }
       prefill.value = { name: info.name, target: info.target, icon: info.icon, kind: 'app', zoneId }
@@ -364,7 +366,7 @@ const visibleResources = computed<Resource[]>(() => {
 const FILTER_TABS: FilterKey[] = ['全部', '常用', '应用', '网页', '文件']
 
 const emptyTitle = computed(() => {
-  if (activeFilter.value === '全部') return '还没有速达资源'
+  if (activeFilter.value === '全部') return '还没有启动资源'
   if (activeSub.value === 'none') return `暂无未归类的${activeFilter.value}`
   if (typeof activeSub.value === 'string' && activeSub.value !== 'all') {
     return `暂无「${subcatLeaf(activeSub.value)}」小类资源`
@@ -994,9 +996,11 @@ async function onResourceContext(e: MouseEvent, r: Resource) {
   if (r.kind === 'web') {
     isWeb = true
     if (isHttpWebTarget(r.target)) {
-      // 显式覆盖默认打开方式（默认方式见 设置 → 功能 → 速达）
-      items.push({ label: '在内嵌面板打开', dividerBefore: true, onClick: () => store.openWebPanel(r.id) })
-      items.push({ label: '在独立窗口打开', onClick: () => void onOpenInWindow(r) })
+      // 显式覆盖默认打开方式（默认方式见 设置 → 功能 → 启动）
+      if (FEATURES.embedPanel) {
+        items.push({ label: '在内嵌面板打开', dividerBefore: true, onClick: () => store.openWebPanel(r.id) })
+      }
+      items.push({ label: '在独立窗口打开', dividerBefore: !FEATURES.embedPanel, onClick: () => void onOpenInWindow(r) })
       const browsers = await installedBrowsers()
       for (const b of browsers) {
         items.push({ label: `用 ${b.name} 打开`, onClick: () => void onOpenWithBrowser(r, b) })
@@ -1031,7 +1035,12 @@ async function onResourceContext(e: MouseEvent, r: Resource) {
 const formVisible = ref(false)
 const editing = ref<Resource | null>(null)
 
+const launchLock = new Map<number, number>()
 async function onOpen(r: Resource) {
+  const now = Date.now()
+  const prev = launchLock.get(r.id) ?? 0
+  if (now - prev < 600) return
+  launchLock.set(r.id, now)
   try {
     await store.launchResource(r.id)
   } catch (e) {
@@ -1275,9 +1284,10 @@ function cardAccentStyle(r: Resource) {
 </script>
 
 <template>
-  <section ref="rootRef" class="card suda" :style="{ '--suda-scale': String(globalIconScale) }">
+  <section ref="rootRef" class="card suda" :class="{ 'is-split': inlineForm && formVisible }" :style="{ '--suda-scale': String(globalIconScale) }">
+    <div class="suda-main">
     <header class="suda-header">
-      <h2 class="suda-title">速达</h2>
+      <h2 class="suda-title">启动</h2>
       <div class="suda-header-actions">
         <!-- 批量管理模式：已选计数 + 全选 + 删除 + 退出 -->
         <template v-if="batchMode">
@@ -1351,7 +1361,7 @@ function cardAccentStyle(r: Resource) {
             v-if="isTauri()"
             class="icon-btn scan"
             :disabled="iconSweeping"
-            title="修复图标缓存：全量检查速达图标（手动导入的图标与网页 favicon 不动），重提模糊或损坏的缓存"
+            title="修复图标缓存：全量检查启动图标（手动导入的图标与网页 favicon 不动），重提模糊或损坏的缓存"
             aria-label="修复图标缓存"
             @click="sweepIcons"
           >
@@ -1371,7 +1381,7 @@ function cardAccentStyle(r: Resource) {
 
     <!-- 分类 tabs + 「全部」分区入口 -->
     <div class="suda-tabs-row">
-      <nav class="filter-tabs suda-tabs" aria-label="速达分类">
+      <nav class="filter-tabs suda-tabs" aria-label="启动分类">
         <button
           v-for="f in FILTER_TABS"
           :key="f"
@@ -1589,6 +1599,7 @@ function cardAccentStyle(r: Resource) {
                   :aria-pressed="batchMode ? batchChecked.has(r.id) : undefined"
                   :style="[cardAccentStyle(r), dragStyleOf(r)]"
                   @click="onCardClick(r)"
+                  @dblclick.prevent="onOpen(r)"
                   @pointerdown="onCardPointer(r, $event)"
                   @dragstart.prevent
                   @keydown.enter="onCardKeyActivate(r)"
@@ -1705,11 +1716,13 @@ function cardAccentStyle(r: Resource) {
       :items="menu.items"
       @close="menu.visible = false"
     />
+    </div>
     <SudaFormDialog
       :visible="formVisible"
       :editing="editing"
       :prefill="prefill"
-      @close="formVisible = false"
+      :inline="inlineForm"
+      @close="formVisible = false; editing = null; prefill = null"
       @submit="onFormSubmit"
     />
     <SudaScanDialog
@@ -1723,7 +1736,7 @@ function cardAccentStyle(r: Resource) {
       :visible="batchConfirmVisible"
       title="批量删除资源"
       :message="`确定删除选中的 ${batchChecked.size} 个资源吗？`"
-      hint="只删除速达里的条目，不影响磁盘上的文件；删除后可在提示条里撤销恢复。"
+      hint="只删除启动里的条目，不影响磁盘上的文件；删除后可在提示条里撤销恢复。"
       confirm-text="删除"
       tone="danger"
       @confirm="batchConfirmVisible = false; void doBatchDelete()"
@@ -1755,6 +1768,24 @@ function cardAccentStyle(r: Resource) {
   flex-direction: column;
   padding: 20px;
   min-height: 0;
+}
+.suda-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.suda.is-split {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  padding: 12px;
+  overflow: hidden;
+}
+.suda.is-split .suda-main {
+  flex: 1 1 0;
 }
 .suda-header {
   display: flex;

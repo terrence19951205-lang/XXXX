@@ -1,0 +1,563 @@
+{
+ "pid": 26132,
+ "title": "Helmet",
+ "items": {
+  "V1_island_compact": {
+   "state": {
+    "mode": "idle",
+    "docked": false,
+    "geo": "full"
+   },
+   "island": {
+    "sel": ".island",
+    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "22px",
+    "blur": "blur(18px) saturate(1.2)",
+    "size": [
+     268,
+     40
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "radius_22": true,
+   "width_ok": true,
+   "material_glass_chat": true,
+   "blur_18": true,
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_01_island_compact.png",
+   "ok": true
+  },
+  "V1_toggle_is_hud_only": {
+   "mode_before": "idle",
+   "mode_after": "deck",
+   "deck": true,
+   "chat": false,
+   "ceremony_count": 21,
+   "attempts": [
+    {
+     "click": {
+      "ok": true,
+      "css": {
+       "x": 964.6666870117188,
+       "y": 32
+      },
+      "screen": [
+       1446.7174685120094,
+       47.99062683069713
+      ],
+      "hit_before": "SPAN.chev"
+     },
+     "mode_before": "idle",
+     "docked_before": false,
+     "mode_after": "deck",
+     "hit_before": "SPAN.chev"
+    }
+   ],
+   "ok": true
+  },
+  "V4_expand_fx": {
+   "flow": "HUD 收起(Esc→唇边) → 顶部唤出 → 点岛右侧 ▾ 展开",
+   "state_before": {
+    "mode": "idle",
+    "docked": false
+   },
+   "revealed": {
+    "docked": false,
+    "geo": "full"
+   },
+   "click": {
+    "screen": [
+     1446.7174685120094,
+     47.99062683069713
+    ],
+    "css": {
+     "x": 964.6666870117188,
+     "y": 32
+    }
+   },
+   "state_after": {
+    "mode": "deck",
+    "deck": true
+   },
+   "ceremony_counter": {
+    "before": 21,
+    "after": 22
+   },
+   "mutations": [
+    {
+     "t": 364,
+     "cls": "fx is-on",
+     "anims": [
+      null,
+      null
+     ]
+    },
+    {
+     "t": 365,
+     "cls": "fx is-on is-ceremony",
+     "anims": [
+      {
+       "name": "gFlash",
+       "dur": 150
+      },
+      {
+       "name": "cFlash",
+       "dur": 150
+      }
+     ]
+    },
+    {
+     "t": 538,
+     "cls": "fx is-on",
+     "anims": [
+      null,
+      null
+     ]
+    }
+   ],
+   "class_on_ms": 365,
+   "class_off_ms": 538,
+   "flash_ms_measured": 173,
+   "animations": [
+    {
+     "name": "gFlash",
+     "dur": 150
+    },
+    {
+     "name": "cFlash",
+     "dur": 150
+    }
+   ],
+   "animation_150ms": true,
+   "max_grain_opacity": 0.0393339,
+   "max_chroma_opacity": 0.639176,
+   "visible_frames": 3,
+   "visible_frames_sample": [
+    {
+     "t": 397,
+     "g": 0.0187257,
+     "c": 0.304292,
+     "fx": "fx is-on is-ceremony"
+    },
+    {
+     "t": 411,
+     "g": 0.0341078,
+     "c": 0.554252,
+     "fx": "fx is-on is-ceremony"
+    },
+    {
+     "t": 430,
+     "g": 0.0393339,
+     "c": 0.639176,
+     "fx": "fx is-on is-ceremony"
+    }
+   ],
+   "fx_pointer_events": "none",
+   "peak_pixel_delta": {
+    "fullscreen_bbox": [
+     0,
+     0,
+     2560,
+     1528
+    ],
+    "fullscreen_mean_rgb": [
+     0.97,
+     0.51,
+     0.42
+    ],
+    "fullscreen_max": 9,
+    "right_area_mean_rgb": [
+     2.5,
+     0.83,
+     0.72
+    ],
+    "right_area_max": 8
+   },
+   "peak_shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_05_expand_ceremony.png",
+   "peak_shot_note": "同一条 CSS 动画暂停在 60ms 的峰值定格（对照 05-expand-ceremony.png）；非另造效果",
+   "hotkey_expand": {
+    "combo": "Ctrl+Shift+Space（收起态→展开）",
+    "counter_before": 22,
+    "counter_after": 23,
+    "mutations": [
+     {
+      "t": 25,
+      "cls": "fx is-on",
+      "anims": [
+       null,
+       null
+      ]
+     },
+     {
+      "t": 26,
+      "cls": "fx is-on is-ceremony",
+      "anims": [
+       {
+        "name": "gFlash",
+        "dur": 150
+       },
+       {
+        "name": "cFlash",
+        "dur": 150
+       }
+      ]
+     },
+     {
+      "t": 207,
+      "cls": "fx is-on",
+      "anims": [
+       null,
+       null
+      ]
+     }
+    ],
+    "max_grain_opacity": 0.0393106,
+    "max_chroma_opacity": 0.638798,
+    "ok": true
+   },
+   "ok": true
+  },
+  "V1_island_chat": {
+   "state": {
+    "mode": "chat",
+    "chat": true,
+    "deck": false
+   },
+   "island": {
+    "sel": ".island",
+    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "26px",
+    "blur": "blur(18px) saturate(1.2)",
+    "size": [
+     420,
+     520
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "width_420": true,
+   "radius_26": true,
+   "cabin_present": true,
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_02_island_chat.png",
+   "ok": true
+  },
+  "V1_esc_closes_chat": {
+   "mode": "idle",
+   "chat": false,
+   "docked": false,
+   "ok": true
+  },
+  "V2_notes_list": {
+   "state": {
+    "mode": "deck",
+    "panel": "notes",
+    "rows": 9
+   },
+   "list": {
+    "sel": ".panel-col.is-wide",
+    "bgImage": "linear-gradient(rgb(10, 14, 21), rgb(7, 10, 16))",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
+    "radius": "12px",
+    "blur": "blur(18px) saturate(1.2)",
+    "size": [
+     820,
+     875
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_03_notes_list.png",
+   "ok": true
+  },
+  "V2_notes_editor": {
+   "row": "头盔笔记-验收",
+   "state": {
+    "rows": 9,
+    "editor": true,
+    "body": "这是头盔面板里写下的正文。 第二行。"
+   },
+   "editor": {
+    "sel": ".milkdown",
+    "bgImage": "none",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "0px",
+    "blur": "none",
+    "size": [
+     473,
+     765
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_04_notes_editor.png",
+   "ok": true
+  },
+  "V2_material_unified": {
+   "surfaces": {
+    "rail": {
+     "glass_chat": true,
+     "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
+     "radius": "12px",
+     "blur": "blur(18px) saturate(1.2)",
+     "size": [
+      52,
+      875
+     ],
+     "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)"
+    },
+    "list": {
+     "glass_chat": false,
+     "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
+     "radius": "12px",
+     "blur": "blur(18px) saturate(1.2)",
+     "size": [
+      820,
+      875
+     ],
+     "bgImage": "linear-gradient(rgb(10, 14, 21), rgb(7, 10, 16))"
+    },
+    "eave": {
+     "glass_chat": true,
+     "border": "0.666667px solid rgba(0, 229, 255, 0.22)",
+     "radius": "12px",
+     "blur": "blur(18px) saturate(1.2)",
+     "size": [
+      600,
+      52
+     ],
+     "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)"
+    }
+   },
+   "island_compact": {
+    "sel": ".island",
+    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "22px",
+    "blur": "blur(18px) saturate(1.2)",
+    "size": [
+     268,
+     40
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "island_chat": {
+    "sel": ".island",
+    "bgImage": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+    "color": "rgba(0, 0, 0, 0)",
+    "border": "0px none rgb(238, 243, 248)",
+    "radius": "26px",
+    "blur": "blur(18px) saturate(1.2)",
+    "size": [
+     420,
+     520
+    ],
+    "opacity": "1",
+    "pointerEvents": "auto"
+   },
+   "expect": "--glass-chat 全表面；青边 1px rgba(0,229,255,0.22)；面板圆角 12px；blur(18px)",
+   "ok": true
+  },
+  "V3_first_person_hud": {
+   "probe": {
+    "x": 938.85,
+    "y": 509.5,
+    "tag": "DIV",
+    "cls": ""
+   },
+   "ignoring_before_click": true,
+   "backdrop": {
+    "hwnd": 5310468,
+    "hits": 0
+   },
+   "window_from_point": {
+    "root_title": "飞书"
+   },
+   "backdrop_hits_before": 0,
+   "backdrop_hits_after": 0,
+   "passthrough_ok": true,
+   "decor": {
+    "vig": {
+     "opacity": "1",
+     "bg": "none"
+    },
+    "scan": {
+     "opacity": "0.4",
+     "bg": "repeating-linear-gradient(0deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 3px, rgba(0, 229, 255, 0.01) 3px, rgba(0, 229, 255, 0"
+    },
+    "ascii": [
+     {
+      "cls": "ascii-bg is-rail",
+      "size": "7px",
+      "opacity": "0.3"
+     },
+     {
+      "cls": "ascii-bg is-work",
+      "size": "6px",
+      "opacity": "0.14"
+     },
+     {
+      "cls": "ascii-bg is-eave",
+      "size": "5px",
+      "opacity": "0.24"
+     }
+    ],
+    "pet": false,
+    "fold": [
+     "tr",
+     "br"
+    ]
+   },
+   "no_pet_no_bento": true,
+   "ascii_micro_only": true,
+   "corner_ticks_right_only": true,
+   "ok": true
+  }
+ },
+ "final": {
+  "state": {
+   "mode": "idle",
+   "panel": "notes",
+   "geo": "full",
+   "docked": false,
+   "ignoring": true,
+   "boot": false,
+   "pct": 0,
+   "hours": "09:00–17:30",
+   "island": {
+    "w": 268,
+    "h": 40
+   },
+   "view": [
+    1707,
+    1019
+   ],
+   "deck": false,
+   "chat": false,
+   "notes": {
+    "list": true,
+    "editor": false,
+    "active": null,
+    "count": 9
+   },
+   "lsCollapsed": "0",
+   "lsHours": "{\"start\":\"09:00\",\"end\":\"17:30\"}",
+   "pctText": "0%",
+   "model": null,
+   "active": "BUTTON|island-toggle|island-face"
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_final_idle.png"
+ },
+ "expand_fx": {
+  "trigger": "HUD 已收起（Esc→唇边）→ 顶部唤出 → 点岛右侧 ▾；快捷键 Ctrl+Shift+Space 同路",
+  "rule": "Vue watch(deckOpen) 由 false→true 时 playExpandCeremony()（flush:post，避免被重渲染冲掉类名）",
+  "css": ".fx.is-ceremony → grain(gFlash 150ms) + chroma(cFlash 150ms) + edge(eFlash 150ms)",
+  "flash_ms": 150,
+  "class_on_ms": 365,
+  "class_off_ms": 538,
+  "flash_ms_measured": 173,
+  "animations": [
+   {
+    "name": "gFlash",
+    "dur": 150
+   },
+   {
+    "name": "cFlash",
+    "dur": 150
+   }
+  ],
+  "max_grain_opacity": 0.0393339,
+  "max_chroma_opacity": 0.639176,
+  "peak_pixel_delta": {
+   "fullscreen_bbox": [
+    0,
+    0,
+    2560,
+    1528
+   ],
+   "fullscreen_mean_rgb": [
+    0.97,
+    0.51,
+    0.42
+   ],
+   "fullscreen_max": 9,
+   "right_area_mean_rgb": [
+    2.5,
+    0.83,
+    0.72
+   ],
+   "right_area_max": 8
+  },
+  "counter_before_after": {
+   "before": 21,
+   "after": 22
+  },
+  "hotkey_path": {
+   "combo": "Ctrl+Shift+Space（收起态→展开）",
+   "counter_before": 22,
+   "counter_after": 23,
+   "mutations": [
+    {
+     "t": 25,
+     "cls": "fx is-on",
+     "anims": [
+      null,
+      null
+     ]
+    },
+    {
+     "t": 26,
+     "cls": "fx is-on is-ceremony",
+     "anims": [
+      {
+       "name": "gFlash",
+       "dur": 150
+      },
+      {
+       "name": "cFlash",
+       "dur": 150
+      }
+     ]
+    },
+    {
+     "t": 207,
+     "cls": "fx is-on",
+     "anims": [
+      null,
+      null
+     ]
+    }
+   ],
+   "max_grain_opacity": 0.0393106,
+   "max_chroma_opacity": 0.638798,
+   "ok": true
+  },
+  "pointer_events": "none",
+  "screens": {
+   "peak_still": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_05_expand_ceremony.png",
+   "burst_gif": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_expand_ceremony.gif",
+   "burst_frame": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v11_05b_expand_flash_frame.png"
+  },
+  "note": "grain/chroma/edge 走自带 alpha 的普通叠加：透明 WebView 里 mix-blend-mode 没有\"底\"可混，实测肉眼看不见，故去掉 blend。",
+  "ok": true
+ },
+ "ok": true,
+ "summary": {
+  "V1_island_compact": true,
+  "V1_toggle_is_hud_only": true,
+  "V4_expand_fx": true,
+  "V1_island_chat": true,
+  "V1_esc_closes_chat": true,
+  "V2_notes_list": true,
+  "V2_notes_editor": true,
+  "V2_material_unified": true,
+  "V3_first_person_hud": true
+ }
+}

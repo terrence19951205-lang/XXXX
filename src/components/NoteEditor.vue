@@ -1281,7 +1281,7 @@ async function resolveAiModelLabel() {
     if (!v) {
       aiModelLabel.value = ''
     } else if (v === PLATFORM_ENTRY_NAME) {
-      aiModelLabel.value = 'x-hub 平台（自动负载切换）'
+      aiModelLabel.value = 'shell hub 平台（自动负载切换）'
     } else if (v.startsWith('platform:')) {
       aiModelLabel.value = `${v.slice('platform:'.length)}（平台）`
     } else {
@@ -1770,7 +1770,7 @@ function onEditorClick(e: MouseEvent) {
     const href = anchor.getAttribute('href') ?? ''
     // 表格文档协议链接（导入产物等场景）：表格是独立笔记形态，不跳外链
     if (href.startsWith(SHEET_URL_PREFIX)) {
-      showToast?.('表格文档请在速记列表中打开')
+      showToast?.('表格文档请在笔记列表中打开')
       return
     }
     const noteId = noteIdFromHref(href)

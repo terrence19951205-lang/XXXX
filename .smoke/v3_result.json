@@ -1,0 +1,230 @@
+[
+ {
+  "step": "V7-开场鲨鱼可跳过且结束后卸载",
+  "ok": true,
+  "saw_boot": true,
+  "frames_1": 12,
+  "frames_2": 44,
+  "sharks": 4,
+  "reduced": false,
+  "skipped": true,
+  "frames_end": 44,
+  "frames_after": 44,
+  "hook_end": {
+   "active": false,
+   "frames": 44,
+   "sharks": 0,
+   "total": 5600,
+   "reduced": false,
+   "ended": true
+  },
+  "canvas_gone": true,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_boot.png"
+ },
+ {
+  "step": "V1-默认空闲贴顶·中央可点穿",
+  "ok": true,
+  "geo": "lip",
+  "docked": true,
+  "island": [
+   80,
+   -36,
+   268,
+   40
+  ],
+  "win_phys_h": 15,
+  "win_css": [
+   428,
+   10
+  ],
+  "lip": [
+   182,
+   0,
+   64,
+   3
+  ],
+  "hit_center": {
+   "point": [
+    1280,
+    800
+   ],
+   "hwnd": "0x1c30b8c",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x5f1048",
+   "root_title": "x-hub (helmet smoke)",
+   "root_class": "Tauri Window",
+   "is_helmet": false
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_docked.png"
+ },
+ {
+  "step": "V2-移到顶部热区后完整显示",
+  "ok": true,
+  "hot": [
+   0,
+   0,
+   428,
+   10
+  ],
+  "hover_pt": [
+   1281,
+   8
+  ],
+  "docked": false,
+  "geo": "band",
+  "island": [
+   13,
+   12,
+   268,
+   40
+  ],
+  "win_phys_h": 96,
+  "toggle_chev": "▾",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_revealed.png"
+ },
+ {
+  "step": "V3-移开后再次贴顶",
+  "ok": true,
+  "mid_docked": false,
+  "mid_geo": "band",
+  "docked": true,
+  "geo": "lip",
+  "win_phys_h": 15,
+  "island": [
+   80,
+   -36,
+   268,
+   40
+  ]
+ },
+ {
+  "step": "V4-点岛主体开通用 AI 对话舱（无 claw）",
+  "ok": true,
+  "mode": "chat",
+  "cabin": [
+   644,
+   56,
+   420,
+   476
+  ],
+  "claw": false,
+  "win_css": [
+   1707,
+   1019
+  ],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_chat.png"
+ },
+ {
+  "step": "V4b-点三角不被当成开对话",
+  "ok": true,
+  "mode_after_esc": "idle",
+  "mode_after_toggle": "deck",
+  "cabin": null,
+  "chev": "▴"
+ },
+ {
+  "step": "V6-展开躯干后中央仍点穿·装饰不接点击",
+  "ok": true,
+  "hit": {
+   "point": [
+    1280,
+    800
+   ],
+   "hwnd": "0x1c30b8c",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x5f1048",
+   "root_title": "x-hub (helmet smoke)",
+   "root_class": "Tauri Window",
+   "is_helmet": false
+  },
+  "hits_before": [],
+  "hits_after": [],
+  "rail": [
+   14,
+   64,
+   52,
+   875
+  ],
+  "panel": [
+   74,
+   64,
+   328,
+   875
+  ],
+  "search": [
+   554,
+   953,
+   600,
+   52
+  ]
+ },
+ {
+  "step": "V5-▾ 展开 / ▴ 收回·无独立展开按钮或 evoke 条",
+  "ok": true,
+  "deck_open": true,
+  "mode_after": "idle",
+  "deck_after": false,
+  "evoke": false,
+  "hud_vis": "hidden",
+  "chev": "▾",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_deck.png"
+ },
+ {
+  "step": "V8-左轨无端头折线装饰",
+  "ok": true,
+  "before": "none",
+  "after": "none",
+  "before_border": [
+   "0px",
+   "0px",
+   "0px"
+  ],
+  "after_border": [
+   "0px",
+   "0px",
+   "0px"
+  ],
+  "rail_border": [
+   "0px",
+   "0px",
+   "0px",
+   "0px"
+  ],
+  "kids": [
+   "ascii-bg is-rail",
+   "rail-cap",
+   "nav-btn is-on",
+   "nav-btn",
+   "nav-btn",
+   "nav-btn",
+   "nav-btn"
+  ],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_rail.png"
+ },
+ {
+  "step": "V9-对话/收起态无全屏扫描层·无 dbg 角标",
+  "ok": true,
+  "deck_fx": "1",
+  "deck_scan": "0.35",
+  "idle_fx": "0",
+  "idle_scan": "0",
+  "chat_fx": "0",
+  "chat_scan": "0",
+  "dbg": [
+   false,
+   false,
+   false
+  ]
+ },
+ {
+  "step": "V10-笔记写入并 get_note 读回非空正文",
+  "ok": true,
+  "note_id": 9,
+  "content_len": 29,
+  "content": "第三条岛交互验收写入的正文（ASCII 视觉与贴顶共存）。",
+  "panel_visible": true,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v3_note.png"
+ }
+]

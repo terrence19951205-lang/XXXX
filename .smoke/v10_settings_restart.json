@@ -1,0 +1,44 @@
+{
+ "pid": 17160,
+ "title": "Helmet",
+ "A4_collapsed_restored": {
+  "docked": true,
+  "geo": "lip",
+  "lsCollapsed": "1",
+  "window_rect": [
+   640,
+   0,
+   1068,
+   10
+  ],
+  "window_height": 10,
+  "hud_deck_open": false,
+  "chat_open": false,
+  "ok": true
+ },
+ "A4_screenshot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_restart_lip.png",
+ "B1_hours_persisted": {
+  "lsHours": "{\"start\":\"00:00\",\"end\":\"23:59\"}",
+  "pct": "31%",
+  "island_hours_label": "00:00–23:59",
+  "config_hours": null,
+  "ok": true
+ },
+ "B2_model_persisted": {
+  "select_value_after_restart": "",
+  "config_chat_selected_model": "",
+  "ok": true
+ },
+ "settings_shot_after_restart": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v10_settings_after_restart.png",
+ "restore": {
+  "model": "本地模拟",
+  "hours": "{\"start\":\"09:00\",\"end\":\"17:30\"}",
+  "expected": {
+   "hours": {
+    "start": "09:00",
+    "end": "17:30"
+   },
+   "model": "本地模拟"
+  }
+ }
+}

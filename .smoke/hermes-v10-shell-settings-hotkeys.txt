@@ -1,0 +1,33 @@
+﻿【再下一块 v10——用户 2026-11-06 已批准；立刻改、编、验；禁止双编译；禁止全面改视觉】
+
+工程：C:\Users\wcy\projects\XXXX（Tauri2+Vue helmet / shell-hub）。烟雾 identifier=x-hub-helmet-smoke；数据在 exe 旁 data\。当前可见烟雾 PID 约 27828（标题 Helmet）——重建时只杀该 debug PID 后 launch_smoke 替换并保持可见；禁 taskkill /IM x-hub.exe。
+
+不要再大范围勘察。前端能改的先改，再一次（或紧随一次）debug smoke 构建 → rcedit → launch_smoke。视觉方向稿还在 Prototype Builder，用户眼验前不要全面改视觉；只做本轮三项行为/交互。不做 P1、Bento/养成/摸鱼/日历周期/Agent 全套。不回退：禁悬浮球、笔记三栏、v8 --glass-chat 浓度、v9 待办/聊天/剪贴板/启动/搜索/日衰。
+
+—— A 壳收尾（.smoke\v10_shell.json + 短报）——
+1. 穿透可点：透明桌面区点穿到下层；控件/面板命中区可点（已有 helmet_set_ignore_cursor_events / .hit，补齐缺口）
+2. 收起只留岛+唤起：折叠后不露侧栏/大面板；岛与顶部唤起热区仍在
+3. 透明区不抢点：无命中时保持 ignore cursor
+4. 记住折叠：杀进程重启后折叠态落盘恢复
+5. Esc 退唤起：Esc 退出唤起/展开回收起（或关闭临时唤起层），不误关整个 helmet
+6. 继续禁球：冒烟下无悬浮球窗、不把原版主窗当第二入口
+验收：重建前后截图或 CDP 探针；写 O/S 项到 v10_shell.json（含 PID、标题、ball_windows=[]、collapsed 持久化证据）
+
+—— B 设置可进（.smoke\v10_settings.json + 短报）——
+侧栏/岛可进设置（最小集即可）：
+1. 配上下班时间（日衰用），改后岛 % 跟着变，落盘，重启仍在
+2. 配聊天模型（沿用 v9 多会话模型选择能力），落盘，重启仍在
+不要做完整设置中心大改。截图 + JSON。
+
+—— C 快捷键（.smoke\v10_hotkeys.json + 短报）——
+原版相近快捷键呼出 → 打开 HUD 内面板（Helmet 侧栏/岛面板），不再弹独立小窗（不要再走原 chat_window / 独立剪贴板窗等第二入口）。
+至少覆盖：聊天、剪贴板、搜索/笔记 中与原版默认相近的几组（见 config.rs / shortcut.rs 默认值）；全局 toggle 若存在则用于唤起/收起 HUD。
+验收：模拟或真实按键后，可见的是 helmet 内面板，windowing 无新增独立功能小窗；JSON 写清 shortcut→panel 映射与证据截图。
+
+交卷：
+- 分项 .smoke\v10_shell.json / v10_settings.json / v10_hotkeys.json（或汇总 v10_result.json 且分项齐全）
+- 每完成一项立刻在终端短报：项名 + ok + PID/标题 + 证据路径
+- 总交卷：PID、标题、有无悬浮球、笔记三栏、浓度仍在、三项可点、改动文件列表
+- 不要写「产品已交付」
+
+入口参考：src\components\HelmetShell.vue、src\light\helmet.ts、src-tauri\src\helmet_window.rs、src-tauri\src\shortcut.rs、src-tauri\src\config.rs；面板在 src\components\helmet\。冒烟脚本 .smoke\launch_smoke.py。

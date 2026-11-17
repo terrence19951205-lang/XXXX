@@ -1,0 +1,54 @@
+{
+  "fx_pointer_events": "none",
+  "fx_rec": {
+    "events": [
+      {
+        "t": 23878,
+        "cls": "fx is-on"
+      },
+      {
+        "t": 23881,
+        "cls": "fx is-on is-ceremony"
+      },
+      {
+        "t": 24057,
+        "cls": "fx is-on"
+      }
+    ],
+    "count": 3
+  },
+  "click": {
+    "screen": [
+      1447,
+      48
+    ],
+    "t_s": 1.209
+  },
+  "passthrough": {
+    "right": {
+      "xy": [
+        1996,
+        840
+      ],
+      "ignoring": true,
+      "is_hud": false,
+      "ex_transparent": true
+    },
+    "center": {
+      "xy": [
+        1280,
+        764
+      ],
+      "ignoring": false,
+      "is_hud": true,
+      "ex_transparent": false
+    },
+    "panel_is_hud": true,
+    "mode": "deck",
+    "fx_pointer_events": "none"
+  },
+  "pid": 568,
+  "mp4": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fast\\expand_ceremony.mp4",
+  "frames_dir": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\fx_fast\\frames",
+  "n_frames": 179
+}

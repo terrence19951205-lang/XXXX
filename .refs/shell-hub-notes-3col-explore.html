@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>shell-hub · 三栏笔记探索稿</title>
+<!--
+  shell-hub notes 3-column explore (NOT final)
+  Visual baseline: reality-raid-hud-v08-ascii-explore-v4.html
+  Flow: left rail → middle notes list → right editor
+  No companion mascot / no rail end fold lines / product name: shell-hub
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Sans+SC:wght@400;500;600;700&family=Oxanium:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --void: #02040a;
+  --desk-tint: rgba(2, 5, 12, 0.28);
+  /* Align rail/list/editor opacity to chat dialog (island ≈ 0.96–0.97) */
+  --glass: rgba(8, 12, 20, 0.96);
+  --glass-deep: rgba(6, 10, 18, 0.97);
+  --glass-chat: linear-gradient(180deg, rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%);
+  --cyan: #00e5ff;
+  --magenta: #ff2e97;
+  --amber: #e8b84a;
+  --success: #3dff9a;
+  --t1: #eef3f8;
+  --t2: #b7c6d6;
+  --t3: #8fa0b4;
+  --t4: #425264;
+  --inset: 14px;
+  --rail-w: 52px;
+  --list-w: 280px;
+  --editor-w: 420px;
+  --island-w: 220px;
+  --island-r: 22px;
+  --eave-bot: 52px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-island: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-expand: 240ms;
+  --t-collapse: 150ms;
+  --t-hover: 100ms;
+  --t-island: 280ms;
+  --sans: "Noto Sans SC", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --display: "Oxanium", "IBM Plex Mono", ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; background: #000; color: var(--t1);
+  font-family: var(--sans); -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+input, textarea {
+  background: rgba(0,0,0,0.28); border: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,0.16);
+  color: var(--t1); outline: none; border-radius: 8px;
+}
+input:focus, textarea:focus { box-shadow: inset 0 0 0 1px rgba(0,229,255,0.42); }
+::selection { background: rgba(0,229,255,0.2); color: #fff; }
+
+.stage-wrap { width: 100vw; height: 100vh; display: grid; place-items: center; background: #000; }
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  min-width: 960px; min-height: 540px;
+  overflow: hidden; isolation: isolate; background: var(--void);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.035), 0 48px 140px rgba(0,0,0,0.7);
+}
+.desktop {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    linear-gradient(var(--desk-tint), var(--desk-tint)),
+    url("./reality-raid-desk-bg.jpg") center / cover no-repeat,
+    radial-gradient(120% 80% at 50% 20%, #0a1524 0%, #02040a 70%);
+}
+.desktop::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 40% at 58% 48%, transparent 40%, rgba(0,0,0,.35) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.25), transparent 18%, transparent 78%, rgba(0,0,0,.4));
+}
+.pierce-label {
+  position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+  z-index: 1; pointer-events: none; text-align: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+  color: rgba(0,229,255,.28); text-transform: uppercase;
+}
+.pierce-label b {
+  display: block; margin-top: 6px; font-size: 11px; letter-spacing: .08em;
+  color: rgba(238,243,248,.22); font-weight: 500; text-transform: none;
+}
+
+/* Dynamic Island (shell atmosphere) */
+.island-wrap {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 40; width: var(--island-w);
+}
+.island {
+  width: 100%; min-height: 44px;
+  border-radius: var(--island-r);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), transparent 40%), var(--glass-deep);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(0,229,255,.28), 0 16px 40px rgba(0,0,0,.45);
+  overflow: hidden;
+  transition: width var(--t-island) var(--ease-island), box-shadow var(--t-hover);
+}
+.island:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(0,229,255,.42), 0 18px 48px rgba(0,0,0,.5); }
+.island-face {
+  display: flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 10px 0 12px; cursor: default;
+}
+.island-led {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 8px rgba(0,229,255,.7); flex-shrink: 0;
+}
+.island-brand { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.1; }
+.island-brand .cn { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; white-space: nowrap; }
+.island-brand .en {
+  font-family: var(--mono); font-size: 7px; font-weight: 600;
+  letter-spacing: .14em; color: rgba(0,229,255,.55); text-transform: uppercase;
+}
+.island-ascii {
+  font-family: var(--mono); font-size: 8px; color: rgba(0,229,255,.35);
+  letter-spacing: .04em; margin-right: 2px; user-select: none;
+}
+.island-toggle {
+  width: 26px; height: 26px; border-radius: 9px; flex-shrink: 0;
+  display: grid; place-items: center; color: var(--t2);
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,.22);
+  transition: background var(--t-hover), color var(--t-hover);
+}
+.island-toggle:hover { background: rgba(0,229,255,.14); color: #fff; }
+.island-toggle .chev { display: inline-block; transition: transform var(--t-island) var(--ease-island); font-size: 12px; }
+.hud.is-open ~ .island-wrap .island-toggle .chev,
+body.hud-open .island-toggle .chev { transform: rotate(180deg); }
+
+/* HUD shell */
+.hud {
+  position: absolute; inset: 0; z-index: 20; pointer-events: none;
+}
+.hud .hit { pointer-events: auto; }
+
+.dock {
+  position: absolute;
+  top: 64px; left: var(--inset);
+  bottom: calc(var(--eave-bot) + var(--inset) + 10px);
+  display: flex; align-items: stretch; gap: 8px;
+  max-width: calc(100% - var(--inset) * 2);
+  z-index: 22;
+}
+
+/* Left rail — rounded thin cyan border, NO fold / L corners */
+.rail {
+  width: var(--rail-w); flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 0; gap: 2px;
+  /* opacity aligned to chat dialog */
+  background: var(--glass-chat);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid rgba(0,229,255,0.22);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 0 0 1px rgba(0,229,255,0.12), 0 8px 24px rgba(0,0,0,.45);
+  pointer-events: auto;
+}
+.rail-cap {
+  font-family: var(--mono); font-size: 7.5px; font-weight: 600;
+  letter-spacing: .16em; color: rgba(0,229,255,.45); writing-mode: vertical-rl;
+  transform: rotate(180deg); margin: 4px 0 10px; text-transform: uppercase;
+}
+.nav-btn {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  color: var(--t3); position: relative; border-radius: 10px;
+  transition: color var(--t-hover), background var(--t-hover);
+}
+.nav-btn .ico { font-size: 14px; line-height: 1; font-family: var(--mono); font-weight: 600; }
+.nav-btn .lab {
+  position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+  white-space: nowrap; font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px;
+  background: rgba(4,8,14,.94); box-shadow: inset 0 0 0 1px rgba(0,229,255,.2);
+  opacity: 0; pointer-events: none; transition: opacity var(--t-hover); z-index: 50; color: var(--t1);
+}
+.nav-btn:hover { color: var(--t1); background: rgba(0,229,255,.05); }
+.nav-btn:hover .lab { opacity: 1; }
+.nav-btn.is-on {
+  color: var(--cyan); background: rgba(0,229,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,.22);
+}
+.nav-btn.is-disabled { opacity: .45; cursor: default; }
+.nav-btn.is-disabled:hover .lab { opacity: 1; }
+
+/* Shared panel chrome */
+.col-panel {
+  display: flex; flex-direction: column; min-height: 0;
+  /* opacity aligned to chat dialog */
+  background: var(--glass-chat);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid rgba(0,229,255,0.22);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 0 0 1px rgba(0,229,255,0.12), 0 10px 28px rgba(0,0,0,.5);
+  overflow: hidden;
+  opacity: 0; visibility: hidden; width: 0;
+  transition: width var(--t-expand) var(--ease), opacity var(--t-expand) var(--ease), visibility var(--t-expand);
+  pointer-events: none;
+}
+.col-panel.is-on {
+  opacity: 1; visibility: visible; pointer-events: auto;
+}
+.col-list.is-on { width: var(--list-w); }
+.col-editor.is-on { width: var(--editor-w); }
+
+.col-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px 8px; flex-shrink: 0; gap: 8px;
+}
+.col-hd .title {
+  font-size: 13px; font-weight: 600; letter-spacing: .02em;
+  display: flex; align-items: baseline; gap: 8px; min-width: 0;
+}
+.col-hd .title .en {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 600;
+  letter-spacing: .16em; color: rgba(0,229,255,.5); text-transform: uppercase;
+}
+.col-hd .acts { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.icon-btn {
+  width: 26px; height: 26px; border-radius: 8px; color: var(--t3);
+  display: grid; place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(120,140,160,.22);
+  transition: color var(--t-hover), background var(--t-hover);
+}
+.icon-btn:hover { color: var(--t1); background: rgba(255,255,255,.04); }
+.col-bd { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 10px 10px; }
+
+.field { width: 100%; height: 32px; padding: 0 10px; font-size: 12.5px; }
+.btn {
+  height: 30px; padding: 0 12px; font-size: 12px; font-weight: 500; color: var(--t2);
+  background: rgba(255,255,255,.015); border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(120,140,160,.24);
+  transition: color var(--t-hover), background var(--t-hover), box-shadow var(--t-hover), transform 70ms;
+}
+.btn:hover { color: var(--t1); background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(120,140,160,.42); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  color: #031018; font-weight: 600;
+  background: linear-gradient(180deg, #4fecff 0%, #00c2da 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.32), 0 0 0 1px rgba(0,229,255,.28), 0 4px 14px rgba(0,229,255,.12);
+}
+.btn.danger { color: #ffb4d2; box-shadow: inset 0 0 0 1px rgba(255,46,151,.28); }
+.btn.danger:hover { background: rgba(255,46,151,.08); }
+.btn.sm { height: 26px; padding: 0 9px; font-size: 11px; }
+
+.list-tools { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+.list-tools .field { flex: 1; }
+.note-list {
+  flex: 1; min-height: 0; overflow: auto;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.note-list::-webkit-scrollbar { width: 3px; }
+.note-list::-webkit-scrollbar-thumb { background: rgba(0,229,255,.28); border-radius: 2px; }
+
+.note-row {
+  text-align: left; padding: 10px 10px 9px; border-radius: 10px;
+  background: rgba(255,255,255,.015);
+  box-shadow: inset 0 0 0 1px rgba(120,140,160,.14);
+  transition: background var(--t-hover), box-shadow var(--t-hover);
+  display: grid; gap: 4px;
+}
+.note-row:hover {
+  background: rgba(0,229,255,.04);
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,.22);
+}
+.note-row.is-on {
+  background: rgba(0,229,255,.08);
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,.38);
+}
+.note-row .t {
+  font-size: 12.5px; font-weight: 600; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.note-row .s {
+  font-size: 11.5px; color: var(--t3); line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.note-row .m {
+  font-family: var(--mono); font-size: 9px; color: var(--t4);
+  letter-spacing: .04em; margin-top: 2px;
+}
+.empty {
+  padding: 28px 12px; text-align: center; color: var(--t4);
+  font-size: 12px; line-height: 1.5;
+}
+
+/* Right editor */
+.note-ed {
+  display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0;
+}
+.note-ed input.title {
+  height: 36px; padding: 0 12px; font-size: 14px; font-weight: 600; flex-shrink: 0;
+}
+.note-ed textarea {
+  flex: 1; min-height: 160px; padding: 12px; font-size: 12.5px; line-height: 1.6; resize: none;
+}
+.editor-bar {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  flex-shrink: 0; padding-top: 2px;
+}
+.editor-bar .left, .editor-bar .right { display: flex; align-items: center; gap: 6px; }
+.editor-bar .saved {
+  font-family: var(--mono); font-size: 9px; color: var(--t4); letter-spacing: .06em;
+}
+.editor-bar .saved.is-ok { color: rgba(61,255,154,.75); }
+.meta-line {
+  font-family: var(--mono); font-size: 9px; color: var(--t4);
+  letter-spacing: .04em; flex-shrink: 0;
+}
+
+/* Bottom eave */
+.eave-bot {
+  position: absolute; bottom: var(--inset); left: 50%; transform: translateX(-50%);
+  width: min(720px, calc(100% - var(--inset) * 2));
+  height: var(--eave-bot); border-radius: 14px;
+  display: flex; align-items: center; gap: 12px; padding: 0 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent), var(--glass);
+  border: 1px solid rgba(0,229,255,0.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 28px rgba(0,0,0,.3);
+  pointer-events: auto; z-index: 24;
+}
+.eave-bot .tag {
+  font-family: var(--mono); font-size: 8px; letter-spacing: .16em;
+  color: rgba(0,229,255,.5); text-transform: uppercase; flex-shrink: 0;
+}
+.eave-bot .ctx {
+  flex: 1; min-width: 0; font-size: 11.5px; color: var(--t3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.eave-bot .ascii {
+  font-family: var(--mono); font-size: 10px; color: rgba(0,229,255,.28);
+  letter-spacing: .08em; flex-shrink: 0; user-select: none;
+}
+
+.toast {
+  position: absolute; left: 50%; bottom: calc(var(--eave-bot) + var(--inset) + 16px);
+  transform: translateX(-50%) translateY(8px);
+  padding: 8px 14px; border-radius: 10px; z-index: 50;
+  background: rgba(4,8,14,.92); color: var(--t1); font-size: 12px;
+  box-shadow: inset 0 0 0 1px rgba(0,229,255,.28), 0 10px 28px rgba(0,0,0,.4);
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+}
+.toast.is-on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.explore-note {
+  position: absolute; right: 12px; top: 12px; z-index: 45;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em;
+  color: rgba(143,160,180,.55); pointer-events: none;
+  background: rgba(0,0,0,.35); padding: 4px 8px; border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+@media (max-width: 1180px) {
+  :root { --editor-w: min(380px, 42vw); --list-w: min(250px, 30vw); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .col-panel, .island, .toast { transition: none !important; }
+}
+</style>
+</head>
+<body class="hud-open">
+<div class="stage-wrap">
+  <div class="stage" id="stage">
+    <div class="desktop" id="desktop" aria-hidden="true"></div>
+    <div class="pierce-label">PASSTHROUGH · 中央穿透桌面示意
+      <b>笔记三栏为本探索重点 · 非最终定稿</b>
+    </div>
+
+    <div class="explore-note">shell-hub · notes 3col explore</div>
+
+    <div class="island-wrap" id="islandWrap">
+      <div class="island" id="island" title="shell-hub 灵动岛（壳层氛围）">
+        <div class="island-face" id="islandFace">
+          <span class="island-led" aria-hidden="true"></span>
+          <div class="island-brand">
+            <span class="cn">shell-hub</span>
+            <span class="en">Notes Explore</span>
+          </div>
+          <span class="island-ascii" aria-hidden="true">∷▮∷</span>
+          <button type="button" class="island-toggle" id="btnIslandHud" title="展开 / 收起 HUD" aria-label="展开或收起 HUD" aria-expanded="true">
+            <span class="chev" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud is-open" id="hud">
+      <div class="dock hit" id="dock">
+        <nav class="rail" id="rail" aria-label="功能侧栏">
+          <div class="rail-cap">Nav</div>
+          <button type="button" class="nav-btn is-disabled" data-panel="todos" title="待办（本探索仅示意）" disabled>
+            <span class="ico">01</span><span class="lab">待办</span>
+          </button>
+          <button type="button" class="nav-btn is-disabled" data-panel="chat" title="聊天（本探索仅示意）" disabled>
+            <span class="ico">02</span><span class="lab">聊天</span>
+          </button>
+          <button type="button" class="nav-btn" data-panel="notes" id="btnNotes" title="笔记">
+            <span class="ico">03</span><span class="lab">笔记</span>
+          </button>
+          <button type="button" class="nav-btn is-disabled" data-panel="clip" title="剪贴板（本探索仅示意）" disabled>
+            <span class="ico">04</span><span class="lab">剪贴板</span>
+          </button>
+          <button type="button" class="nav-btn is-disabled" data-panel="launch" title="启动（本探索仅示意）" disabled>
+            <span class="ico">05</span><span class="lab">启动</span>
+          </button>
+          <button type="button" class="nav-btn is-disabled" data-panel="search" title="搜索（本探索仅示意）" disabled>
+            <span class="ico">06</span><span class="lab">搜索</span>
+          </button>
+        </nav>
+
+        <!-- Middle: notes list -->
+        <section class="col-panel col-list" id="notesListCol" aria-label="笔记列表" aria-hidden="true">
+          <div class="col-hd">
+            <div class="title"><span>笔记</span><span class="en">Notes</span></div>
+            <div class="acts">
+              <button type="button" class="btn sm primary" id="btnNewNote" title="新建笔记">新建</button>
+              <button type="button" class="icon-btn" id="btnCloseList" title="收起列表">✕</button>
+            </div>
+          </div>
+          <div class="col-bd">
+            <div class="list-tools">
+              <input class="field" id="noteFilter" type="search" placeholder="筛选标题 / 摘要…" autocomplete="off" />
+            </div>
+            <div class="note-list" id="noteList" role="list"></div>
+          </div>
+        </section>
+
+        <!-- Right: note editor -->
+        <section class="col-panel col-editor" id="notesEditorCol" aria-label="笔记编辑" aria-hidden="true">
+          <div class="col-hd">
+            <div class="title"><span id="editorTitleLabel">编辑</span><span class="en">Editor</span></div>
+            <div class="acts">
+              <button type="button" class="icon-btn" id="btnCloseEditor" title="收起编辑页">✕</button>
+            </div>
+          </div>
+          <div class="col-bd" id="editorBody">
+            <div class="empty" id="editorEmpty">选择或新建一篇笔记</div>
+            <div class="note-ed" id="noteEditor" hidden>
+              <input class="title" id="noteTitle" type="text" placeholder="标题" maxlength="120" />
+              <div class="meta-line" id="noteMeta">—</div>
+              <textarea id="noteBody" placeholder="在此填写正文…"></textarea>
+              <div class="editor-bar" id="editorBar">
+                <div class="left">
+                  <span class="saved" id="noteSaved">未改动</span>
+                </div>
+                <div class="right">
+                  <button type="button" class="btn sm danger" id="btnDeleteNote">删除</button>
+                  <button type="button" class="btn sm" id="btnCloseEditor2">收起</button>
+                  <button type="button" class="btn sm primary" id="btnSaveNote">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="eave-bot" aria-label="下檐提示">
+        <span class="tag">shell-hub</span>
+        <div class="ctx" id="ctxHint">冷启动 · 左栏可见 · 点「笔记」打开中栏列表</div>
+        <span class="ascii" aria-hidden="true">┌─ NOTES ─┐</span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const LS_KEY = "shellhub.notes3col.explore.v1";
+
+  const seedNotes = () => {
+    const now = Date.now();
+    return [
+      {
+        id: "n1",
+        title: "shell-hub 三栏交互备忘",
+        body: "左功能侧栏 → 点笔记打开中间列表 → 点某条打开右侧编辑填写页。\n\n可来回：收起中栏/右栏、切换条目、新建示意。\n风格延续探索稿 v4：深色 HUD、青边、圆角细边侧栏，无两端折线；侧栏无两端折线装饰。",
+        updated: now - 3600_000,
+      },
+      {
+        id: "n2",
+        title: "穿透桌面与笔记并存",
+        body: "中央保留 PASSTHROUGH 示意；笔记三栏是本探索重点。\n灵动岛仅作壳层氛围，不阻塞三栏操作。",
+        updated: now - 86_400_000,
+      },
+      {
+        id: "n3",
+        title: "视觉约束清单",
+        body: "· 产品名 shell-hub\n· 青边 #00E5ff\n· 侧栏圆角细边，不要 L 形瞄具 / 两端折线\n· 侧栏无折线瞄具\n· 中文简体 UI",
+        updated: now - 172_800_000,
+      },
+    ];
+  };
+
+  let notes = [];
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    notes = raw ? JSON.parse(raw) : seedNotes();
+    if (!Array.isArray(notes) || !notes.length) notes = seedNotes();
+  } catch (_) {
+    notes = seedNotes();
+  }
+
+  let listOpen = false;
+  let editorOpen = false;
+  let activeId = null;
+  let dirty = false;
+  let toastTimer = 0;
+
+  const fmtTime = (ts) => {
+    const d = new Date(ts);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  const summary = (body) => (body || "").replace(/\s+/g, " ").trim() || "（无正文）";
+  const persist = () => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(notes)); } catch (_) {}
+  };
+  const toast = (msg) => {
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("is-on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("is-on"), 1600);
+  };
+  const setHint = (t) => { $("ctxHint").textContent = t; };
+
+  const syncChrome = () => {
+    $("btnNotes").classList.toggle("is-on", listOpen);
+    $("notesListCol").classList.toggle("is-on", listOpen);
+    $("notesListCol").setAttribute("aria-hidden", listOpen ? "false" : "true");
+    $("notesEditorCol").classList.toggle("is-on", editorOpen);
+    $("notesEditorCol").setAttribute("aria-hidden", editorOpen ? "false" : "true");
+
+    if (!listOpen && !editorOpen) {
+      setHint("冷启动 · 左栏可见 · 点「笔记」打开中栏列表");
+    } else if (listOpen && !editorOpen) {
+      setHint("中栏列表已开 · 点一条打开右侧编辑 · ✕ 可收起列表");
+    } else {
+      setHint("右栏编辑中 · 可切换中栏条目 · 保存 / 删除 / 收起均可");
+    }
+  };
+
+  const renderList = () => {
+    const q = ($("noteFilter").value || "").trim().toLowerCase();
+    const list = $("noteList");
+    const filtered = notes
+      .slice()
+      .sort((a, b) => b.updated - a.updated)
+      .filter((n) => {
+        if (!q) return true;
+        return (n.title + " " + n.body).toLowerCase().includes(q);
+      });
+
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty">${q ? "无匹配笔记" : "暂无笔记 · 点「新建」"}</div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map((n) => `
+      <button type="button" class="note-row${n.id === activeId ? " is-on" : ""}" data-id="${n.id}" role="listitem">
+        <div class="t">${escapeHtml(n.title || "未命名笔记")}</div>
+        <div class="s">${escapeHtml(summary(n.body))}</div>
+        <div class="m">${fmtTime(n.updated)}</div>
+      </button>
+    `).join("");
+
+    list.querySelectorAll(".note-row").forEach((row) => {
+      row.addEventListener("click", () => openNote(row.dataset.id));
+    });
+  };
+
+  const escapeHtml = (s) => String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const showEditorEmpty = () => {
+    $("noteEditor").hidden = true;
+    $("editorEmpty").hidden = false;
+    $("editorTitleLabel").textContent = "编辑";
+  };
+
+  const fillEditor = (note) => {
+    $("editorEmpty").hidden = true;
+    $("noteEditor").hidden = false;
+    $("noteTitle").value = note.title || "";
+    $("noteBody").value = note.body || "";
+    $("noteMeta").textContent = `更新 ${fmtTime(note.updated)} · id ${note.id}`;
+    $("editorTitleLabel").textContent = note.title || "未命名笔记";
+    dirty = false;
+    $("noteSaved").textContent = "未改动";
+    $("noteSaved").classList.remove("is-ok");
+  };
+
+  const openList = () => {
+    listOpen = true;
+    syncChrome();
+    renderList();
+  };
+
+  const closeList = () => {
+    listOpen = false;
+    // closing list also closes editor in this explore (stack collapse)
+    editorOpen = false;
+    activeId = null;
+    showEditorEmpty();
+    syncChrome();
+  };
+
+  const openNote = (id) => {
+    const note = notes.find((n) => n.id === id);
+    if (!note) return;
+    if (dirty && activeId && activeId !== id) {
+      // auto-save previous before switch (explore convenience)
+      saveActive(false);
+    }
+    activeId = id;
+    editorOpen = true;
+    if (!listOpen) openList();
+    fillEditor(note);
+    renderList();
+    syncChrome();
+  };
+
+  const closeEditor = () => {
+    if (dirty) saveActive(false);
+    editorOpen = false;
+    activeId = null;
+    showEditorEmpty();
+    renderList();
+    syncChrome();
+  };
+
+  const saveActive = (announce) => {
+    const note = notes.find((n) => n.id === activeId);
+    if (!note) return;
+    note.title = ($("noteTitle").value || "").trim() || "未命名笔记";
+    note.body = $("noteBody").value || "";
+    note.updated = Date.now();
+    dirty = false;
+    persist();
+    $("noteSaved").textContent = "已保存";
+    $("noteSaved").classList.add("is-ok");
+    $("noteMeta").textContent = `更新 ${fmtTime(note.updated)} · id ${note.id}`;
+    $("editorTitleLabel").textContent = note.title;
+    renderList();
+    if (announce !== false) toast("笔记已保存");
+  };
+
+  const newNote = () => {
+    if (dirty) saveActive(false);
+    const id = "n" + Date.now().toString(36);
+    const note = { id, title: "未命名笔记", body: "", updated: Date.now() };
+    notes.unshift(note);
+    persist();
+    openList();
+    openNote(id);
+    $("noteTitle").focus();
+    $("noteTitle").select();
+    toast("已新建笔记");
+  };
+
+  const deleteActive = () => {
+    if (!activeId) return;
+    const idx = notes.findIndex((n) => n.id === activeId);
+    if (idx < 0) return;
+    notes.splice(idx, 1);
+    persist();
+    dirty = false;
+    activeId = null;
+    editorOpen = false;
+    showEditorEmpty();
+    renderList();
+    syncChrome();
+    toast("笔记已删除");
+  };
+
+  const markDirty = () => {
+    if (!activeId) return;
+    dirty = true;
+    $("noteSaved").textContent = "未保存";
+    $("noteSaved").classList.remove("is-ok");
+  };
+
+  // Events
+  $("btnNotes").addEventListener("click", () => {
+    if (listOpen) closeList();
+    else openList();
+  });
+  $("btnCloseList").addEventListener("click", closeList);
+  $("btnCloseEditor").addEventListener("click", closeEditor);
+  $("btnCloseEditor2").addEventListener("click", closeEditor);
+  $("btnNewNote").addEventListener("click", newNote);
+  $("btnSaveNote").addEventListener("click", () => saveActive(true));
+  $("btnDeleteNote").addEventListener("click", deleteActive);
+  $("noteFilter").addEventListener("input", renderList);
+  $("noteTitle").addEventListener("input", markDirty);
+  $("noteBody").addEventListener("input", markDirty);
+  $("noteTitle").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); $("noteBody").focus(); }
+  });
+
+  $("btnIslandHud").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const hud = $("hud");
+    const open = !hud.classList.contains("is-open");
+    hud.classList.toggle("is-open", open);
+    document.body.classList.toggle("hud-open", open);
+    $("btnIslandHud").setAttribute("aria-expanded", open ? "true" : "false");
+    // keep dock visibility tied to hud
+    $("dock").style.opacity = open ? "1" : "0";
+    $("dock").style.pointerEvents = open ? "" : "none";
+    document.querySelector(".eave-bot").style.opacity = open ? "1" : "0";
+    document.querySelector(".eave-bot").style.pointerEvents = open ? "auto" : "none";
+    setHint(open ? "HUD 已展开 · 点「笔记」进入三栏流程" : "HUD 已收起 · 点岛右侧 ▾ 再展开");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (editorOpen) { closeEditor(); return; }
+      if (listOpen) { closeList(); return; }
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s" && editorOpen) {
+      e.preventDefault();
+      saveActive(true);
+    }
+  });
+
+  // Cold start: left rail visible; list/editor closed
+  // Deep links for explore shots: ?state=rail|list|editor
+  const state = new URLSearchParams(location.search).get("state") || "rail";
+  syncChrome();
+  renderList();
+  showEditorEmpty();
+  if (state === "list" || state === "editor") {
+    openList();
+  }
+  if (state === "editor") {
+    const first = notes[0];
+    if (first) openNote(first.id);
+  }
+})();
+</script>
+</body>
+</html>

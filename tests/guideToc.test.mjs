@@ -2,7 +2,7 @@
  * 内置《使用说明》分章口径单测（直接拿 docs/user-guide.md 跑）：
  *   node --test tests/guideToc.test.mjs
  *
- * 锁三件事：① 15 章全在、按顺序；② 每章至少有一个三级小节；③ 锚点唯一且能对上目录。
+ * 锁三件事：① 现行章节全在、按顺序；② 每章至少有内容；③ 锚点唯一且能对上目录。
  * 文档增删章节时这条会先红，提醒同步面板里的目录（目录是运行时从正文推导的，不会失真）。
  */
 import test from 'node:test'
@@ -17,32 +17,31 @@ const md = readFileSync(join(root, 'docs/user-guide.md'), 'utf8')
 const doc = splitGuideDocument(md)
 
 test('文档标题与前言被正确识别', () => {
-  assert.equal(doc.title, 'x-hub 使用说明')
-  assert.match(doc.preamble, /适用版本/)
+  assert.equal(doc.title, 'shell hub 使用说明')
+  assert.doesNotMatch(doc.preamble, /适用版本|v0\.9\.4/)
+  assert.doesNotMatch(doc.preamble, /设置\s*→\s*外观/)
   // 前言里的目录链接列表不应混进第一章正文
   assert.match(doc.preamble, /阅读约定/)
 })
 
-test('15 个章节按顺序切出，标题不带 Markdown 标记', () => {
-  assert.equal(doc.chapters.length, 15)
+test('13 个章节按顺序切出，标题不带 Markdown 标记', () => {
+  assert.equal(doc.chapters.length, 13)
   assert.deepEqual(
     doc.chapters.map((c) => c.title),
     [
-      '1. 认识 x-hub',
+      '1. 认识 shell hub',
       '2. 全局快捷键',
-      '3. 工作台',
-      '4. 待办',
-      '5. 速记',
-      '6. 速达',
-      '7. AI 助手',
-      '8. 剪贴板历史',
-      '9. 全局搜索',
-      '10. 扩展中心',
-      '11. 悬浮球与系统托盘',
-      '12. 设置页逐项地图',
-      '13. 数据与维护',
-      '14. 应用更新',
-      '15. 常见问题',
+      '3. 待办',
+      '4. 笔记',
+      '5. 启动',
+      '6. AI 助手',
+      '7. 剪贴板历史',
+      '8. 全局搜索',
+      '9. 系统托盘',
+      '10. 设置页逐项地图',
+      '11. 数据与维护',
+      '12. 应用更新',
+      '13. 常见问题',
     ],
   )
   for (const c of doc.chapters) assert.ok(c.title.length > 0)
@@ -65,7 +64,7 @@ test('章节锚点唯一，且能用于同页跳转', () => {
 })
 
 test('slugifyHeading 与 GitHub 口径一致', () => {
-  assert.equal(slugifyHeading('1. 认识 x-hub'), '1-认识-x-hub')
+  assert.equal(slugifyHeading('1. 认识 shell hub'), '1-认识-shell-hub')
   assert.equal(slugifyHeading('5.8 一键美化与 AI 深度整理'), '58-一键美化与-ai-深度整理')
   assert.equal(slugifyHeading('15. 常见问题'), '15-常见问题')
 })
@@ -79,6 +78,18 @@ test('四反引号围栏里的伪标题不会被当成章节', () => {
 test('重名标题自动加序号，不产生重复锚点', () => {
   const parsed = splitGuideDocument('# T\n\n## 同一节\n\n## 同一节')
   assert.deepEqual(parsed.chapters.map((c) => c.id), ['同一节', '同一节-2'])
+})
+
+test('正文与现行产品一致：不用旧产品名/旧版本号，数据目录仍是真实的 x-hub 路径', () => {
+  const parts = [doc.title, doc.preamble, ...doc.chapters.flatMap((c) => [c.title, c.body, ...c.sections.flatMap((s) => [s.title, s.body])])]
+  const body = parts.join('\n')
+  assert.doesNotMatch(body, /v0\.9\.4/)
+  assert.doesNotMatch(body, /认识 x-hub|x-hub 使用说明/)
+  assert.doesNotMatch(body, /AppData\\Roaming\\shell-hub|%APPDATA%\\shell-hub/)
+  assert.match(body, /AppData\\Roaming\\x-hub/)
+  for (const term of ['工作台', 'Bento', '扩展中心', '悬浮球', '环形菜单', '主窗口', '速达', '速记']) {
+    assert.equal(body.includes(term), false, `不应再把「${term}」当现行功能来写`)
+  }
 })
 
 test('目录内搜索按关键词计数（大小写不敏感）', () => {

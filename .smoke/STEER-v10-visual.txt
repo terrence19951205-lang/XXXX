@@ -1,0 +1,16 @@
+﻿STEER 2026-11-06 16:48 上海（光效终版）：
+本机 .refs 已含 PB 补丁，照抄即可，勿另开编译：
+- .refs\shell-hub-visual-direction-v1.html（playExpandCeremony / .fx.is-ceremony）
+- .refs\shell-hub-visual-direction-v1-HANDOFF.md（增量节）
+- .refs\shell-hub-visual-direction-v1-ASSETS.md
+- .refs\shell-hub-visual-direction-v1-shots\05-expand-ceremony.png（?state=ceremony 峰值）
+
+展开光效硬规格：
+- 触发：仅 HUD 关→开（收起后点岛右侧 ▾）；开→关不播
+- 动效：全屏 grain + chroma（品红/青），对照 v4 .fx.is-ceremony
+- 时长：--t-flash: 150ms；播完移除 is-ceremony
+- .fx 始终 pointer-events:none（穿透洞仍可点桌面）
+- prefers-reduced-motion 跳过
+
+同路一并：岛 morph + --glass-chat 全表面 + 对照 shots 01–04 + 05。
+交卷 v11_visual.json 含 expand_fx（关→开有 / 开→关无 / 穿透可点）。禁双编译、禁 P1、烟雾保持可见。

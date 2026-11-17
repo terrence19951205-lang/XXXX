@@ -1,0 +1,26 @@
+【项目经理派发——三栏笔记照抄探索稿 + 侧栏 P0；接在禁悬浮球收尾之后】
+
+前置：若禁悬浮球/藏主窗那路（hermes-no-floating-ball）尚未交卷，先收完再改本块；若已交卷则本会话继续。禁止另开第二路抢同一份编译/同一 exe。
+
+产品已批准对照（已拷到本机 .refs，照抄交互/结构，不要自创）：
+- .refs\shell-hub-notes-3col-explore.html
+- .refs\shell-hub-notes-3col-shots\01-rail-only.png / 02-notes-list.png / 03-notes-editor.png
+- .refs\shell-hub-notes-3col-ASSETS.md
+流程：左栏 → 点笔记开中栏列表 → 点条目开右栏编辑；可新建/切换/分层收起。
+
+侧栏 P0 入口（已批，不做 Bento/悬浮球浮窗堆）：
+待办、笔记、聊天/AI、剪贴板、启动常用工具、搜索；设置可进；日衰在灵动岛。
+
+同时保持：
+- smoke 禁悬浮球、禁原版主窗当第二入口
+- shell-hub 名 + 定稿图标、禁 updater、开屏 ASCII 鲨鱼 copy、v3 岛、v4 侧栏圆角细边
+
+重建：debug smoke → rcedit → launch_smoke → 保持可见。只杀 debug 路径对应 PID，禁止 taskkill /IM x-hub.exe。
+
+验收（.smoke/v7_result.json 或等价）：
+N1 笔记三栏可点：左→中列表→右编辑；新建/切换可用
+N2 侧栏可见 P0 入口（待办/笔记/聊天/剪贴板/启动常用/搜索；设置可进）
+N3 无「悬浮球」可见窗；无原版主仪表盘当主入口
+N4 回报：PID、主可见标题、有无悬浮球、笔记三栏是否可点、图标路径、exe 大小/mtime
+
+列出改动文件。不要写产品已交付。

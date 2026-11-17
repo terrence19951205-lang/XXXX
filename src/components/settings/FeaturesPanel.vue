@@ -9,6 +9,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-dialog';
 import { LocateFixed, MapPin, Trash2 } from 'lucide-vue-next';
 import { isPlatformModel, isTauri, tauriApi, PLATFORM_ENTRY_NAME, type ChatModelConfig } from '../../api/tauri';
+import { FEATURES } from '../../config/features';
 import AppSelect from '../AppSelect.vue';
 import SudaSubcategoryManager from './SudaSubcategoryManager.vue';
 import { useStore } from '../../stores/workbench';
@@ -18,17 +19,27 @@ const showToast = inject<(msg: string) => void>('showToast', () => {})
 const store = useStore()
 
 // ---- 速达（网页打开方式 + 小类管理，ADR 0011 / 0012）----
-const SUDA_OPEN_MODE_OPTIONS = [
-  { value: 'panel', label: '内嵌面板（主窗口内）' },
-  { value: 'window', label: '独立浏览器窗口' },
-  { value: 'system', label: '系统默认浏览器' },
-]
+const SUDA_OPEN_MODE_OPTIONS = computed(() => {
+  const opts = [
+    { value: 'window', label: '独立浏览器窗口' },
+    { value: 'system', label: '系统默认浏览器' },
+  ]
+  if (FEATURES.embedPanel) {
+    opts.unshift({ value: 'panel', label: '内嵌面板（主窗口内）' })
+  }
+  return opts
+})
 const sudaWebOpenMode = computed(() => {
   const mode = store.state.config.suda_web_open_mode
-  return mode === 'window' || mode === 'system' ? mode : 'panel'
+  if (mode === 'window' || mode === 'system') return mode
+  return FEATURES.embedPanel ? 'panel' : 'system'
 })
 function onSudaOpenModeChange(v: string | number) {
-  void store.setSudaWebOpenMode(v === 'window' || v === 'system' ? v : 'panel')
+  if (v === 'window' || v === 'system') {
+    void store.setSudaWebOpenMode(v)
+    return
+  }
+  if (FEATURES.embedPanel) void store.setSudaWebOpenMode('panel')
 }
 
 async function onToggleSudaPanelToolbar() {
@@ -107,7 +118,8 @@ const noteSourceOptions = computed(() => {
   }
   return [
     { value: 'auto', label: '自动（推荐）' },
-    { value: 'platform', label: 'x-hub 平台（平台内置）' },
+    // 平台模型依赖账号登录：账号功能关着（config/features）就不列
+    ...(FEATURES.account ? [{ value: 'platform', label: 'shell hub 平台（平台内置）' }] : []),
     ...providers.map((p) => ({ value: p, label: p })),
   ]
 })
@@ -293,13 +305,13 @@ onMounted(() => {
 </script>
 
 <template>
-        <section id="sv-sec-suda" class="sv-sec" aria-label="速达">
-          <h3 class="sv-sec-title">速达</h3>
+        <section id="sv-sec-suda" class="sv-sec" aria-label="启动">
+          <h3 class="sv-sec-title">启动</h3>
 
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">网页默认打开方式</span>
-              <span class="setting-desc">点击网页条目时的打开位置：内嵌面板在主窗口右侧视图打开（轻量、单页），独立浏览器窗口支持多标签与同地址复用，系统默认浏览器交由 Windows 按系统设置打开；右键菜单可临时换其它方式</span>
+              <span class="setting-desc">点击网页条目时的打开位置：独立浏览器窗口支持多标签与同地址复用，系统默认浏览器交由 Windows 按系统设置打开；右键菜单可临时换其它方式</span>
             </div>
             <AppSelect
               :model-value="sudaWebOpenMode"
@@ -309,7 +321,7 @@ onMounted(() => {
             />
           </div>
 
-          <div class="setting-row">
+          <div v-if="FEATURES.embedPanel" class="setting-row">
             <div class="setting-info">
               <span class="setting-name">内嵌面板显示工具栏</span>
               <span class="setting-desc">开启后内嵌面板顶部显示地址栏与前进/后退/刷新按钮；默认关闭，整个面板区域只显示网页（返回速达点左侧导航即可）</span>
@@ -335,8 +347,8 @@ onMounted(() => {
           <SudaSubcategoryManager />
         </section>
 
-        <section id="sv-sec-notes" class="sv-sec" aria-label="速记">
-          <h3 class="sv-sec-title">速记</h3>
+        <section id="sv-sec-notes" class="sv-sec" aria-label="笔记">
+          <h3 class="sv-sec-title">笔记</h3>
 
           <div class="setting-row">
             <div class="setting-info">
@@ -486,7 +498,7 @@ onMounted(() => {
           </div>
         </section>
 
-        <section id="sv-sec-online" class="sv-sec" aria-label="联网">
+        <section v-if="FEATURES.onlineWeather" id="sv-sec-online" class="sv-sec" aria-label="联网">
           <h3 class="sv-sec-title">联网</h3>
 
           <div class="setting-row">
@@ -549,7 +561,7 @@ onMounted(() => {
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-name">隐藏窗口时降低内存占用</span>
-              <span class="setting-desc">对话窗、剪贴板、通知、速达浏览器等隐藏窗口常驻后台，开启后它们隐藏时把渲染进程内存尽量交还给系统、显示前自动恢复（脚本与消息照常运行）；关闭后窗口隐藏也保持全量内存</span>
+              <span class="setting-desc">对话窗、剪贴板、通知、启动浏览器等隐藏窗口常驻后台，开启后它们隐藏时把渲染进程内存尽量交还给系统、显示前自动恢复（脚本与消息照常运行）；关闭后窗口隐藏也保持全量内存</span>
             </div>
             <button
               class="toggle"

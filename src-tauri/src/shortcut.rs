@@ -89,6 +89,33 @@ pub fn setup(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     // 按当前配置分发七个全局快捷键（搜索 / AI 对话事件由主窗前端监听处理，
                     // 见 index.vue；剪贴板/主窗显隐/截图/GIF 录制由 lib.rs 的 app.listen 处理）
                     let cfg = crate::config::load();
+                    // 冒烟构建：入口只有 Helmet 座舱壳。快捷键在这里就地转成 HUD 内面板，
+                    // 且**不再广播**给事件——否则隐藏的主窗 SPA 照样收事件、跟着建/删笔记，
+                    // 等于把原版主窗当成了第二入口（v10 实测：Ctrl+Shift+N 凭空多出一条笔记）。
+                    // 截图/录屏是独立选区层，不属 HUD 面板，照旧往下分发。
+                    if crate::is_smoke_build(app) {
+                        let hud_panel = if same_hotkey(&cfg.clipboard_shortcut, &pressed) {
+                            Some("clipboard")
+                        } else if same_hotkey(&cfg.search_shortcut, &pressed) {
+                            Some("search")
+                        } else if same_hotkey(&cfg.chat_shortcut, &pressed) {
+                            Some("chat")
+                        } else if same_hotkey(&cfg.notes_shortcut, &pressed) {
+                            Some("notes")
+                        } else if same_hotkey(&cfg.shot_shortcut, &pressed)
+                            || same_hotkey(&cfg.recorder_shortcut, &pressed)
+                        {
+                            None
+                        } else {
+                            Some("toggle")
+                        };
+                        if let Some(panel) = hud_panel {
+                            if let Err(e) = crate::helmet_window::open_panel(app, panel) {
+                                log::warn!("[smoke] 快捷键 → Helmet 面板失败: {e}");
+                            }
+                            return;
+                        }
+                    }
                     if same_hotkey(&cfg.clipboard_shortcut, &pressed) {
                         let _ = app.emit("clipboard-toggle", ());
                     } else if same_hotkey(&cfg.search_shortcut, &pressed) {

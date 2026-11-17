@@ -1,0 +1,161 @@
+[
+ {
+  "step": "G1-默认收起",
+  "ok": true,
+  "mode": "idle",
+  "win": [
+   1096,
+   0,
+   2561,
+   96
+  ],
+  "win_css": [
+   977,
+   64
+  ],
+  "island": [
+   12,
+   12,
+   220,
+   40
+  ],
+  "evoke": [
+   845,
+   12,
+   118,
+   40
+  ]
+ },
+ {
+  "step": "G2-收起中央点穿",
+  "ok": true,
+  "hit": {
+   "point": [
+    1280,
+    764
+   ],
+   "hwnd": "0xa40e76",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x11118e",
+   "root_title": "x-hub (helmet smoke)",
+   "root_class": "Tauri Window",
+   "is_helmet": false
+  },
+  "hits_before": [],
+  "hits_after": []
+ },
+ {
+  "step": "G3-小岛开对话舱",
+  "ok": true,
+  "mode": "chat",
+  "cabin": [
+   644,
+   56,
+   420,
+   476
+  ],
+  "win_css": [
+   1707,
+   1019
+  ],
+  "sessions": 1,
+  "title": "聊天 · Comms",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_chat.png"
+ },
+ {
+  "step": "G4-舱外点穿",
+  "ok": true,
+  "hit": {
+   "point": [
+    500,
+    1150
+   ],
+   "hwnd": "0xa40e76",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x11118e",
+   "root_title": "x-hub (helmet smoke)",
+   "root_class": "Tauri Window",
+   "is_helmet": false
+  }
+ },
+ {
+  "step": "G5-Esc 收起",
+  "ok": true,
+  "mode": "idle",
+  "win": [
+   1096,
+   0,
+   2561,
+   100
+  ],
+  "win_css": [
+   977,
+   67
+  ],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_idle.png"
+ },
+ {
+  "step": "G6-展开躯干",
+  "ok": true,
+  "mode": "deck",
+  "rail": [
+   14,
+   64,
+   52,
+   875
+  ],
+  "panel": [
+   74,
+   64,
+   328,
+   875
+  ],
+  "search": [
+   554,
+   953,
+   600,
+   52
+  ],
+  "hud": "visible",
+  "rightRail": false,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v08_deck.png"
+ },
+ {
+  "step": "G7-躯干中央点穿",
+  "ok": true,
+  "hit": {
+   "point": [
+    1280,
+    764
+   ],
+   "hwnd": "0xa40e76",
+   "title": "Chrome Legacy Window",
+   "class": "Chrome_RenderWidgetHostHWND",
+   "root": "0x11118e",
+   "root_title": "x-hub (helmet smoke)",
+   "root_class": "Tauri Window",
+   "is_helmet": false
+  },
+  "hits_before": [
+   "island hit@122,32",
+   "evoke hit@904,32"
+  ],
+  "hits_after": [
+   "island hit@122,32",
+   "evoke hit@904,32"
+  ]
+ },
+ {
+  "step": "G8-岛居中",
+  "ok": true,
+  "island": [
+   744,
+   12,
+   220,
+   40
+  ],
+  "island_center_x": 1281
+ }
+]

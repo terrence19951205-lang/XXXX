@@ -1,0 +1,206 @@
+[
+ {
+  "step": "B1-a 开场铺满 + 品牌 shell-hub + 跳过可点",
+  "ok": true,
+  "titleCn": "shell-hub",
+  "titleEn": "Shell Hub · ASCII Ocean",
+  "hint": "移动指针搅动洋流 · 点击溅起尾流",
+  "skip": " 跳过 Enter Esc",
+  "canvas": [
+   0,
+   0,
+   1707,
+   1019
+  ],
+  "viewport": [
+   1707,
+   1019
+  ],
+  "bar": "width 5600ms linear",
+  "armed": false,
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_boot.png"
+ },
+ {
+  "step": "B1-b 引擎就是探索稿那套 AsciiSharks.OceanEngine",
+  "ok": true,
+  "hook": {
+   "active": true,
+   "engine": "AsciiSharks.OceanEngine",
+   "engineClass": "ce",
+   "sharkKinds": [
+    "classic",
+    "mako",
+    "hammerhead",
+    "thresher"
+   ],
+   "sharks": 4,
+   "frames": 38,
+   "ink": 0.051,
+   "total": 5600,
+   "reduced": false,
+   "ended": false
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_boot2.png"
+ },
+ {
+  "step": "B1-c 海洋真在跑：帧数增长 + 画面出墨（不是空 canvas）",
+  "ok": true,
+  "frames": [
+   38,
+   97
+  ],
+  "ink": [
+   0.051,
+   0.053
+  ],
+  "barWidth": "100%",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_boot2.png"
+ },
+ {
+  "step": "B1-d Enter 跳过 → 海洋卸载、组件拆除、帧数冻结",
+  "ok": true,
+  "gone": true,
+  "hook": {
+   "active": false,
+   "engine": "AsciiSharks.OceanEngine",
+   "engineClass": null,
+   "sharkKinds": [
+    "classic",
+    "mako",
+    "hammerhead",
+    "thresher"
+   ],
+   "sharks": 0,
+   "frames": 114,
+   "ink": 0.053,
+   "total": 5600,
+   "reduced": false,
+   "ended": true,
+   "tornDown": true
+  },
+  "hook_after": {
+   "active": false,
+   "engine": "AsciiSharks.OceanEngine",
+   "engineClass": null,
+   "sharkKinds": [
+    "classic",
+    "mako",
+    "hammerhead",
+    "thresher"
+   ],
+   "sharks": 0,
+   "frames": 114,
+   "ink": 0.053,
+   "total": 5600,
+   "reduced": false,
+   "ended": true,
+   "tornDown": true
+  },
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_after_boot.png"
+ },
+ {
+  "step": "B2-贴顶/顶部热区/▾开躯干/Esc收回/点岛开对话 对齐 v3",
+  "ok": true,
+  "docked": [
+   "lip",
+   true
+  ],
+  "band": [
+   "band",
+   false,
+   "▾"
+  ],
+  "deck": [
+   "deck",
+   "▴"
+  ],
+  "after_esc": [
+   "idle"
+  ],
+  "chat": [
+   "chat",
+   [
+    644,
+    56,
+    420,
+    476
+   ]
+  ],
+  "shots": [
+   "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_revealed.png",
+   "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_deck.png",
+   "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_chat.png"
+  ]
+ },
+ {
+  "step": "B3-侧栏/笔记面板圆角细边、无折线切角（v4）",
+  "ok": true,
+  "rail": [
+   14,
+   64,
+   52,
+   875
+  ],
+  "railBorder": [
+   "0.666667px",
+   "solid",
+   "rgba(0, 229, 255, 0.22)",
+   "12px"
+  ],
+  "railClip": "none",
+  "before": "none",
+  "after": "none",
+  "panel": [
+   74,
+   64,
+   328,
+   875
+  ],
+  "panelBorder": [
+   "0.666667px",
+   "rgba(0, 229, 255, 0.22)",
+   "12px"
+  ],
+  "panelClip": "none",
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_sidebar.png"
+ },
+ {
+  "step": "B4-岛品牌 shell-hub · 可见窗标题无 x-hub",
+  "ok": true,
+  "brand": [
+   "shell-hub",
+   "SHELL-HUB"
+  ],
+  "body_xhub": 0,
+  "visible_titles": [
+   "Helmet",
+   "shell-hub (helmet smoke)"
+  ],
+  "bad": [],
+  "shot": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v5_deck.png"
+ },
+ {
+  "step": "B5-烟雾 PID / 启动时间 / 可见标题 / exe / updater 未冲掉",
+  "ok": true,
+  "pid": 16556,
+  "started": "2026-11-06 10:08:32",
+  "now": "2026-11-06 10:08:58",
+  "tz": "中国标准时间 +0800",
+  "exe": "C:\\Users\\wcy\\projects\\XXXX\\src-tauri\\target\\debug\\x-hub.exe",
+  "exe_bytes": 413528576,
+  "exe_mtime": "2026-11-06 10:08:28",
+  "file_version": "0.9.7",
+  "product_version": "0.9.7",
+  "file_description": "shell-hub",
+  "product_name": "shell-hub",
+  "main_title": [
+   "Helmet",
+   "shell-hub (helmet smoke)",
+   "x-hub-helmet-smoke-siw",
+   ""
+  ],
+  "helmet_internal": "Helmet",
+  "updates_dir": [],
+  "auto_update_enabled": false
+ }
+]

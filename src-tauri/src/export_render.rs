@@ -39,7 +39,7 @@ pub fn init(app: &tauri::AppHandle) {
         WINDOW_LABEL,
         WebviewUrl::App("export.html".into()),
     )
-    .title("x-hub 导出")
+    .title("shell-hub 导出")
     .inner_size(960.0, 1280.0)
     .resizable(false)
     .decorations(false)

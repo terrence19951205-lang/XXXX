@@ -1,0 +1,134 @@
+{
+ "ts": "2026-11-06 16:45:21",
+ "build": "tauri build --debug --no-bundle --config .smoke/tauri.smoke.json → rcedit（GNU 工具链不嵌 comctl32 v6 清单，漏了 rcedit 会 0xC0000139）",
+ "pid": 17160,
+ "title": "Helmet",
+ "identifier": "x-hub-helmet-smoke",
+ "A_shell": {
+  "ok": true,
+  "items": {
+   "A1_transparent_passthrough": true,
+   "A1_hit_control_clickable": true,
+   "A2_collapsed_only_lip": true,
+   "A2_reveal_hotzone": true,
+   "A3_margin_not_stealing": true,
+   "A5_esc_retreat": true,
+   "A6_no_ball_no_second_entry": true,
+   "ok": true
+  },
+  "ball_windows": [],
+  "main_window_hidden": [
+   {
+    "hwnd": "0x8c02c2",
+    "title": "shell-hub (helmet smoke)",
+    "visible": false,
+    "rect": [
+     307,
+     77,
+     1707,
+     977
+    ]
+   }
+  ]
+ },
+ "B_settings": {
+  "ok": true,
+  "items": {
+   "B1_hours_apply_and_persist": true,
+   "B2_model_persist": true,
+   "A4_collapsed_restored": true,
+   "ok": true
+  }
+ },
+ "C_hotkeys": {
+  "ok": true,
+  "items": {
+   "toggle_open": true,
+   "toggle_close": true,
+   "chat": true,
+   "clipboard": true,
+   "search": true,
+   "notes": true,
+   "no_extra_windows": true,
+   "ok": true,
+   "notes_untouched": true
+  },
+  "mapping": {
+   "toggle_open": "Ctrl+Shift+space",
+   "toggle_close": "Ctrl+Shift+Space (再次按下收起)",
+   "chat": "Ctrl+Shift+k",
+   "clipboard": "Ctrl+`",
+   "search": "Ctrl+k",
+   "notes": "Ctrl+Shift+n"
+  },
+  "no_extra_windows": {
+   "visible_before": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw"
+   ],
+   "visible_after": [
+    "Helmet",
+    "x-hub-helmet-smoke-siw",
+    "CiceroUIWndFrame"
+   ],
+   "clipboard_overlay_visible": [],
+   "chat_window_visible": [],
+   "ball": [],
+   "ok": true
+  },
+  "notes_untouched": {
+   "before": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "after": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "ok": true
+  }
+ },
+ "regressions": {
+  "notes_3col": {
+   "rail": true,
+   "list": true,
+   "editor": true,
+   "colCount": 2
+  },
+  "notes_ok": true,
+  "glass_chat": "linear-gradient(180deg, rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+  "glass_chat_unchanged": true,
+  "floating_ball": "smoke 构建不创建（源码 + 窗口枚举双重确认）"
+ },
+ "evidence": {
+  "shell": "v10_shell.json + v10_shell_passthrough.png / v10_shell_lip.png",
+  "settings": "v10_settings.json + v10_settings.png / v10_settings_after_restart.png",
+  "hotkeys": "v10_hotkeys.json + v10_hotkey_*.png",
+  "notes": "v10_notes_3col.json + v10_notes_3col.png",
+  "final": "v10_final_idle.png"
+ },
+ "changed_files": [
+  "src/components/HelmetShell.vue",
+  "src/components/helmet/helmet.css",
+  "src/components/helmet/HelmetChatCabin.vue",
+  "src-tauri/src/helmet_window.rs",
+  "src-tauri/src/lib.rs",
+  ".smoke/verify_v10.py",
+  ".smoke/v10_b2.py"
+ ],
+ "ok": true
+}

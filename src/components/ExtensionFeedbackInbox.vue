@@ -401,7 +401,7 @@ async function applyHide(f: ExtensionFeedback) {
                   诊断信息 · {{ diagOpen.has(f.id) ? '收起' : '查看' }}
                 </button>
                 <span v-if="f.app_version" class="ifb-chip">
-                  <AppWindow :size="10" :stroke-width="2" aria-hidden="true" />x-hub {{ f.app_version }}
+                  <AppWindow :size="10" :stroke-width="2" aria-hidden="true" />shell hub {{ f.app_version }}
                 </span>
                 <span v-if="f.ext_version" class="ifb-chip">扩展 v{{ f.ext_version }}</span>
               </div>

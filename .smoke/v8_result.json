@@ -1,0 +1,287 @@
+{
+ "O1": {
+  "step": "O1 侧栏与笔记面板不透明度与对话框/COMMS 同档",
+  "ok": true,
+  "token_glass_chat": "linear-gradient(180deg, #1c2430f5 0%, #080c14f7 100%)",
+  "rail_bg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+  "list_bg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+  "editor_bg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+  "island_bg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+  "identical_background": true
+ },
+ "O2": {
+  "step": "O2 v4 青边圆角仍在；无「透桌面」感",
+  "ok": true,
+  "rail_border": [
+   "0.666667px",
+   "rgba(0, 229, 255, 0.22)"
+  ],
+  "list_border": "rgba(0, 229, 255, 0.22)",
+  "editor_border": "rgba(0, 229, 255, 0.22)",
+  "rail_radius": "12px",
+  "list_radius": "12px",
+  "editor_radius": "12px",
+  "island_radius_ref": "22px",
+  "pixel_rail_before": {
+   "std": 0.0,
+   "uniq_ratio": 0.0,
+   "mean_luma": 9.4
+  },
+  "pixel_rail_after": {
+   "std": 2.29,
+   "uniq_ratio": 0.0022,
+   "mean_luma": 16.9
+  },
+  "pixel_shot_scale": 1.5,
+  "pixel_box": [
+   30,
+   936,
+   90,
+   1326
+  ]
+ },
+ "O3": {
+  "step": "O3 无「悬浮球」可见窗",
+  "ok": true,
+  "visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "ball_windows": [],
+  "windowing": [
+   {
+    "title": "Helmet",
+    "class": "Tauri Window",
+    "size": [
+     2560,
+     1528
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "size": [
+     480,
+     360
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "size": [
+     480,
+     360
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "贴图",
+    "class": "Tauri Window",
+    "size": [
+     480,
+     360
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "GIF 录制",
+    "class": "Tauri Window",
+    "size": [
+     300,
+     96
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "截图 / 录屏选区",
+    "class": "Tauri Window",
+    "size": [
+     1200,
+     900
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "通知",
+    "class": "Tauri Window",
+    "size": [
+     540,
+     156
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "剪贴板历史",
+    "class": "Tauri Window",
+    "size": [
+     780,
+     660
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "shell-hub (helmet smoke)",
+    "class": "Tauri Window",
+    "size": [
+     2100,
+     1350
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "",
+    "class": "tray_icon_app",
+    "size": [
+     1920,
+     1117
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "",
+    "class": "global_hotkey_app",
+    "size": [
+     1920,
+     1117
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "x-hub 导出",
+    "class": "Tauri Window",
+    "size": [
+     1462,
+     1626
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "AI 对话",
+    "class": "Tauri Window",
+    "size": [
+     690,
+     960
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "应用内浏览器",
+    "class": "Tauri Window",
+    "size": [
+     1558,
+     1136
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "x-hub-helmet-smoke-siw",
+    "class": "x-hub-helmet-smoke-sic",
+    "size": [
+     6,
+     6
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "",
+    "class": "Tao Thread Event Target",
+    "size": [
+     6,
+     6
+    ],
+    "toolwindow": true
+   },
+   {
+    "title": "MSCTFIME UI",
+    "class": "MSCTFIME UI",
+    "size": [
+     0,
+     0
+    ],
+    "toolwindow": false
+   },
+   {
+    "title": "Default IME",
+    "class": "IME",
+    "size": [
+     0,
+     0
+    ],
+    "toolwindow": false
+   }
+  ]
+ },
+ "O4": {
+  "step": "O4 回报：PID / 主可见标题 / 前后截图 / 改动文件 / exe",
+  "ok": true,
+  "pid": 27828,
+  "started": "2026-11-06 15:04:58",
+  "main_visible_titles": [
+   "Helmet",
+   "x-hub-helmet-smoke-siw"
+  ],
+  "shots": {
+   "before": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v8_before_opacity.png",
+   "after": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\v8_after_opacity.png"
+  },
+  "changed_files": [
+   "src/components/helmet/helmet.css"
+  ],
+  "change": [
+   "新增 --glass-chat: linear-gradient(180deg, rgba(28,36,48,.96) 0%, rgba(8,12,20,.97) 100%)",
+   "--glass 0.62 -> 0.96；--glass-deep 0.86 -> 0.97（去掉过透值）",
+   ".panel（.rail.panel / .panel-col.panel 共用）background: var(--glass-chat)，blur(18px) saturate(1.2)",
+   ".island 对话框亦改为引用 var(--glass-chat)（同一条 token，非新色）",
+   ".rail.panel/.panel-col.panel 保持 border 1px rgba(0,229,255,.22) + border-radius 12px（v4）"
+  ],
+  "exe": "C:\\Users\\wcy\\projects\\XXXX\\src-tauri\\target\\debug\\x-hub.exe",
+  "exe_info": {
+   "bytes": 413410304,
+   "mtime": "2026-11-06 15:04:55",
+   "file_version": "0.9.7",
+   "file_description": "shell-hub"
+  },
+  "notes_three_cols": true,
+  "note_rows": 9,
+  "probe": {
+   "token": "linear-gradient(180deg, #1c2430f5 0%, #080c14f7 100%)",
+   "vw": 1707,
+   "vh": 1019,
+   "dpr": 1.5,
+   "railBg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+   "railColor": "rgba(0, 0, 0, 0)",
+   "railBorderW": "0.666667px",
+   "railBorderC": "rgba(0, 229, 255, 0.22)",
+   "railRadius": "12px",
+   "listBg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+   "listBorderC": "rgba(0, 229, 255, 0.22)",
+   "listRadius": "12px",
+   "edBg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+   "edBorderC": "rgba(0, 229, 255, 0.22)",
+   "edRadius": "12px",
+   "islandBg": "linear-gradient(rgba(28, 36, 48, 0.96) 0%, rgba(8, 12, 20, 0.97) 100%)",
+   "islandRadius": "22px",
+   "railRect": [
+    14,
+    64,
+    52,
+    875
+   ],
+   "listRect": [
+    74,
+    64,
+    280,
+    875
+   ],
+   "edRect": [
+    362,
+    64,
+    420,
+    875
+   ],
+   "rows": 9
+  }
+ }
+}

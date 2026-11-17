@@ -408,7 +408,7 @@ async function saveAll() {
   // 空配置会让 AI 对话里没有任何可选模型
   const all = collectAll()
   if (all.length === 0) {
-    showToast('还没有可用的模型：点「获取模型」在线拉取，或直接输入模型名手动添加；也可开启上方的「x-hub 平台免费额度」')
+    showToast('还没有可用的模型：点「获取模型」在线拉取，或直接输入模型名手动添加；也可开启上方的「shell hub 平台免费额度」')
     return
   }
   saving.value = true

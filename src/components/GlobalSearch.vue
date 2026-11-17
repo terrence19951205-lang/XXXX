@@ -152,7 +152,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <div class="search-results" role="listbox" aria-label="搜索结果">
             <!-- 资源 -->
             <template v-if="results.resources.length > 0">
-              <p class="result-group-title" role="presentation">速达</p>
+              <p class="result-group-title" role="presentation">启动</p>
               <div
                 v-for="(r, idx) in results.resources"
                 :key="'r' + r.id"
@@ -174,7 +174,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
             <!-- 笔记 -->
             <template v-if="results.notes.length > 0">
-              <p class="result-group-title" role="presentation">速记</p>
+              <p class="result-group-title" role="presentation">笔记</p>
               <div
                 v-for="(n, idx) in results.notes"
                 :key="'n' + n.id"
@@ -224,7 +224,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               class="empty-state"
               style="padding: 24px 16px"
             >
-              <p style="color: var(--text-4)">输入关键词检索速达资源、速记与待办</p>
+              <p style="color: var(--text-4)">输入关键词检索启动资源、笔记与待办</p>
               <div class="shortcut-hints">
                 <span><kbd>Ctrl</kbd> + <kbd>K</kbd> 唤起搜索</span>
                 <span><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> 显示/隐藏窗口</span>

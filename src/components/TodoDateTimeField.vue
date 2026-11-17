@@ -106,6 +106,15 @@ const hasValue = computed(() => props.modelValue != null)
 function applyPreset(ms: number) {
   emit('update:modelValue', ms)
 }
+
+/** 空值占位统一为「年/月/日」，避免 zh-CN 下出现 yyyy/mm/日 混排 */
+const DATE_PLACEHOLDER: Record<string, string> = { year: '年', month: '月', day: '日' }
+function dateSegmentText(segment: { part: string; value: string }) {
+  if (/^(y+|m+|d+|年|月|日)$/i.test(segment.value)) {
+    return DATE_PLACEHOLDER[segment.part] ?? segment.value
+  }
+  return segment.value
+}
 </script>
 
 <template>
@@ -122,7 +131,7 @@ function applyPreset(ms: number) {
         <DatePickerField v-slot="{ segments }" class="tdt-date-field">
           <template v-for="segment in segments" :key="segment.part">
             <span v-if="segment.part === 'literal'" class="tdt-literal">{{ segment.value }}</span>
-            <DatePickerInput v-else :part="segment.part" class="tdt-segment">{{ segment.value }}</DatePickerInput>
+            <DatePickerInput v-else :part="segment.part" class="tdt-segment">{{ dateSegmentText(segment) }}</DatePickerInput>
           </template>
           <DatePickerTrigger class="tdt-trigger" title="打开日历">
             <CalendarDays :size="14" :stroke-width="2" />

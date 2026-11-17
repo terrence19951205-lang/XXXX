@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "opened": true,
+  "after": {
+    "mode": "chat",
+    "hasChat": true,
+    "text": "按「结论 / 待办 / 风险」整理下面的会议记录：",
+    "chip": {
+      "id": "28",
+      "text": "【P1】会议纪要\n×"
+    },
+    "ls": "28"
+  },
+  "desk": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\04_after_restart.png",
+  "cdp": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\04_after_restart_cdp.png",
+  "win": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\04_after_restart_window.png",
+  "p5": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\05_no_sidebar_chest.png",
+  "p5c": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\p1_prompts\\05_chat_cabin_cdp.png"
+}

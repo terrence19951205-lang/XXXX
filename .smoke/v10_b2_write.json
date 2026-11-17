@@ -1,0 +1,11 @@
+{
+ "ok_open": true,
+ "before": {
+  "select": "本地模拟",
+  "config": "本地模拟"
+ },
+ "after_set_empty": {
+  "select": "",
+  "config": ""
+ }
+}

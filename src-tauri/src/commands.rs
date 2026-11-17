@@ -2404,6 +2404,13 @@ pub fn get_startup_hidden() -> Result<bool, String> {
     Ok(crate::autostart::is_hidden_launch())
 }
 
+/// 冒烟构建判定（identifier 后缀 -smoke）：前端 main.ts 据此不显示原版主仪表盘窗，
+/// 与后端「不建悬浮球 / 托盘热键只唤起 Helmet」保持同一口径。
+#[tauri::command]
+pub fn get_smoke_mode(app: tauri::AppHandle) -> Result<bool, String> {
+    Ok(crate::is_smoke_build(&app))
+}
+
 #[tauri::command]
 pub fn log_client_error(message: String, detail: Option<String>) -> Result<(), String> {
     match detail {

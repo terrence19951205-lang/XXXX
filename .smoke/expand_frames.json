@@ -1,0 +1,209 @@
+{
+ "frames": [
+  {
+   "t": 1775,
+   "dock_mean": 59.3,
+   "isle_mean": 190.38
+  },
+  {
+   "t": 1859,
+   "dock_mean": 59.3,
+   "isle_mean": 190.38
+  },
+  {
+   "t": 1977,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2077,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2176,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2277,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2377,
+   "dock_mean": 59.31,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2460,
+   "dock_mean": 59.31,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2560,
+   "dock_mean": 59.31,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2662,
+   "dock_mean": 59.31,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2757,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2826,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 2923,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3009,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3110,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3207,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3308,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3409,
+   "dock_mean": 59.29,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3508,
+   "dock_mean": 59.29,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3609,
+   "dock_mean": 59.29,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3709,
+   "dock_mean": 59.29,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3806,
+   "dock_mean": 59.29,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3889,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 3990,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 4076,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  },
+  {
+   "t": 4172,
+   "dock_mean": 59.3,
+   "isle_mean": 182.91
+  }
+ ],
+ "baseline": 59.3,
+ "steady_delta": 183.13,
+ "dev": [
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.12,
+  183.13,
+  183.13,
+  183.13,
+  183.13,
+  183.12,
+  183.12,
+  183.12,
+  183.12
+ ],
+ "mid_states": 0,
+ "flicker_dips": [],
+ "isolated_jumps": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "artifacts": "C:\\Users\\wcy\\projects\\XXXX\\.smoke\\expand_frames",
+ "state_before": {
+  "mode": "idle",
+  "docked": false,
+  "geo": "full"
+ },
+ "state_hover": {
+  "mode": "idle",
+  "docked": false,
+  "ignoring": false
+ },
+ "state_after": {
+  "mode": "deck",
+  "docked": false,
+  "panel": "todos"
+ }
+}

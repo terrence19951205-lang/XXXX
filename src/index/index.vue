@@ -39,6 +39,7 @@ import {
   type DashPlacement,
 } from '../composables/useDashboardLayout'
 import SettingsSkeleton from '../components/SettingsSkeleton.vue'
+import { FEATURES } from '../config/features'
 // AI 助手视图的左侧会话列表（轻组件，与常驻 ChatPanel 并排渲染，见约定 33）
 import ChatSessionSidebar from '../components/ChatSessionSidebar.vue'
 import type ChatPanelComponent from '../components/ChatPanel.vue'
@@ -141,6 +142,10 @@ type ViewId =
   | 'extension'
   | 'suda-web'
 const activeView = ref<ViewId>('dashboard')
+// 扩展功能隐藏时（config/features）：任何旧链路切到扩展中心都退回原视图，入口不出现
+watch(activeView, (v, prev) => {
+  if (v === 'extensions' && !FEATURES.extensions) activeView.value = prev && prev !== 'extensions' ? prev : 'dashboard'
+})
 
 // 「AI 助手」入口：切到完整视图并收起抽屉——主窗同一时刻只挂一个 ChatPanel 实例，
 // 双实例会对同一会话各挂一份流式/事件监听（约定 33）
@@ -1007,7 +1012,8 @@ function onOpenChatSettings() {
 
 // 面板积分徽标 / 「积分不足」卡片的「去兑换」：跳转设置页并定位到账号分类
 function onOpenAccountSettings() {
-  settingsSection.value = 'account'
+  // 账号功能隐藏时（config/features）不跳到不存在的账号分区，落到 AI 设置
+  settingsSection.value = FEATURES.account ? 'account' : 'ai'
   if (chatOpen.value) toggleChat()
   activeView.value = 'settings'
 }
@@ -1173,7 +1179,7 @@ provide('showToast', showToast)
         </nav>
 
         <!-- 固定到侧栏的扩展：点击即在主区打开（view 形态） -->
-        <div v-if="sidebarExtensions.length" class="sidebar-ext">
+        <div v-if="FEATURES.extensions && sidebarExtensions.length" class="sidebar-ext">
           <p class="sidebar-ext-label">扩展</p>
           <button
             v-for="ext in sidebarExtensions"
@@ -1207,6 +1213,7 @@ provide('showToast', showToast)
 
         <div class="sidebar-foot">
         <button
+          v-if="FEATURES.extensions"
           class="sidebar-status"
           :class="{ active: activeView === 'extensions' }"
           type="button"

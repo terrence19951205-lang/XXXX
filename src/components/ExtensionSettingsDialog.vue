@@ -209,7 +209,7 @@ function toggleAutostart() {
     return
   }
   store.setExtensionAutostart(ext.value.id, true)
-  showToast('已随应用启动：打开 x-hub 后自动在后台运行本扩展')
+  showToast('已随应用启动：打开 shell hub 后自动在后台运行本扩展')
 }
 
 /** 在系统文件管理器中打开扩展目录（开发调试用） */
@@ -446,7 +446,7 @@ async function confirmUninstall() {
                   <span class="toggle-knob"></span>
                 </button>
               </div>
-              <p class="es-empty es-openmode-hint">{{ keepAliveOn ? '打开 x-hub 后自动在后台运行本扩展，无需先手动打开一次（应用重启后同样自动恢复）。' : '先开启「常驻后台」后可用。' }}</p>
+              <p class="es-empty es-openmode-hint">{{ keepAliveOn ? '打开 shell hub 后自动在后台运行本扩展，无需先手动打开一次（应用重启后同样自动恢复）。' : '先开启「常驻后台」后可用。' }}</p>
             </section>
           </div>
 

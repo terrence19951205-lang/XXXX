@@ -12,7 +12,7 @@ pub fn build_system_prompt(now: chrono::DateTime<chrono::Local>, about_me: Optio
 
     // 1. 身份与边界
     s.push_str(
-        "你是 x-hub 个人效率工作台的内置助手。你可以通过工具直接操作本机的笔记、待办、提示词、\
+        "你是 shell hub 个人效率工作台的内置助手。你可以通过工具直接操作本机的笔记、待办、提示词、\
 速达资源、便签、剪贴板与倒计时。已安装的 service 扩展还会通过 extension_tool_list 声明自己的\
 数据与功能（比如某个扩展的记录查询），需要时先列出再调用，不要凭空臆造扩展能力。你没有的能力\
 （联网搜索、写代码、操作文件系统、跨会话记忆）要如实说明，不要假装做过。\n\n",
@@ -92,7 +92,7 @@ mod tests {
     fn prompt_has_four_sections_and_injected_time() {
         let now = chrono::Local.with_ymd_and_hms(2026, 8, 29, 14, 32, 0).unwrap();
         let p = build_system_prompt(now, None);
-        assert!(p.contains("x-hub 个人效率工作台"));
+        assert!(p.contains("shell hub 个人效率工作台"));
         assert!(p.contains("你没有的能力"));
         assert!(p.contains("现在是 2026-08-29 星期六 14:32"));
         assert!(p.contains("不要凭记忆编造"));

@@ -1,0 +1,183 @@
+{
+  "ok": true,
+  "ts": "2026-11-12 17:13:19 Asia/Shanghai",
+  "pid": 568,
+  "exe": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\src-tauri\\\\target\\\\debug\\\\x-hub.exe",
+  "official_untouched": {
+    "pid": 12168,
+    "path": "C:\\\\Users\\\\wcy\\\\Downloads\\\\x-hub-0.7.2-win-x64\\\\x-hub.exe"
+  },
+  "summary": {
+    "A1 收起→▾ 触发一次、grain/chroma 跑满约 150ms": true,
+    "A2 真实桌面峰值（60fps 桌面帧，品红/青，不用亮度差冒充）": true,
+    "A3 展开→收起不播 ceremony": true,
+    "A4 穿透洞可点桌面（右侧真洞；几何中心被宽待办面板盖住）": true,
+    "A5 reduced-motion 跳过": true
+  },
+  "items": {
+    "A1 收起→▾ 触发一次、grain/chroma 跑满约 150ms": {
+      "ok": true,
+      "idle_pre": {
+        "mode": "idle",
+        "geo": "full",
+        "docked": false,
+        "panel": "todos"
+      },
+      "clicked": {
+        "screen": [
+          1447,
+          48
+        ],
+        "t_s": 1.209,
+        "path": "already expanded geo=full, clicked .island-toggle directly, no lip"
+      },
+      "after": {
+        "mode": "deck"
+      },
+      "fx_rec": {
+        "events": [
+          {
+            "t": 23878,
+            "cls": "fx is-on"
+          },
+          {
+            "t": 23881,
+            "cls": "fx is-on is-ceremony"
+          },
+          {
+            "t": 24057,
+            "cls": "fx is-on"
+          }
+        ],
+        "count": 3,
+        "ceremony_ms": 176
+      },
+      "note": "MutationObserver：is-ceremony 从 23881 到 24057，176ms，接近规格 150ms（计时含 class 移除延迟）。只在关→开出现一次。"
+    },
+    "A2 真实桌面峰值（60fps 桌面帧，品红/青，不用亮度差冒充）": {
+      "ok": true,
+      "why_not_luminance": "11-11 旧 burst / 旧 fx_fast 的 shot_peak 被选成亮度最高帧（左侧待办日历展开），右侧桌面 chroma 均值差仅 0.02，肉眼看不见品红/青，当时判定为不过。本次不以 mean 亮度选峰，只在穿透区的 Word/页面上量 magenta=(R+B)/2-G、cyan=(G+B)/2-R，并和 ceremony 之后的稳态比。",
+      "pre_fix_2026_11_11": {
+        "dir": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast_20261111",
+        "doc_max_abs_edge_cya": 0.019,
+        "doc_max_abs_doc_cya": 0.022,
+        "visible": false,
+        "reason": "方向稿 0.04 色停 + cFlash 0.65 是给深色壁纸 screen 用的；transparent WebView 叠浅色桌面、mix-blend normal 后有效 alpha 约 0.026，ΔRGB < 1。"
+      },
+      "this_run": {
+        "mp4": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\expand_ceremony.mp4",
+        "frames_dir": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\frames",
+        "n_frames": 179,
+        "click_frame": 74,
+        "peak_frame": 79,
+        "steady_frame": 134,
+        "ceremony_window_frames": [
+          74,
+          86
+        ],
+        "pulse": "frame 68-78 chroma≈0；79-81 右侧边缘青 +9.334（相对稳态）；82 起回到 0。脉冲出现在点击后约 83ms，符合 150ms 动画 40% 峰值，不是 HUD 展开后常驻的亮度差。文档区亮度差仅 -2.078，不能解释这 +9.3 的青色。",
+        "metrics_vs_steady": {
+          "max_edge_cya": 9.334,
+          "max_doc_cya": 3.003,
+          "peak_doc_mean": -2.078,
+          "threshold_mean_delta": 6.0
+        },
+        "left_magenta_visual": "shot_peak 左半（浏览器侧栏/页面）肉眼可见品红色罩；放大差分 chroma_diff_peak_vs_steady_x10.png 呈左品红、右青。左侧 0-18% 相对 idle 的 mag=+9.6，但该带同时有待办面板淡入（亮度 -26），不作单独过关数字，只作视觉辅证。品红主色停在屏幕左侧 0-38%，展开后会被宽面板盖住大部分，所以定量主证据放在未被面板覆盖的右侧穿透页。",
+        "stills": {
+          "idle": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\shot_idle.png",
+          "peak": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\shot_peak.png",
+          "steady": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\shot_steady.png",
+          "contact": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\contact_idle_peak_steady.png",
+          "diff_x10": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\chroma_diff_peak_vs_steady_x10.png",
+          "doc_diff_x8": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\crop_doc_diff_x8.png",
+          "chroma_measure": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\chroma_measure.json",
+          "ref_shot_05": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.refs\\\\shell-hub-visual-direction-v1-shots\\\\05-expand-ceremony.png"
+        }
+      },
+      "source_change": "本轮允许改源码是因为 11-11 帧已经证明 ceremony class 会触发但看不见光效。helmet.css：ceremony 保持 mix-blend normal、时长 150ms、不加 veil；边缘品红/青色停 0.04→0.28，gFlash 峰值 0.04→0.16。一次编译，debug --no-bundle。"
+    },
+    "A3 展开→收起不播 ceremony": {
+      "ok": true,
+      "mode_before": "deck",
+      "mode_after": "idle",
+      "click": {
+        "screen": [
+          1447,
+          48
+        ],
+        "control": ".island-toggle",
+        "real_click": true
+      },
+      "events": [
+        {
+          "t": 209675,
+          "cls": "fx"
+        },
+        {
+          "t": 209677,
+          "cls": "fx is-on is-flashout"
+        },
+        {
+          "t": 209840,
+          "cls": "fx"
+        }
+      ],
+      "ceremony_events": [],
+      "note": "开→关只走 is-flashout（收起），没有 is-ceremony。证据 C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\a3_collapse.json。第一次点击因窗口未聚焦没落下，第二次真实点击收起成功。"
+    },
+    "A4 穿透洞可点桌面（右侧真洞；几何中心被宽待办面板盖住）": {
+      "ok": true,
+      "mode": "deck",
+      "fx_pointer_events": "none",
+      "right_hole": {
+        "xy": [
+          1996,
+          840
+        ],
+        "ignoring": true,
+        "is_hud": false,
+        "ex_transparent": true
+      },
+      "geometric_center": {
+        "xy": [
+          1280,
+          764
+        ],
+        "ignoring": false,
+        "is_hud": true,
+        "ex_transparent": false,
+        "why": "展开态宽待办日历盖住屏幕几何中心，测到 HUD 是预期，不能当穿透失败。"
+      },
+      "panel_control": {
+        "is_hud": true,
+        "why": "左侧栏/面板本身就应当吃点击"
+      },
+      "note": "改测右侧约 78%×55% 的文档区真洞：WindowFromPoint 根祖先不是 HUD，WS_EX_TRANSPARENT 开，__helmet.ignoring=true，桌面可点。.fx 始终 pointer-events:none。"
+    },
+    "A5 reduced-motion 跳过": {
+      "ok": true,
+      "retested_this_compile": false,
+      "prior": {
+        "ts": "2026-11-11 17:10:41",
+        "media_matched": true,
+        "events": 0,
+        "ok": true,
+        "pid": 1312
+      },
+      "note": "本轮编译只改了 chroma 色停与 gFlash 峰值，未改 @media (prefers-reduced-motion: reduce) 仍强制 grain/chroma animation:none 且 opacity:0，JS playExpandCeremony 仍在 reduce 时跳过。本次为保留可见光效证据未切系统减动效重跑。"
+    }
+  },
+  "spec": {
+    "trigger": "HUD 收起 → 点岛右侧 ▾（仅关→开）",
+    "duration_ms": 150,
+    "layers": "grain + chroma（品红/青），不加 veil",
+    "pointer_events": "none",
+    "reduced_motion": "skip"
+  },
+  "artifacts": {
+    "mp4": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\expand_ceremony.mp4",
+    "frames": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast\\\\frames",
+    "pre_fix_archive": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast_20261111",
+    "fx_fast_result": "C:\\\\Users\\\\wcy\\\\projects\\\\XXXX\\\\.smoke\\\\fx_fast_result.json"
+  }
+}

@@ -1,0 +1,610 @@
+/* ============================================================================
+ * shell-hub HUD 统一组件层（P1-3）
+ *
+ * 一、设计变量：字号 / 行高 / 间距 / 圆角 / 切角，全部面板共用这一套
+ * 二、HUD 控件：按钮、输入、勾选、下拉、滑条、数字、取色、日期时间、滚动条、空态、加载态
+ *     —— 不露系统原生外观（appearance:none + color-scheme:dark）
+ * 三、原版组件补丁：青底白字 → 青底深字（对比 ≥ 7）、默认蓝链接、弹层遮罩不挡 HUD
+ * 四、三栏骨架：左轨 | 列表 | 详情（.tri），列表顶部是筛选条；窄屏详情收进列表（push）
+ * 材质与密度对齐对话舱（.refs/shell-hub-visual-direction-v1.html）：只有深色。
+ * ========================================================================== */
+
+/* ── 一、设计变量 ─────────────────────────────────────────────────────────── */
+.helmet-root,
+.modal-mask {
+  --hud-fs-xs: 10.5px;
+  --hud-fs-sm: 11.5px;
+  --hud-fs-md: 12.5px;
+  --hud-fs-lg: 14px;
+  --hud-fs-xl: 16px;
+  --hud-lh: 1.5;
+  --hud-lh-tight: 1.3;
+  --hud-sp-1: 4px;
+  --hud-sp-2: 8px;
+  --hud-sp-3: 12px;
+  --hud-sp-4: 16px;
+  --hud-r-sm: 4px;
+  --hud-r: 6px;
+  --hud-r-lg: 10px;
+  --hud-cut: 6px;
+  --hud-ctl-h: 28px;
+  --hud-ctl-h-sm: 24px;
+  --hud-line: rgba(255, 255, 255, 0.1);
+  --hud-line-strong: rgba(255, 255, 255, 0.2);
+  --hud-fill: rgba(255, 255, 255, 0.04);
+  --hud-fill-hover: rgba(0, 229, 255, 0.08);
+  --hud-fill-on: rgba(0, 229, 255, 0.14);
+  --hud-ink-on-accent: #031018;
+  --hud-accent: #00e5ff;
+  --hud-t1: #eef3f8;
+  --hud-t2: #a9b8c7;
+  --hud-t3: #7d8fa3;
+  --hud-danger: #ff4d6d;
+  color-scheme: dark;
+}
+
+/* ── 二、HUD 控件 ─────────────────────────────────────────────────────────── */
+.hud-btn {
+  height: var(--hud-ctl-h);
+  padding: 0 var(--hud-sp-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: var(--hud-fs-sm);
+  font-weight: 500;
+  color: var(--hud-t1);
+  background: var(--hud-fill);
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-r);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 100ms, border-color 100ms, color 100ms;
+}
+.hud-btn:hover {
+  background: var(--hud-fill-hover);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+.hud-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.hud-btn.is-primary {
+  color: var(--hud-ink-on-accent);
+  font-weight: 600;
+  background: linear-gradient(180deg, #4fecff 0%, #00c2da 100%);
+  border-color: transparent;
+}
+.hud-btn.is-primary:hover {
+  background: linear-gradient(180deg, #7ff2ff 0%, #12d0e6 100%);
+}
+.hud-btn.is-danger:hover {
+  color: var(--hud-danger);
+  border-color: rgba(255, 77, 109, 0.4);
+  background: rgba(255, 77, 109, 0.08);
+}
+.hud-btn.is-sm {
+  height: var(--hud-ctl-h-sm);
+  padding: 0 var(--hud-sp-2);
+  font-size: var(--hud-fs-xs);
+}
+.hud-btn.is-icon {
+  width: var(--hud-ctl-h);
+  padding: 0;
+}
+.hud-input,
+.hud-textarea,
+.hud-select {
+  width: 100%;
+  min-width: 0;
+  height: var(--hud-ctl-h);
+  padding: 0 var(--hud-sp-2);
+  font: inherit;
+  font-size: var(--hud-fs-md);
+  color: var(--hud-t1);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-r);
+  outline: none;
+}
+.hud-textarea {
+  height: auto;
+  min-height: 72px;
+  padding: var(--hud-sp-2);
+  line-height: var(--hud-lh);
+  resize: vertical;
+}
+.hud-input:focus,
+.hud-textarea:focus,
+.hud-select:focus {
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.12);
+}
+.hud-input::placeholder,
+.hud-textarea::placeholder {
+  color: var(--hud-t3);
+}
+.hud-chip {
+  height: var(--hud-ctl-h-sm);
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--hud-fs-sm);
+  color: var(--hud-t2);
+  background: transparent;
+  border: 1px solid var(--hud-line);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.hud-chip:hover {
+  color: var(--hud-t1);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+.hud-chip.is-on {
+  color: var(--hud-accent);
+  background: var(--hud-fill-on);
+  border-color: rgba(0, 229, 255, 0.45);
+}
+.hud-chip .n {
+  font-family: var(--mono);
+  font-size: var(--hud-fs-xs);
+  opacity: 0.8;
+}
+.hud-empty {
+  margin: auto;
+  padding: var(--hud-sp-4);
+  text-align: center;
+  color: var(--hud-t3);
+  font-size: var(--hud-fs-sm);
+  line-height: var(--hud-lh);
+}
+.hud-empty b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--hud-t2);
+  font-size: var(--hud-fs-md);
+  font-weight: 500;
+}
+.hud-loading {
+  margin: auto;
+  color: var(--hud-t3);
+  font-size: var(--hud-fs-sm);
+}
+.hud-loading::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border: 1.5px solid rgba(0, 229, 255, 0.25);
+  border-top-color: var(--hud-accent);
+  border-radius: 50%;
+  animation: hud-spin 0.8s linear infinite;
+}
+@keyframes hud-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 原生控件统一换 HUD 外观（作用域：HUD 根与 Teleport 到 body 的弹层） */
+.helmet-root input[type='checkbox'],
+.modal-mask input[type='checkbox'] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  display: inline-grid;
+  place-content: center;
+  vertical-align: -2px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.helmet-root input[type='checkbox']::before,
+.modal-mask input[type='checkbox']::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  transform: scale(0);
+  background: var(--hud-ink-on-accent);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.helmet-root input[type='checkbox']:checked,
+.modal-mask input[type='checkbox']:checked {
+  background: var(--hud-accent);
+  border-color: var(--hud-accent);
+}
+.helmet-root input[type='checkbox']:checked::before,
+.modal-mask input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+.helmet-root input[type='range'],
+.modal-mask input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.helmet-root input[type='range']::-webkit-slider-runnable-track,
+.modal-mask input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.55), rgba(255, 255, 255, 0.14));
+  border-radius: 2px;
+}
+.helmet-root input[type='range']::-webkit-slider-thumb,
+.modal-mask input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  background: var(--hud-accent);
+  border: 2px solid #061018;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.5);
+}
+.helmet-root input[type='number'],
+.modal-mask input[type='number'] {
+  -webkit-appearance: none;
+  appearance: textfield;
+}
+.helmet-root input[type='number']::-webkit-inner-spin-button,
+.helmet-root input[type='number']::-webkit-outer-spin-button,
+.modal-mask input[type='number']::-webkit-inner-spin-button,
+.modal-mask input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.helmet-root input[type='color'],
+.modal-mask input[type='color'] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hud-line-strong);
+  border-radius: var(--hud-r-sm);
+  cursor: pointer;
+}
+.helmet-root input[type='color']::-webkit-color-swatch-wrapper,
+.modal-mask input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.helmet-root input[type='color']::-webkit-color-swatch,
+.modal-mask input[type='color']::-webkit-color-swatch {
+  border: 0;
+  border-radius: 2px;
+}
+.helmet-root input[type='date'],
+.helmet-root input[type='time'],
+.helmet-root input[type='datetime-local'],
+.modal-mask input[type='date'],
+.modal-mask input[type='time'],
+.modal-mask input[type='datetime-local'] {
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: dark;
+  font-family: var(--mono, monospace);
+  color: var(--hud-t1);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-r);
+}
+.helmet-root input::-webkit-calendar-picker-indicator,
+.modal-mask input::-webkit-calendar-picker-indicator {
+  filter: invert(0.75) sepia(1) hue-rotate(150deg) saturate(3);
+  opacity: 0.7;
+  cursor: pointer;
+}
+.helmet-root select,
+.modal-mask select {
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: dark;
+  padding-right: 24px !important;
+  color: var(--hud-t1);
+  background-color: rgba(0, 0, 0, 0.28);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300e5ff' fill-opacity='.7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-r);
+  cursor: pointer;
+}
+.helmet-root option,
+.modal-mask option {
+  color: var(--hud-t1);
+  background: #0b0f16;
+}
+.helmet-root ::-webkit-scrollbar,
+.modal-mask ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.helmet-root ::-webkit-scrollbar-thumb,
+.modal-mask ::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.22);
+  border-radius: 3px;
+}
+.helmet-root ::-webkit-scrollbar-thumb:hover,
+.modal-mask ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.4);
+}
+/* 列内滚动、不横滚：任何面板根都不许出横向滚动条 */
+.helmet-root .panel-col,
+.helmet-root .panel-col .work {
+  overflow-x: hidden;
+}
+
+/* ── 三、原版组件补丁 ─────────────────────────────────────────────────────── */
+/* 青色强调底配白字对比只有 1.5：统一换深字（与 .btn.primary 同口径） */
+.xhub-host .tv-primary,
+.xhub-host .tv-seg button.on,
+.xhub-host .cnt,
+.xhub-host .editor-empty-btn,
+.xhub-host .ai-save-btn,
+.modal-mask .te-chip.on,
+.modal-mask .te-btn--primary {
+  color: var(--hud-ink-on-accent) !important;
+}
+/* 默认蓝链接（关于页「MIT License」等） */
+.xhub-host a,
+.modal-mask a {
+  color: var(--hud-accent);
+}
+.xhub-host a:hover {
+  color: #7ff2ff;
+}
+/* 弹层遮罩只是定位容器：不接点击，岛 / 左轨 / ▾ 在弹层开着时照样能点；
+   卡片本身接点击（穿透命中表也只认 .modal-mask > *）。Esc 关弹层见 HelmetShell onKeydown。 */
+.modal-mask {
+  pointer-events: none;
+}
+.modal-mask > * {
+  pointer-events: auto;
+}
+
+/* ── 四、三栏骨架 ─────────────────────────────────────────────────────────── */
+.tri {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  font-size: var(--hud-fs-md);
+  line-height: var(--hud-lh);
+  color: var(--hud-t1);
+}
+.tri-list {
+  flex: 0 0 var(--tri-list-w, 300px);
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--hud-line);
+}
+.tri-detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tri-hd {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--hud-sp-2);
+  padding: 10px 12px 8px;
+}
+.tri-hd .tri-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tri-hd .tri-title .en {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: rgba(0, 229, 255, 0.5);
+  text-transform: uppercase;
+}
+/* 列表顶部筛选条（功能内分组 → 筛选，不另开第四栏） */
+.tri-filter {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 12px 8px;
+  border-bottom: 1px solid var(--hud-line);
+}
+.tri-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px;
+}
+.tri-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 8px;
+  text-align: left;
+  color: var(--hud-t1);
+  background: transparent;
+  border: 0;
+  border-radius: var(--hud-r);
+  cursor: pointer;
+}
+.tri-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+.tri-row.is-on {
+  background: var(--hud-fill-on);
+  box-shadow: inset 2px 0 0 var(--hud-accent);
+}
+.tri-row .main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tri-row .t {
+  display: block;
+  font-size: var(--hud-fs-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tri-row .s {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--hud-fs-xs);
+  color: var(--hud-t3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tri-row .thumb {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: var(--hud-r-sm);
+  box-shadow: inset 0 0 0 1px var(--hud-line);
+  background: rgba(0, 0, 0, 0.3);
+}
+.tri-group {
+  padding: 8px 8px 4px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: rgba(0, 229, 255, 0.6);
+  text-transform: uppercase;
+}
+.tri-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-sp-3);
+}
+.tri-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.tri-field > label,
+.tri-label {
+  font-size: var(--hud-fs-xs);
+  color: var(--hud-t3);
+  letter-spacing: 0.04em;
+}
+.tri-acts {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--hud-line);
+}
+.tri-acts .sp {
+  flex: 1 1 auto;
+}
+.tri-back {
+  display: none;
+}
+/* 窄屏 / 与对话舱并存：详情收进列表，点条目 push 出详情（带返回） */
+.tri.is-narrow .tri-list {
+  flex: 1 1 auto;
+  border-right: 0;
+}
+.tri.is-narrow .tri-detail {
+  display: none;
+}
+.tri.is-narrow.has-detail .tri-list {
+  display: none;
+}
+.tri.is-narrow.has-detail .tri-detail {
+  display: flex;
+}
+.tri.is-narrow .tri-back {
+  display: inline-flex;
+}
+.tri-preview-text {
+  margin: 0;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: var(--hud-fs-sm);
+  line-height: var(--hud-lh);
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--hud-t1);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--hud-line);
+  border-radius: var(--hud-r);
+}
+.tri-preview-img {
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  align-self: flex-start;
+  border-radius: var(--hud-r);
+  box-shadow: inset 0 0 0 1px var(--hud-line);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ── 五、面板宽度上限 / 岛上倒计时 ───────────────────────────────────────── */
+/* 宽度由 HelmetShell.panelMaxW 算：≤960，并给中央桌面留 ≥220px 可点（与对话舱同开时再让出舱宽） */
+.panel-col.is-tri {
+  max-width: 960px;
+  transition: width var(--t-expand, 240ms) var(--ease, ease);
+}
+.panel-col.is-tri > .work {
+  min-width: 0;
+}
+.island-cd {
+  flex: 0 1 auto;
+  max-width: 112px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--amber, #e8b84a);
+  opacity: 0.9;
+}
+
+/* ── 六、录音按钮（笔记 / 对话舱） ─────────────────────────────────────────── */
+.mic-btn.is-rec {
+  color: #fff !important;
+  background: rgba(255, 46, 151, 0.22) !important;
+  border-color: rgba(255, 46, 151, 0.6) !important;
+  box-shadow: 0 0 0 0 rgba(255, 46, 151, 0.5);
+  animation: hud-rec 1.2s ease-out infinite;
+}
+.mic-btn.is-busy {
+  opacity: 0.75;
+}
+@keyframes hud-rec {
+  0% { box-shadow: 0 0 0 0 rgba(255, 46, 151, 0.45); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 46, 151, 0); }
+}
+.composer .mic-btn {
+  flex: 0 0 auto;
+  min-width: 34px;
+}

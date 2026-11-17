@@ -288,6 +288,10 @@ pub fn hide_overlay(app: &AppHandle) {
         let _ = win.hide();
     }
     let _ = app.emit_to(RECORDER_OVERLAY_LABEL, "recorder-overlay-hidden", ());
+    // 全局广播：HUD（helmet 窗）在唤起选区层前会把自己藏起来（否则常驻置顶的岛
+    // 会被印进用户截图），它靠这条事件判断"选区层收工了，可以显回来"。
+    // 用 app.emit 而不是 emit_to：壳窗 label 是 helmet，这里不想硬编码它。
+    let _ = app.emit("recorder-overlay-hidden", ());
     crate::webview_mem::on_hidden(app, RECORDER_OVERLAY_LABEL);
 }
 

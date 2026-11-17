@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "x-hub",
+  "productName": "shell-hub",
   "mainBinaryName": "x-hub",
   "version": "0.9.7",
   "identifier": "x-hub",
@@ -13,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "x-hub",
+        "title": "shell-hub",
         "width": 1400,
         "height": 900,
         "minWidth": 1000,
@@ -41,7 +41,9 @@
         "base-uri": "'self'",
         "form-action": "'none'"
       },
-      "dangerousDisableAssetCspModification": ["style-src"],
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ],
       "assetProtocol": {
         "enable": true,
         "scope": []
@@ -52,11 +54,13 @@
     "active": false,
     "targets": [],
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/shell-hub-32.png",
+      "icons/shell-hub-48.png",
+      "icons/shell-hub-128.png",
+      "icons/shell-hub-256.png",
+      "icons/shell-hub-1024.png",
+      "icons/shell-hub-icon.icns",
+      "icons/shell-hub-icon.ico"
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug"

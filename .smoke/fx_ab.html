@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head><meta charset="utf-8"><style>
+:root{--cyan:#00e5ff;--magenta:#ff2e97;--ease:cubic-bezier(.22,1,.36,1);--t-flash:150ms}
+html,body{margin:0;background:#02040a;font-family:monospace}
+.row{display:flex;gap:0}
+.half{position:relative;width:420px;height:300px;overflow:hidden;background:
+  radial-gradient(circle at 30% 30%,#123 0%,#02040a 60%),
+  repeating-linear-gradient(45deg,#0a1420 0 6px,#050b12 6px 12px)}
+.fx{position:absolute;inset:0;pointer-events:none;opacity:1;visibility:visible}
+.tag{position:absolute;left:6px;top:4px;font-size:10px;color:#7ff;z-index:9}
+
+/* ============ A: 源码原样（reality-raid-hud-v08 .fx 家族） ============ */
+#A .scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,.01) 3px,rgba(0,229,255,.01) 4px);mix-blend-mode:screen;opacity:.4}
+#A .vig{position:absolute;inset:0;box-shadow:inset 0 0 110px rgba(0,0,0,.28)}
+#A .grain,#A .chroma{position:absolute;inset:0;opacity:0}
+#A .grain{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");background-size:160px;mix-blend-mode:overlay}
+#A .chroma{background:linear-gradient(90deg,rgba(255,46,151,.04),transparent 30%,transparent 70%,rgba(0,229,255,.04));mix-blend-mode:screen}
+#A.is-ceremony .grain{animation:gFlash var(--t-flash) ease both}
+#A.is-ceremony .chroma{animation:cFlash var(--t-flash) ease both}
+
+/* ============ B: helmet.css 移植块（同值） ============ */
+#B .vig{position:absolute;inset:0;box-shadow:inset 0 0 110px rgba(0,0,0,0.28)}
+#B .scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.01) 3px,rgba(0,229,255,0.01) 4px);mix-blend-mode:screen;opacity:0.4}
+#B .grain,#B .chroma{position:absolute;inset:0;opacity:0}
+#B .grain{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");background-size:160px;mix-blend-mode:overlay}
+#B .chroma{background:linear-gradient(90deg,rgba(255,46,151,0.04),transparent 30%,transparent 70%,rgba(0,229,255,0.04));mix-blend-mode:screen}
+#B.is-ceremony .grain{animation:gFlash var(--t-flash) ease both}
+#B.is-ceremony .chroma{animation:cFlash var(--t-flash) ease both}
+
+@keyframes gFlash{0%{opacity:0}40%{opacity:.04}100%{opacity:0}}
+@keyframes cFlash{0%{opacity:0}40%{opacity:.65}100%{opacity:0}}
+/* 峰值帧：动画走完 40%（60ms）后暂停，两边同相位 */
+.pin .grain,.pin .chroma{animation-delay:-60ms!important;animation-play-state:paused!important}
+</style></head>
+<body>
+<div class="row">
+  <div class="half" id="A"><span class="tag">A · 源码</span>
+    <div class="fx"><div class="scan"></div><div class="vig"></div><div class="grain"></div><div class="chroma"></div></div></div>
+  <div class="half" id="B"><span class="tag">B · 移植</span>
+    <div class="fx"><div class="vig"></div><div class="scan"></div><div class="grain"></div><div class="chroma"></div></div></div>
+</div>
+<script>
+  // 峰值定格
+  for (const id of ['A','B']) { const el=document.getElementById(id); el.classList.add('is-ceremony','pin'); }
+</script>
+</body></html>

@@ -1,0 +1,20 @@
+【项目经理派发——侧栏透明度照抄定稿；小修】
+
+对照已定稿（必须照抄，勿自创）：
+- .refs\shell-hub-notes-3col-OPACITY-PATCH.md
+- .refs\shell-hub-notes-3col-explore.html（已改）
+- .refs\shell-hub-notes-3col-shots\04-opacity-aligned-list.png
+- .refs\shell-hub-notes-3col-shots\05-opacity-aligned-editor.png
+
+CSS 目标（写进 helmet 侧栏/笔记面板，映射到现有 .helmet-rail / notes panel 类名）：
+--glass-chat: linear-gradient(180deg, rgba(28,36,48,0.96) 0%, rgba(8,12,20,0.97) 100%);
+.rail, .col-panel { background: var(--glass-chat); border: 1px solid rgba(0,229,255,0.22); border-radius: 12px; }
+旧过透值 rgba(5,9,16,0.58) 一律换掉。保持 v4 青边圆角细边。
+
+不要改交互、入口清单、禁悬浮球/藏主窗、shell-hub 名图标、开屏鲨鱼、岛交互。
+下一块功能大改等产品裁切用户点头后再做。
+
+流程：改前截图 → 改 CSS → debug smoke 重建（只杀 debug x-hub PID，禁 taskkill /IM）→ rcedit → launch_smoke 保持可见 → 改后截图。
+截图：.smoke\v8_before_opacity.png / v8_after_opacity.png（或对照 04/05）。
+验收 .smoke/v8_result.json：O1 用上 --glass-chat/同档；O2 v4 边仍在无透桌面；O3 无悬浮球；O4 PID/标题/前后截图路径/改动文件/exe。
+禁止另开第二路抢编译。不要写产品已交付。

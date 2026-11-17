@@ -582,7 +582,8 @@ function measureBeside() {
   besideLeft.value = Math.max(0, Math.round(right + 16))
 }
 
-/** 已开功能面板时，对话舱与该面板可见外框顶对齐、底对齐、同高；无面板则回到默认高度。岛位置不变。 */
+/** 已开功能面板时，可见对话卡片（.island-chat，从顶栏到输入栏）与该面板可见外框顶对齐、底对齐、同高。
+ *  对齐的是这张卡片本身，不是包含岛 / 快捷入口 / 空隙的包裹层。无面板则回到默认高度。岛位置不变。 */
 const cabinAlignOn = ref(false)
 const cabinAlignVars = ref<Record<string, string>>({})
 const wrapLayoutStyle = computed(() => {
@@ -598,28 +599,25 @@ function measureCabinAlign() {
   }
   const panelEl = document.querySelector('.hud.is-open .panel-col') as HTMLElement | null
   const island = islandEl.value
-  const face = island?.querySelector('.island-face') as HTMLElement | null
-  if (!panelEl || !island || !face) {
+  if (!panelEl || !island) {
     cabinAlignOn.value = false
     cabinAlignVars.value = {}
     return
   }
   const pr = panelEl.getBoundingClientRect()
   const ir = island.getBoundingClientRect()
-  const fr = face.getBoundingClientRect()
   if (pr.height < 40) {
     cabinAlignOn.value = false
     cabinAlignVars.value = {}
     return
   }
-  const islandH = Math.max(1, Math.round(pr.bottom - ir.top))
-  const cabinH = Math.max(1, Math.round(pr.height))
-  const gap = Math.max(0, Math.round(pr.top - fr.bottom))
+  // 相对 .island（position:relative）定位可见卡片，使其顶/底与面板可见外框重合。
+  const top = Math.round(pr.top - ir.top)
+  const h = Math.max(1, Math.round(pr.height))
   cabinAlignOn.value = true
   cabinAlignVars.value = {
-    '--cabin-align-island-h': `${islandH}px`,
-    '--cabin-align-h': `${cabinH}px`,
-    '--cabin-align-gap': `${gap}px`,
+    '--cabin-align-top': `${top}px`,
+    '--cabin-align-h': `${h}px`,
   }
 }
 

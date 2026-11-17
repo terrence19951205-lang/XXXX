@@ -447,7 +447,7 @@ defineExpose({ openNote, createNote })
 </script>
 
 <template>
-  <section class="view view-notes sn-root" tabindex="-1" aria-label="速记">
+  <section class="view view-notes sn-root" tabindex="-1" aria-label="笔记">
     <NoteFolderTree
       v-model:query="query"
       v-model:trash-mode="trashMode"

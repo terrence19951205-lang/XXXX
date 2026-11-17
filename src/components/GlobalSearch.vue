@@ -174,7 +174,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
             <!-- 笔记 -->
             <template v-if="results.notes.length > 0">
-              <p class="result-group-title" role="presentation">速记</p>
+              <p class="result-group-title" role="presentation">笔记</p>
               <div
                 v-for="(n, idx) in results.notes"
                 :key="'n' + n.id"

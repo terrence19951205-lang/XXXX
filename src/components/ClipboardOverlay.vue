@@ -223,12 +223,12 @@ async function onCopy(item: ClipboardItem) {
 async function onSaveNote(item: ClipboardItem) {
   if (!isTauri()) return
   try {
-    const title = firstLine(item.content) || '无标题速记'
+    const title = firstLine(item.content) || '无标题笔记'
     // 直接调命令（原 store.addNote + saveNote 两个包装）：createNoteIn 的 content 参数
     // 已是完整正文，无需再 updateNote 补一次；folderId=null 落树根，与 addNote 默认一致
     await tauriApi.createNoteIn(title, item.content, null, '')
     await emit('notes-changed')
-    toast('已存为速记')
+    toast('已存为笔记')
   } catch (e) {
     toast(`保存失败：${String(e)}`)
   }
@@ -512,7 +512,7 @@ function fileName(item: ClipboardItem): string {
               <button class="cb-a" title="复制" @click.stop="onCopy(item)">
                 <Copy :size="14" :stroke-width="2" />
               </button>
-              <button v-if="item.kind === 'text'" class="cb-a" title="存为速记" @click.stop="onSaveNote(item)">
+              <button v-if="item.kind === 'text'" class="cb-a" title="存为笔记" @click.stop="onSaveNote(item)">
                 <FileText :size="14" :stroke-width="2" />
               </button>
               <button v-if="item.kind === 'text'" class="cb-a" title="加入提示词库" @click.stop="onSavePrompt(item)">
@@ -566,7 +566,7 @@ function fileName(item: ClipboardItem): string {
             <Download :size="13" :stroke-width="2" /> 保存图片
           </div>
           <div v-if="ctx.item.kind === 'text'" class="cb-ctx-item" @click="onCtxAction(() => onSaveNote(ctx!.item))">
-            <FileText :size="13" :stroke-width="2" /> 存为速记
+            <FileText :size="13" :stroke-width="2" /> 存为笔记
           </div>
           <div v-if="ctx.item.kind === 'text'" class="cb-ctx-item" @click="onCtxAction(() => onSavePrompt(ctx!.item))">
             <Boxes :size="13" :stroke-width="2" /> 加入提示词库

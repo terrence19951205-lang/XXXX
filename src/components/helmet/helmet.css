@@ -231,16 +231,32 @@ select:focus {
     0 0 40px rgba(0, 229, 255, 0.06);
 }
 
-/* 已开功能面板时，舱体与面板可见外框同顶、同底、同高；岛位置不变，舱宽仍走原规则。 */
+/* 已开功能面板时：可见对话卡片（.island-chat）与面板可见外框同顶、同底、同高。
+   岛（.island-face）保持 top:12 的位置与自身高度，不把包裹层拉成对齐盒。舱宽仍走原规则。 */
 .island.is-chat.is-align-panel {
-  height: var(--cabin-align-island-h);
-  min-height: var(--cabin-align-island-h);
-  max-height: none;
+  height: auto;
+  min-height: 40px;
+  overflow: visible;
 }
 .island.is-chat.is-align-panel .island-chat {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: var(--cabin-align-top);
   height: var(--cabin-align-h);
   min-height: var(--cabin-align-h);
-  margin-top: var(--cabin-align-gap, 0px);
+  max-height: none;
+  margin-top: 0;
+  box-sizing: border-box;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #1c2430 0%, #0b1018 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(0, 229, 255, 0.28),
+    0 20px 60px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(0, 229, 255, 0.06);
+  pointer-events: auto;
+  z-index: 1;
 }
 
 .island-face {

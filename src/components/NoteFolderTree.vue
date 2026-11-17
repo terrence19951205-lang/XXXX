@@ -925,7 +925,7 @@ export default { name: 'NoteFolderTree' }
       @click="emit('select-folder', null)"
       @contextmenu="openBodyMenu"
     >
-      <h2 class="nft-title">速记</h2>
+      <h2 class="nft-title">笔记</h2>
       <div class="nft-header-actions">
         <template v-if="trashMode">
           <button

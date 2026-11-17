@@ -506,7 +506,7 @@ defineExpose({ load, loadPrompts })
 </script>
 
 <template>
-  <div class="island-chat" @click.stop>
+  <div class="island-chat hit" @click.stop>
     <div class="chat-hd">
       <div class="chat-top">
       <select

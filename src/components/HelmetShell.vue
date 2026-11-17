@@ -61,6 +61,8 @@ const FULL_MIN_CW = 640
 const FULL_MIN_CH = 400
 /** 移开鼠标后多久再贴顶 */
 const HIDE_MS = 450
+/** 指针离开「岛 + 对话舱」且舱内无键盘焦点后，满此时长只收对话舱，不收 HUD 壳/面板 */
+const CHAT_IDLE_MS = 5000
 
 /** 窗口几何：full=满屏工作区；band=岛完整显示；lip=贴顶只剩唇边+热区 */
 type Geo = 'full' | 'band' | 'lip'
@@ -534,7 +536,55 @@ function onIslandClick(e: MouseEvent) {
 function closeChat() {
   if (!chatOn.value) return
   chatOn.value = false
+  chatIdleSince = 0
   void syncAfterShape()
+}
+
+/** 键盘焦点是否还在岛或对话舱内（输入框 / 舱内控件）。在则不因指针移开而自动收舱。 */
+function cabinKeyboardFocus(): boolean {
+  // 切到桌面后 WebView 仍保留 activeElement，但它已不再持有键盘焦点。
+  if (!document.hasFocus()) return false
+  const el = document.activeElement as HTMLElement | null
+  if (!el || el === document.body || el === document.documentElement) return false
+  return !!el.closest('.island-chat, .island')
+}
+
+/** 指针是否落在岛（含紧凑脸）或可见对话卡片的外框内。两块合起来才是计时区。 */
+function cursorOverCabinBlock(lx: number, ly: number): boolean {
+  for (const sel of ['.island', '.island-chat']) {
+    const el = document.querySelector(sel) as HTMLElement | null
+    if (!el) continue
+    const cs = getComputedStyle(el)
+    if (cs.visibility === 'hidden' || cs.display === 'none') continue
+    const r = el.getBoundingClientRect()
+    if (r.width <= 0 || r.height <= 0) continue
+    if (lx >= r.left && lx <= r.right && ly >= r.top && ly <= r.bottom) return true
+  }
+  return false
+}
+
+let chatIdleSince = 0
+
+/** 离开岛+舱满 5s 且舱内无焦点 → 只收对话。回到岛/舱或重新获得焦点则清零。 */
+function tickChatIdle(pos: [number, number] | null) {
+  if (!chatOpen.value) {
+    chatIdleSince = 0
+    return
+  }
+  if (cabinKeyboardFocus()) {
+    chatIdleSince = 0
+    return
+  }
+  if (pos && cursorOverCabinBlock(pos[0], pos[1])) {
+    chatIdleSince = 0
+    return
+  }
+  const now = performance.now()
+  if (!chatIdleSince) chatIdleSince = now
+  if (now - chatIdleSince >= CHAT_IDLE_MS) {
+    chatIdleSince = 0
+    closeChat()
+  }
 }
 
 /** 左轨「聊天」：展开或聚焦对话舱，不用对话替换当前面板 */
@@ -840,9 +890,11 @@ async function pollCursor() {
     const pos = await invoke<[number, number] | null>('helmet_cursor_local')
     if (!pos) {
       await setIgnore(true)
+      tickChatIdle(null)
       return
     }
     await setIgnore(!cursorOverHit(pos[0], pos[1]))
+    tickChatIdle(pos)
   } catch {
     /* 命令不可用时静默 */
   }

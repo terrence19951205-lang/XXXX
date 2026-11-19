@@ -4,7 +4,7 @@
  *
  * 形态（PRD v0.4.1）：
  *  - idle：只留顶部小岛（shell-hub + 日衰% + ▾），中央桌面可点。
- *  - deck：左轨（功能短名常显）+ 面板从轨右缘铺开 + 底栏搜索；中央洞可点桌面。
+ *  - deck：左轨（功能短名常显）+ 面板从轨右缘铺开；中央洞可点桌面。
  *  - chat：点小岛（或左轨「聊天」），完整对话舱挂在岛下。
  *  对话舱与 HUD 壳（左轨/面板）相互独立：可同时开；收起对话只收舱，▾ 仍只管壳。
  *
@@ -596,19 +596,6 @@ function onRailChat() {
   void nextTick(() => document.querySelector<HTMLTextAreaElement>('.composer textarea')?.focus())
 }
 
-/** 舱内功能直达：打开对应面板，对话舱保持开着 */
-function openFromCabin(key: string) {
-  if (key === 'search') {
-    focusSearch()
-    return
-  }
-  if (key === 'chat') {
-    onRailChat()
-    return
-  }
-  openPanel(key as PanelKey)
-}
-
 /** 对话 + 面板同时开时，把岛/舱挪到左轨面板右侧，避免挡住列表/输入/收起控件 */
 const besideDock = computed(() => chatOpen.value && deckOpen.value)
 const besideLeft = ref(0)
@@ -1061,11 +1048,6 @@ const q = ref('')
 /** 笔记面板当前视图：笔记 / 便签（便签并入笔记的列表筛选） */
 const notesView = ref<'notes' | 'sticky'>('notes')
 
-/** 底栏搜索框与搜索三栏共用一个关键词：底栏一输入就把搜索面板打开 */
-watch(q, (v) => {
-  if (v.trim() && panel.value !== 'search') openPanel('search')
-})
-
 function clearSearch() {
   q.value = ''
 }
@@ -1238,8 +1220,6 @@ function closeTopModal() {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  const tag = (e.target as HTMLElement | null)?.tagName
-  const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
   if (e.key === 'Tab') keyboardNav.value = true
   if (bootActive.value && (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ')) {
     e.preventDefault()
@@ -1290,10 +1270,6 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     void focusSearch()
     return
-  }
-  if (!inField && e.key === '/' && mode.value === 'deck') {
-    e.preventDefault()
-    document.querySelector<HTMLInputElement>('.quick-search input')?.focus()
   }
 }
 
@@ -1496,12 +1472,6 @@ const asciiPanel = computed(() => {
   return rows.join('\n')
 })
 
-/** 底栏：横向量尺 */
-const asciiEave = computed(() => {
-  const line = '─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · '
-  return [line, line].join('\n')
-})
-
 defineExpose({ openPanel, setMode })
 </script>
 
@@ -1624,13 +1594,12 @@ defineExpose({ openPanel, setMode })
           v-if="chatOpen"
           @close="closeChat"
           @toast="showToast"
-          @open-panel="openFromCabin"
         />
       </div>
 
     </div>
 
-    <!-- ******************************************** 躯干：左轨 + 面板 + 底栏（无右栏） -->
+    <!-- ******************************************** 躯干：左轨 + 面板（无右栏、无底栏） -->
     <div class="hud" :class="{ 'is-open': deckOpen }" :aria-hidden="!deckOpen">
       <div class="dock">
         <nav class="rail panel hit" aria-label="shell-hub 模块">
@@ -1811,24 +1780,6 @@ defineExpose({ openPanel, setMode })
 
         <!-- 第三栏：笔记编辑（点中栏条目才出现，可单独收起） -->
       </div>
-
-      <!-- 底栏：一处搜索待办与笔记（+ 速达） -->
-      <footer class="eave-bot panel cut hit">
-        <pre class="ascii-bg is-eave" aria-hidden="true">{{ asciiEave }}</pre>
-        <div class="quick-search">
-          <span class="tag">Search</span>
-          <input
-            v-model="q"
-            class="cut-sm"
-            placeholder="搜待办 / 笔记，回车打开搜索面板"
-            spellcheck="false"
-            @keydown.enter.prevent="focusSearch"
-          />
-        </div>
-        <span class="ctx-hint">
-          待办 · 笔记
-        </span>
-      </footer>
 
     </div>
 

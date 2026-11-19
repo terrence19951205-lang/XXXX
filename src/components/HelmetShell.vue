@@ -4,7 +4,7 @@
  *
  * 形态（PRD v0.4.1）：
  *  - idle：只留顶部小岛（shell-hub + 日衰% + ▾），中央桌面可点。
- *  - deck：左轨（功能短名常显）+ 面板从轨右缘铺开 + 底栏搜索；中央洞可点桌面。
+ *  - deck：左轨（功能短名常显）+ 面板从轨右缘铺开；中央洞可点桌面。
  *  - chat：点小岛（或左轨「聊天」），完整对话舱挂在岛下。
  *  对话舱与 HUD 壳（左轨/面板）相互独立：可同时开；收起对话只收舱，▾ 仍只管壳。
  *
@@ -62,7 +62,7 @@ const FULL_MIN_CH = 400
 /** 移开鼠标后多久再贴顶 */
 const HIDE_MS = 450
 /** 指针离开「岛 + 对话舱」且舱内无键盘焦点后，满此时长只收对话舱，不收 HUD 壳/面板 */
-const CHAT_IDLE_MS = 5000
+const CHAT_IDLE_MS = 1000
 
 /** 窗口几何：full=满屏工作区；band=岛完整显示；lip=贴顶只剩唇边+热区 */
 type Geo = 'full' | 'band' | 'lip'
@@ -549,23 +549,53 @@ function cabinKeyboardFocus(): boolean {
   return !!el.closest('.island-chat, .island')
 }
 
-/** 指针是否落在岛（含紧凑脸）或可见对话卡片的外框内。两块合起来才是计时区。 */
-function cursorOverCabinBlock(lx: number, ly: number): boolean {
-  for (const sel of ['.island', '.island-chat']) {
-    const el = document.querySelector(sel) as HTMLElement | null
-    if (!el) continue
-    const cs = getComputedStyle(el)
-    if (cs.visibility === 'hidden' || cs.display === 'none') continue
-    const r = el.getBoundingClientRect()
-    if (r.width <= 0 || r.height <= 0) continue
-    if (lx >= r.left && lx <= r.right && ly >= r.top && ly <= r.bottom) return true
+function visibleRect(sel: string): DOMRect | null {
+  const el = document.querySelector(sel) as HTMLElement | null
+  if (!el) return null
+  const cs = getComputedStyle(el)
+  if (cs.visibility === 'hidden' || cs.display === 'none') return null
+  const r = el.getBoundingClientRect()
+  if (r.width <= 0 || r.height <= 0) return null
+  return r
+}
+
+function pointInRect(lx: number, ly: number, r: DOMRect): boolean {
+  return lx >= r.left && lx <= r.right && ly >= r.top && ly <= r.bottom
+}
+
+/** 两框之间的最短过道：垂直缝（x 投影重叠）或水平缝（y 投影重叠）。 */
+function pointInBridge(lx: number, ly: number, a: DOMRect, b: DOMRect): boolean {
+  const xL = Math.max(a.left, b.left)
+  const xR = Math.min(a.right, b.right)
+  if (xR >= xL) {
+    const y1 = Math.min(a.bottom, b.bottom)
+    const y2 = Math.max(a.top, b.top)
+    if (lx >= xL && lx <= xR && ly >= y1 && ly <= y2) return true
+  }
+  const yT = Math.max(a.top, b.top)
+  const yB = Math.min(a.bottom, b.bottom)
+  if (yB >= yT) {
+    const x1 = Math.min(a.right, b.right)
+    const x2 = Math.max(a.left, b.left)
+    if (ly >= yT && ly <= yB && lx >= x1 && lx <= x2) return true
   }
   return false
 }
 
+/** 计时区：岛 + 对话舱 + 两者之间的空隙 + 已打开的会话下拉（菜单可能略超出舱外框）。 */
+function cursorOverCabinBlock(lx: number, ly: number): boolean {
+  const island = visibleRect('.island')
+  const cabin = visibleRect('.island-chat')
+  if (island && pointInRect(lx, ly, island)) return true
+  if (cabin && pointInRect(lx, ly, cabin)) return true
+  if (island && cabin && pointInBridge(lx, ly, island, cabin)) return true
+  const pop = visibleRect('[data-sess-pop]')
+  return !!(pop && pointInRect(lx, ly, pop))
+}
+
 let chatIdleSince = 0
 
-/** 离开岛+舱满 5s 且舱内无焦点 → 只收对话。回到岛/舱或重新获得焦点则清零。 */
+/** 离开岛+舱满 1s 且舱内无焦点 → 只收对话。回到岛/舱或重新获得焦点则清零。 */
 function tickChatIdle(pos: [number, number] | null) {
   if (!chatOpen.value) {
     chatIdleSince = 0
@@ -594,19 +624,6 @@ function onRailChat() {
     return
   }
   void nextTick(() => document.querySelector<HTMLTextAreaElement>('.composer textarea')?.focus())
-}
-
-/** 舱内功能直达：打开对应面板，对话舱保持开着 */
-function openFromCabin(key: string) {
-  if (key === 'search') {
-    focusSearch()
-    return
-  }
-  if (key === 'chat') {
-    onRailChat()
-    return
-  }
-  openPanel(key as PanelKey)
 }
 
 /** 对话 + 面板同时开时，把岛/舱挪到左轨面板右侧，避免挡住列表/输入/收起控件 */
@@ -881,11 +898,62 @@ function cursorOverHit(lx: number, ly: number): boolean {
 let pollTimer: number | null = null
 let unlisteners: UnlistenFn[] = []
 
+/** 把岛脸矩形告诉后端，用来移动仅岛磨砂 HWND。位置不变则后端自己跳过。 */
+let lastBlurKey = ''
+function reportIslandBlur() {
+  if (!isTauri()) return
+  const face = document.querySelector('.island-face') as HTMLElement | null
+  const island = document.querySelector('.island') as HTMLElement | null
+  if (!face || !island) {
+    if (lastBlurKey !== 'hide') {
+      lastBlurKey = 'hide'
+      void invoke('helmet_set_island_blur', { rect: null }).catch(() => undefined)
+    }
+    return
+  }
+  const ics = getComputedStyle(island)
+  if (ics.visibility === 'hidden' || ics.display === 'none') {
+    if (lastBlurKey !== 'hide') {
+      lastBlurKey = 'hide'
+      void invoke('helmet_set_island_blur', { rect: null }).catch(() => undefined)
+    }
+    return
+  }
+  const r = face.getBoundingClientRect()
+  if (r.width < 8 || r.height < 2) {
+    if (lastBlurKey !== 'hide') {
+      lastBlurKey = 'hide'
+      void invoke('helmet_set_island_blur', { rect: null }).catch(() => undefined)
+    }
+    return
+  }
+  const rad = parseFloat(ics.borderTopLeftRadius) || parseFloat(ics.borderRadius) || 22
+  const ir = island.getBoundingClientRect()
+  // 岛脸几乎等于整颗岛（收起/无舱，或与面板对齐时岛缩回脸的高度）→ 药丸圆角；
+  // 舱挂在岛内往下长时，脸只是顶条，下沿保持直角以免切到舱。
+  const pill = Math.abs(ir.height - r.height) < 8
+  const payload = {
+    x: r.left,
+    y: r.top,
+    width: r.width,
+    height: r.height,
+    radiusTop: rad,
+    radiusBottom: pill ? rad : 0,
+  }
+  const key = [payload.x, payload.y, payload.width, payload.height, payload.radiusTop, payload.radiusBottom]
+    .map((n) => Math.round(n * 2) / 2)
+    .join(',')
+  if (key === lastBlurKey) return
+  lastBlurKey = key
+  void invoke('helmet_set_island_blur', { rect: payload }).catch(() => undefined)
+}
+
 async function pollCursor() {
   if (!isTauri()) return
   // 满窗常驻后，idle 也必须轮询：岛四周与整个中央都是透明的，
   // 光标不在任何 .hit 上时必须保持穿透，否则整屏都挡桌面点击。
   if (bootActive.value) return
+  reportIslandBlur()
   try {
     const pos = await invoke<[number, number] | null>('helmet_cursor_local')
     if (!pos) {
@@ -1061,11 +1129,6 @@ const q = ref('')
 /** 笔记面板当前视图：笔记 / 便签（便签并入笔记的列表筛选） */
 const notesView = ref<'notes' | 'sticky'>('notes')
 
-/** 底栏搜索框与搜索三栏共用一个关键词：底栏一输入就把搜索面板打开 */
-watch(q, (v) => {
-  if (v.trim() && panel.value !== 'search') openPanel('search')
-})
-
 function clearSearch() {
   q.value = ''
 }
@@ -1238,8 +1301,6 @@ function closeTopModal() {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  const tag = (e.target as HTMLElement | null)?.tagName
-  const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
   if (e.key === 'Tab') keyboardNav.value = true
   if (bootActive.value && (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ')) {
     e.preventDefault()
@@ -1290,10 +1351,6 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     void focusSearch()
     return
-  }
-  if (!inField && e.key === '/' && mode.value === 'deck') {
-    e.preventDefault()
-    document.querySelector<HTMLInputElement>('.quick-search input')?.focus()
   }
 }
 
@@ -1415,6 +1472,8 @@ onMounted(async () => {
       await listen('helmet-hidden', () => {
         stopPoll()
         ignoring.value = null
+        lastBlurKey = ''
+        void invoke('helmet_set_island_blur', { rect: null }).catch(() => undefined)
       }),
     )
     // 全局快捷键 → HUD 内面板（helmet_window.rs::open_panel 转发）
@@ -1494,12 +1553,6 @@ const asciiPanel = computed(() => {
     rows.push(s)
   }
   return rows.join('\n')
-})
-
-/** 底栏：横向量尺 */
-const asciiEave = computed(() => {
-  const line = '─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · ─ · '
-  return [line, line].join('\n')
 })
 
 defineExpose({ openPanel, setMode })
@@ -1624,13 +1677,12 @@ defineExpose({ openPanel, setMode })
           v-if="chatOpen"
           @close="closeChat"
           @toast="showToast"
-          @open-panel="openFromCabin"
         />
       </div>
 
     </div>
 
-    <!-- ******************************************** 躯干：左轨 + 面板 + 底栏（无右栏） -->
+    <!-- ******************************************** 躯干：左轨 + 面板（无右栏、无底栏） -->
     <div class="hud" :class="{ 'is-open': deckOpen }" :aria-hidden="!deckOpen">
       <div class="dock">
         <nav class="rail panel hit" aria-label="shell-hub 模块">
@@ -1811,24 +1863,6 @@ defineExpose({ openPanel, setMode })
 
         <!-- 第三栏：笔记编辑（点中栏条目才出现，可单独收起） -->
       </div>
-
-      <!-- 底栏：一处搜索待办与笔记（+ 速达） -->
-      <footer class="eave-bot panel cut hit">
-        <pre class="ascii-bg is-eave" aria-hidden="true">{{ asciiEave }}</pre>
-        <div class="quick-search">
-          <span class="tag">Search</span>
-          <input
-            v-model="q"
-            class="cut-sm"
-            placeholder="搜待办 / 笔记，回车打开搜索面板"
-            spellcheck="false"
-            @keydown.enter.prevent="focusSearch"
-          />
-        </div>
-        <span class="ctx-hint">
-          待办 · 笔记
-        </span>
-      </footer>
 
     </div>
 

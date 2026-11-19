@@ -33,6 +33,7 @@ mod proxy;
 mod publisher;
 mod recorder;
 mod helmet_window;
+mod helmet_island_blur;
 mod repo;
 mod runtime;
 mod secret;
@@ -1228,6 +1229,7 @@ pub fn run() {
             helmet_window::helmet_toggle,
             helmet_window::helmet_set_ignore_cursor_events,
             helmet_window::helmet_cursor_local,
+            helmet_window::helmet_set_island_blur,
             helmet_window::helmet_open_panel,
             commands::get_run_at_startup,
             commands::set_run_at_startup,

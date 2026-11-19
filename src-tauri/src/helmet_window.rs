@@ -110,6 +110,7 @@ pub fn show(app: &AppHandle) -> Result<(), String> {
 
 /// 隐藏 Helmet：关穿透（避免残留）+ hide
 pub fn hide(app: &AppHandle) -> Result<(), String> {
+    crate::helmet_island_blur::hide();
     if let Some(win) = app.get_webview_window(HELMET_LABEL) {
         let _ = win.set_ignore_cursor_events(false);
         let _ = win.hide();
@@ -192,6 +193,16 @@ pub async fn helmet_open_panel(app: AppHandle, panel: String) -> Result<(), Stri
 
 /// 系统光标相对本窗客户区的逻辑坐标（CSS px）；在窗外则返回 None。
 /// 供前端在整窗穿透开启时轮询命中 `.hit`（穿透开时 WebView 收不到 pointer 事件）。
+/// 按岛脸矩形铺一块原生磨砂（物理换算在 blur 模块里做）。rect=None 则隐藏。
+#[tauri::command]
+pub async fn helmet_set_island_blur(
+    window: WebviewWindow,
+    rect: Option<crate::helmet_island_blur::IslandBlurRect>,
+) -> Result<(), String> {
+    crate::helmet_island_blur::set(&window, rect);
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn helmet_cursor_local(window: WebviewWindow) -> Result<Option<(f64, f64)>, String> {
     #[cfg(target_os = "windows")]

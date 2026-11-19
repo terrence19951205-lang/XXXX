@@ -24,25 +24,16 @@ import {
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'toast', msg: string): void
-  /** 对话是顶层入口：从舱里直达任一功能面板 */
-  (e: 'open-panel', key: string): void
 }>()
-
-/** 对话舱顶部功能区：与左侧导航同一批面板，少的是「聊天」自己 */
-const FNS = [
-  { k: 'todos', lab: '待办', tip: '待办 / 日历' },
-  { k: 'notes', lab: '笔记', tip: '笔记库' },
-  { k: 'clipboard', lab: '剪贴板', tip: '剪贴板历史' },
-  { k: 'launch', lab: '启动', tip: '常用工具与站点' },
-  { k: 'search', lab: '搜索', tip: '全局搜索' },
-  { k: 'settings', lab: '设置', tip: '上下班 / 模型' },
-] as const
 
 const LS_SESSION = 'rr.hud.chatSession'
 const LS_PROMPT = 'rr.hud.chatPromptId'
 
 const sessions = ref<ChatSession[]>([])
 const activeId = ref<number | null>(null)
+const sessionOpen = ref(false)
+const sessPopMaxH = ref('200px')
+const currentTitle = computed(() => sessions.value.find((x) => x.id === activeId.value)?.title || '新对话')
 const messages = ref<ChatMessage[]>([])
 const models = ref<ChatModelConfig[]>([])
 const modelName = ref('')
@@ -218,7 +209,10 @@ async function loadPrompts() {
 /** 每次开面板都重拉一次：主窗刚加的提示词不用重开对话就能看见 */
 function togglePrompts() {
   promptOpen.value = !promptOpen.value
-  if (promptOpen.value) void refreshSnippets()
+  if (promptOpen.value) {
+    sessionOpen.value = false
+    void refreshSnippets()
+  }
 }
 
 function applyPrompt(s: Snippet) {
@@ -242,9 +236,44 @@ function clearPrompt() {
 }
 
 function onDocPointer(e: MouseEvent) {
-  if (!promptOpen.value) return
-  if (promptBar.value && e.target instanceof Node && promptBar.value.contains(e.target)) return
-  promptOpen.value = false
+  const t = e.target
+  if (promptOpen.value && !(promptBar.value && t instanceof Node && promptBar.value.contains(t))) {
+    promptOpen.value = false
+  }
+  if (sessionOpen.value && !(t instanceof Element && t.closest('[data-sess-dd]'))) {
+    sessionOpen.value = false
+  }
+}
+
+function layoutSessPop() {
+  const cabin = document.querySelector('.island-chat') as HTMLElement | null
+  const hd = document.querySelector('.island-chat .chat-hd') as HTMLElement | null
+  if (!cabin || !hd) return
+  const cr = cabin.getBoundingClientRect()
+  const hr = hd.getBoundingClientRect()
+  const prompt = document.querySelector('.island-chat .prompt-bar') as HTMLElement | null
+  const composer = document.querySelector('.island-chat .composer') as HTMLElement | null
+  const floor = prompt?.getBoundingClientRect().top ?? composer?.getBoundingClientRect().top ?? cr.bottom
+  // 下拉在舱内向下展开，高度止于提示词/输入栏之上，不把舱外框撑高，也不挡发送。
+  sessPopMaxH.value = `${Math.max(0, Math.floor(floor - hr.bottom - 8))}px`
+}
+
+function toggleSessions() {
+  sessionOpen.value = !sessionOpen.value
+  if (sessionOpen.value) {
+    promptOpen.value = false
+    void nextTick(() => layoutSessPop())
+  }
+}
+
+async function pickSession(id: number) {
+  await selectSession(id)
+  sessionOpen.value = false
+}
+
+async function createFromMenu() {
+  await newSession()
+  sessionOpen.value = false
 }
 
 const modelOptions = computed(() => {
@@ -508,6 +537,53 @@ defineExpose({ load, loadPrompts })
 <template>
   <div class="island-chat hit" @click.stop>
     <div class="chat-hd">
+      <div class="chat-hd-main">
+      <div class="sess-dd" data-sess-dd>
+        <button
+          type="button"
+          class="sess-toggle cut-sm"
+          data-sess-toggle
+          :class="{ 'is-on': sessionOpen }"
+          :aria-expanded="sessionOpen"
+          aria-haspopup="listbox"
+          :title="currentTitle"
+          @click="toggleSessions"
+        >
+          <span class="sess-toggle-name">{{ currentTitle }}</span>
+          <span class="sess-chev" aria-hidden="true">{{ sessionOpen ? '▴' : '▾' }}</span>
+        </button>
+        <div
+          v-if="sessionOpen"
+          class="sess-pop"
+          role="listbox"
+          data-sess-pop
+          :style="{ maxHeight: sessPopMaxH }"
+        >
+          <button
+            type="button"
+            class="sess-new"
+            data-sess-new
+            :disabled="streaming"
+            @click="createFromMenu"
+          >
+            ＋ 新建
+          </button>
+          <button
+            v-for="s in sessions"
+            :key="s.id"
+            type="button"
+            class="sess-item"
+            role="option"
+            :class="{ 'is-on': s.id === activeId }"
+            :aria-selected="s.id === activeId"
+            :title="s.title || '新对话'"
+            @click="pickSession(s.id)"
+          >
+            <span class="sess-item-name">{{ s.title || '新对话' }}</span>
+            <i v-if="s.id === activeId">当前</i>
+          </button>
+        </div>
+      </div>
       <div class="chat-top">
       <select
         v-model="modelName"
@@ -519,7 +595,6 @@ defineExpose({ load, loadPrompts })
         <option v-if="!modelOptions.length" value="">未配置模型</option>
         <option v-for="o in modelOptions" :key="o.value" :value="o.value">{{ o.label }}</option>
       </select>
-      <button class="btn sm cut-sm" :disabled="streaming" @click="newSession">新会话</button>
       <button
         class="btn sm cut-sm"
         :class="{ 'is-on': agentMode }"
@@ -543,6 +618,7 @@ defineExpose({ load, loadPrompts })
       </button>
       <button v-if="activeTurnId" class="btn sm cut-sm" data-stop-turn @click="stopTurn">停止</button>
       </div>
+      </div>
       <button
         type="button"
         class="chat-collapse cut-sm"
@@ -552,32 +628,6 @@ defineExpose({ load, loadPrompts })
         @click="$emit('close')"
       >
         ▴ 收起对话
-      </button>
-    </div>
-
-    <!-- 功能直达条：AI 对话在所有功能之上，从舱里一步切到任一面板 -->
-    <div class="fn-bar">
-      <button
-        v-for="f in FNS"
-        :key="f.k"
-        class="fn cut-sm"
-        :title="f.tip"
-        @click="$emit('open-panel', f.k)"
-      >
-        {{ f.lab }}
-      </button>
-    </div>
-
-    <div class="sess-list">
-      <button
-        v-for="s in sessions"
-        :key="s.id"
-        class="sess cut-sm"
-        :class="{ 'is-on': s.id === activeId }"
-        :title="s.title"
-        @click="selectSession(s.id)"
-      >
-        {{ s.title || '新对话' }}
       </button>
     </div>
 
